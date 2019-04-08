@@ -62,9 +62,7 @@ bool Triangle::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
 
 	// Perfect reflection
 	hit_info.Point = P0 + u * u_factor + v * v_factor;
-	Ray reflection(hit_info.Point, (r-normal*normal.dot(r)*2.0f).normalized(), incoming_ray.getDepth() + 1);
-	//hit_info.outgoing_rays.push_back(reflection);
-	hit_info.Color = this->Color;
+	hit_info.Material = this->Material;
 	hit_info.Normal = this->normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;
@@ -118,23 +116,12 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct triangle, Ray incoming_r
 	if (r.dot(normal) > 0)
 		return false;
 	
-
-	// Perfect reflection
 	hit_info.Point = triangle.P0 + u * u_factor + v * v_factor;
-	//std::random_device rd;
-	//std::mt19937 gen(rd());  //here you could set the seed, but std::random_device already does that
-	//std::uniform_real_distribution<float> dis(-1.0, 1.0);
-	Ray reflection(hit_info.Point, 
-		((r - normal * normal.dot(r)*2.0f).normalized() +
-		(Eigen::Vector3f(uniform_random_01(), uniform_random_01(), uniform_random_01()).normalized())*triangle.Material->getRoughness()).normalized(),
-		incoming_ray.getDepth() + 1);
-	//reflection = reflection + Eigen::Vector3f::Random();
-	hit_info.outgoing_rays.push_back(reflection);
-	hit_info.Color = triangle.Color;
 	hit_info.Normal = normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;
+	hit_info.U_vector = u;
+	hit_info.V_vector = v;
 	hit_info.Distance = hit_distance;
-	hit_info.obj = triangle.obj;
 	return true;
 }

@@ -8,13 +8,11 @@ namespace Renderer {
 	friend class Mesh;
 	private:
 		struct TriangleStruct {
-			Object* obj;
 			Eigen::Vector3f P0, P1, P2;
 			Eigen::Vector3f* N0, *N1, *N2;
 			Eigen::Vector2f* UV0, *UV1, *UV2;
 			Eigen::Vector3f* T0, *T1, *T2;
 			Eigen::Vector3f* B0, *B1, *B2;
-			Eigen::Vector3f Color;
 			Renderer::Material* Material;
 		};
 

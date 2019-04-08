@@ -29,6 +29,8 @@ namespace Renderer {
 
 		bool renderSceneOnPPM(std::string out_file, Scene scene);//std::vector<Object*> scene_objects);
 
+		Eigen::Vector3f trace(Ray ray, Scene scene);
+
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

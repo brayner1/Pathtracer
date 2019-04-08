@@ -5,7 +5,7 @@ using namespace Renderer;
 Scene::Scene(PinholeCamera mainCamera) : scene_camera(mainCamera)
 {
 	this->ambient_light = Eigen::Vector3f(0.3f, 0.3f, 0.3f);
-	this->ambient_factor = 0.2;
+	this->ambient_factor = 0.0f;
 }
 
 Scene::~Scene()

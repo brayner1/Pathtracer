@@ -50,10 +50,14 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 			//srand((123456789+(x*y)) / (omp_get_thread_num()+1) + omp_get_max_threads());
 			for (int i = 0; i < this->AA_MS; i++) {
 				//Eigen::Vector3f ray_offset(uniform_random_01()*0.01f, uniform_random_01()*0.01f, 0.0f);
+				float r1 = 0.0f, r2 = 0.0f;
+				if (this->AA_MS > 1) {
+					r1 = uniform_random_01(); r2 = uniform_random_01();
+				}
 				Eigen::Vector3f ray_direction = (
 					Eigen::Vector3f(
-						std::sinf((this->horizontal_fov)*M_PI/180.0f) * ((float)x - 0.5f + uniform_random_01()) / ((float)width),
-						std::sinf((this->vertical_fov)*M_PI/180.0f) * ((float)y - 0.5f + uniform_random_01()) / ((float)height),
+						std::sinf((this->horizontal_fov)*M_PI/180.0f) * ((float)x - 0.5f + r1) / ((float)width),
+						std::sinf((this->vertical_fov)*M_PI/180.0f) * ((float)y - 0.5f + r2) / ((float)height),
 						1.0f
 					).normalized()
 				);
@@ -62,7 +66,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 				int numRays = 1;
 				std::vector<Ray> rays;
 				ray_direction = this->view_matrix.transpose().block<3,3>(0, 0) * ray_direction;
-				rays.push_back(Ray(this->position /*+ ray_offset*/, ray_direction));
+				rays.push_back(Ray(this->position, ray_direction));
 				std::vector<Object*> scene_objects = scene.getObjects();
 				while (!rays.empty()) {
 					Ray ray = *rays.begin()._Ptr;
@@ -70,29 +74,34 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 					float min_dist = std::numeric_limits<float>::max();
 					HitInfo closest_hit = HitInfo::resetStruct();
 					
-
 					bool has_hit = false;
 					for (int i = 0; i < scene_objects.size(); i++) {
 						HitInfo hit_info;
 						if (scene_objects[i]->is_hit_by_ray(ray, hit_info)) {
 							if (hit_info.Distance <= min_dist) {
+								/*if (ray.getDepth() > 0)
+									std::cout << "is accounted" << std::endl;*/
 								has_hit = true;
 								closest_hit = hit_info;
 								min_dist = hit_info.Distance;
-							}
+							} /*else
+								if (ray.getDepth() > 0)
+									std::cout << "is not accounted: " << hit_info.Distance <<  std::endl;*/
 						}
 					}
 					closest_hit.x = x; closest_hit.y = y;
 					closest_hit.w = width; closest_hit.h = height;
 					if (has_hit) {
+						closest_hit.ray = &ray;
 						if (closest_hit.Material) {
-							closest_hit.Material->get_hit_color(scene, closest_hit/*, x + width / 2 - 1, y + height / 2 - 1*/);
-							Eigen::Vector3f ray_color = closest_hit.Color * ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
+							Eigen::Vector3f hit_color = closest_hit.Material->get_hit_color(scene, closest_hit);
+							//if (ray.getDepth() > 0)
+							//	std::cout << "hitColor: " << hit_color.x() << ", " << hit_color.y() << ", " << hit_color.z() << std::endl;
+							Eigen::Vector3f ray_color = closest_hit.Material->get_hit_color(scene, closest_hit) * ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
 #if defined DEBUG
 							if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292) {
 								std::cout << "name: " << closest_hit.obj->name << std::endl;
 								std::cout << closest_hit.Color.x() << ", " << closest_hit.Color.y() << ", " << closest_hit.Color.z() << std::endl;
-								//std::cout << ray_color.x() << ", " << ray_color.y() << ", " << ray_color.z() << std::endl;
 								std::cout << closest_hit.Material->getDiffuse().x() << ", " << closest_hit.Material->getDiffuse().y() << ", " << closest_hit.Material->getDiffuse().z() << std::endl;
 								std::cout << "ray energy: " << ray_energy_left << std::endl;
 							}
@@ -105,7 +114,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 #endif
 						}
 						else {
-							final_color += closest_hit.Color * ray_energy_left;
+							//final_color += closest_hit.Color * ray_energy_left;
 							ray_energy_left = 0.0f;
 						}
 						if (ray_energy_left <= 0.0f)
@@ -135,9 +144,15 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 #ifdef paralellism
 	#pragma omp critical
 			{
-				frameBuffer[0][x+width/2-1][y+height/2-1] = (int)(final_color.x() * 255);
-				frameBuffer[1][x+width/2-1][y+height/2-1] = (int)(final_color.y() * 255);
-				frameBuffer[2][x+width/2-1][y+height/2-1] = (int)(final_color.z() * 255);
+#if defined GammaCorrection
+				frameBuffer[0][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.x()) * 255.99f);
+				frameBuffer[1][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.y()) * 255.99f);
+				frameBuffer[2][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.z()) * 255.99f);
+#else
+				frameBuffer[0][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.x() * 255.99f);
+				frameBuffer[1][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.y() * 255.99f);
+				frameBuffer[2][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.z() * 255.99f);
+#endif
 			}
 #else
 			 outfile << " " << (int)(final_color.x() * 255) << " " << (int)(final_color.y() * 255) << " " << (int)(final_color.z() * 255);
@@ -163,7 +178,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_view) : 
 	width(width), height(height), horizontal_fov(horizontal_field_of_view)
 {
-	this->AA_MS = 128;
+	this->AA_MS = 1;
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 	this->maxBounces = 3;

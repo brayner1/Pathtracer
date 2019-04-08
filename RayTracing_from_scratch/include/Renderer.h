@@ -12,6 +12,9 @@
 #include "Shading/Material.h"
 #include "Shading/PhongRaytracingMaterial.h"
 
+//#define GammaCorrection
+#define paralellism
+//#define Debug
 
 
 //using namespace Eigen;

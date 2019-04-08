@@ -1,4 +1,7 @@
 #pragma once
+#ifndef MATERIAL_H
+#define MATERIAL_H
+
 //#include "Object.h"
 namespace Renderer {
 	class Scene;
@@ -23,7 +26,7 @@ namespace Renderer {
 			float glossiness = 0.0f,
 			float Roughness = 0.0f);
 
-		virtual void get_hit_color(Scene scene, HitInfo& hit_info) = 0;
+		virtual Eigen::Vector3f get_hit_color(Scene scene, HitInfo& hit_info) = 0;
 		//virtual Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y) = 0;
 
 		const Eigen::Vector3f getDiffuse() const;
@@ -42,3 +45,5 @@ namespace Renderer {
 		~Material();
 	};
 }
+
+#endif

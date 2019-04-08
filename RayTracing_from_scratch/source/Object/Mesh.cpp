@@ -51,8 +51,6 @@ bool Mesh::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info) {
 		tri.P0 = this->vertices[this->indices[i].x()];
 		tri.P1 = this->vertices[this->indices[i].y()];
 		tri.P2 = this->vertices[this->indices[i].z()];
-		tri.Color = Eigen::Vector3f(0.8f, 0.2f, 0.2f);
-		tri.obj = this;
 		tri.Material = this->Material;
 		if (this->vNormals.size() > 0) {
 			tri.N0 = &this->vNormals[this->indices[i].x()];
@@ -87,7 +85,7 @@ bool Mesh::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info) {
 			tri.B0 = tri.B1 = tri.B2 = nullptr;
 		}
 		if (Triangle::triangle_hit_by_ray(tri, incoming_ray, hit_info)) {
-			hit_info.use_material = true;
+			hit_info.obj = this;
 			hit_info.Material = this->Material;
 			return true;
 		}

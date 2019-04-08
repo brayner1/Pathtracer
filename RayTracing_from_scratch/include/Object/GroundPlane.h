@@ -11,7 +11,7 @@ namespace Renderer {
 		float Height;
 		int square_size = 2;
 		Renderer::Material* Material2;
-		//Material material2;
+
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

@@ -1,4 +1,7 @@
 #pragma once
+#ifndef MATERIAL_PHONG_H
+#define MATERIAL_PHONG_H
+
 #include "Shading/Material.h"
 namespace Renderer {
 	class PhongRaytracingMaterial :
@@ -16,9 +19,11 @@ namespace Renderer {
 
 		~PhongRaytracingMaterial();
 
-		void get_hit_color(Scene scene, HitInfo& hit_info);
+		Eigen::Vector3f get_hit_color(Scene scene, HitInfo& hit_info);
 
 		//Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y);
 
 	};
 }
+
+#endif

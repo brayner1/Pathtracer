@@ -44,13 +44,13 @@ Mesh::Mesh(
 	}
 }
 
-bool Mesh::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info) {
+bool Mesh::is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info) {
 	for (size_t i = 0; i < this->indices.size(); i++)
 	{
 		Triangle::TriangleStruct tri;
-		tri.P0 = this->vertices[this->indices[i].x()];
-		tri.P1 = this->vertices[this->indices[i].y()];
-		tri.P2 = this->vertices[this->indices[i].z()];
+		tri.P0 = &this->vertices[this->indices[i].x()];
+		tri.P1 = &this->vertices[this->indices[i].y()];
+		tri.P2 = &this->vertices[this->indices[i].z()];
 		tri.Material = this->Material;
 		if (this->vNormals.size() > 0) {
 			tri.N0 = &this->vNormals[this->indices[i].x()];

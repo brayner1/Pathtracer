@@ -6,6 +6,7 @@ Scene::Scene(PinholeCamera mainCamera) : scene_camera(mainCamera)
 {
 	this->ambient_light = Eigen::Vector3f(0.3f, 0.3f, 0.3f);
 	this->ambient_factor = 0.0f;
+	this->maxBounces = 3;
 }
 
 Scene::~Scene()
@@ -49,8 +50,13 @@ const float Renderer::Scene::getAmbientFactor() const
 	return this->ambient_factor;
 }
 
+const int Renderer::Scene::getMaxBounces() const
+{
+	return this->maxBounces;
+}
+
 bool Scene::renderSceneOnPPM(std::string out_file_path)
 {
-	this->scene_camera.renderSceneOnPPM(out_file_path, *this);
+	this->scene_camera.renderSceneOnPPM(out_file_path, this);
 	return false;
 }

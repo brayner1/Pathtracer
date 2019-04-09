@@ -16,10 +16,10 @@ namespace Renderer {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		GroundPlane(float height = 0.0f, bool checkerboard = false);
-		GroundPlane(Eigen::Vector3f color, float height = 0.0f, bool checkerboard = false);
+		GroundPlane(Eigen::Vector3f& color, float height = 0.0f, bool checkerboard = false);
 		~GroundPlane();
 
-		bool is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info);
+		bool is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info);
 
 		void setSquareSize(int size);
 

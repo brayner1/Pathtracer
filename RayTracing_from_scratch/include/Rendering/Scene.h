@@ -9,6 +9,7 @@ namespace Renderer {
 	private:
 		Eigen::Vector3f ambient_light;
 		float ambient_factor;
+		int maxBounces;
 		std::vector<Object*> scene_objects;
 		std::vector<Light*> scene_lights;
 		PinholeCamera scene_camera;
@@ -29,6 +30,8 @@ namespace Renderer {
 
 		const Eigen::Vector3f getAmbientColor() const;
 		const float getAmbientFactor() const;
+
+		const int getMaxBounces() const;
 
 		bool renderSceneOnPPM(std::string out_file);
 	};

@@ -6,6 +6,7 @@ namespace Renderer {
 	class PinholeCamera
 	{
 	friend class Scene;
+	friend class PhongRaytracingMaterial;
 	private:
 		// View Properties
 		float vertical_fov, horizontal_fov, screen_aspect_ratio;
@@ -25,11 +26,11 @@ namespace Renderer {
 		bool camera_dirty;
 		int maxBounces;
 
-		Eigen::Vector3f get_sky_colour(Eigen::Vector3f ray_dir);
+		static Eigen::Vector3f get_sky_colour(Eigen::Vector3f& ray_dir);
 
-		bool renderSceneOnPPM(std::string out_file, Scene scene);//std::vector<Object*> scene_objects);
+		bool renderSceneOnPPM(std::string out_file, Scene* scene);
 
-		Eigen::Vector3f trace(Ray ray, Scene scene);
+		static Eigen::Vector3f trace(Ray* ray, Scene* scene);
 
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -46,10 +47,10 @@ namespace Renderer {
 		// World Functions
 
 		Eigen::Vector3f getPosition() const;
-		void setPosition(const Eigen::Vector3f new_position);
+		void setPosition(const Eigen::Vector3f& new_position);
 		void goForward(const float amount);
 
-		void lookAt(Eigen::Vector3f target);
+		void lookAt(Eigen::Vector3f& target);
 
 		void updateViewMatrix();
 

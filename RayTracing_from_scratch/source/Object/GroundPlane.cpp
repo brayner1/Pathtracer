@@ -10,11 +10,11 @@ GroundPlane::GroundPlane(float height, bool checkerboard) : Height(height), is_c
 	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.1f, 512.0f, 0.05f);
 }
 
-GroundPlane::GroundPlane(Eigen::Vector3f color, float height, bool checkerboard):  Height(height), is_checkerboard(checkerboard)
+GroundPlane::GroundPlane(Eigen::Vector3f& color, float height, bool checkerboard):  Height(height), is_checkerboard(checkerboard)
 {
 	this->setColor(color);
 	this->Material = new PhongRaytracingMaterial(color, color, color, 0.1f, 512.0f, 0.05f);
-	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f)*0.05f, 0.1f, 512.0f, 0.05f);
+	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(0.05f, 0.05f, 0.05f), 0.1f, 512.0f, 0.05f);
 }
 
 
@@ -22,14 +22,14 @@ GroundPlane::~GroundPlane()
 {
 }
 
-bool GroundPlane::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
+bool GroundPlane::is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info)
 {
-	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
+	if (incoming_ray->getOrigin().y() <= this->Height || incoming_ray->getDirection().y() > 0.0f) {
 		return false;
 	}
-	hit_info.Distance = (this->Height-incoming_ray.getOrigin().y()) / incoming_ray.getDirection().y();
-	float hit_point_X = incoming_ray.getOrigin().x() + incoming_ray.getDirection().x() * hit_info.Distance;
-	float hit_point_Z = incoming_ray.getOrigin().z() + incoming_ray.getDirection().z() * hit_info.Distance;
+	hit_info.Distance = (this->Height-incoming_ray->getOrigin().y()) / incoming_ray->getDirection().y();
+	float hit_point_X = incoming_ray->getOrigin().x() + incoming_ray->getDirection().x() * hit_info.Distance;
+	float hit_point_Z = incoming_ray->getOrigin().z() + incoming_ray->getDirection().z() * hit_info.Distance;
 
 	if (!is_checkerboard) {
 		hit_info.Material = this->Material;

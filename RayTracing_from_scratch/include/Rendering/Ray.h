@@ -9,7 +9,7 @@ namespace Renderer {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-			Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float attenuation = 1.0f, int Depth = 0);
+			Ray(Eigen::Vector3f& Origin, Eigen::Vector3f& Direction, float attenuation = 1.0f, int Depth = 0);
 		~Ray();
 
 		Eigen::Vector3f getOrigin() const;

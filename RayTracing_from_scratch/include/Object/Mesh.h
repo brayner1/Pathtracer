@@ -32,7 +32,7 @@ namespace Renderer {
 			Eigen::Vector3f* vertex_bitangent_array = nullptr
 		);
 
-		bool is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info);
+		bool is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info);
 
 		~Mesh();
 	};

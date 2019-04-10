@@ -144,7 +144,7 @@ Eigen::Vector3f PinholeCamera::trace(Ray* ray, Scene* scene)
 			//if (hit_direct_color != Eigen::Vector3f(0.0f, 0.0f, 0.0f))
 				hit_indirect_color = closest_hit.Material->get_indirect_illumination(scene, closest_hit);
 
-			traceColor += (hit_direct_color + hit_indirect_color);
+			traceColor += (hit_direct_color / M_PI + 2.0f*hit_indirect_color);
 		}
 	}
 	else {
@@ -157,10 +157,9 @@ Eigen::Vector3f PinholeCamera::trace(Ray* ray, Scene* scene)
 PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_view) : 
 	width(width), height(height), horizontal_fov(horizontal_field_of_view)
 {
-	this->AA_MS = 1;
+	this->AA_MS = 4;
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
-	this->maxBounces = 3;
 	this->camera_dirty = false;
 	Eigen::Vector3f front = this->position + Eigen::Vector3f(0.0f, 0.0f, 1.0f);
 	lookAt(front);

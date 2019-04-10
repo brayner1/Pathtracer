@@ -6,7 +6,7 @@ namespace Renderer {
 	class PinholeCamera
 	{
 	friend class Scene;
-	friend class PhongRaytracingMaterial;
+	friend class PhongDiffuseMaterial;
 	private:
 		// View Properties
 		float vertical_fov, horizontal_fov, screen_aspect_ratio;
@@ -24,7 +24,6 @@ namespace Renderer {
 
 		// Render Function
 		bool camera_dirty;
-		int maxBounces;
 
 		static Eigen::Vector3f get_sky_colour(Eigen::Vector3f& ray_dir);
 
@@ -35,7 +34,7 @@ namespace Renderer {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		PinholeCamera(int width = 512, int height = 512, float horizontal_field_of_view = 60.0f);
+		PinholeCamera(int width = 400, int height = 400, float horizontal_field_of_view = 60.0f);
 		~PinholeCamera();
 
 		// View Functions

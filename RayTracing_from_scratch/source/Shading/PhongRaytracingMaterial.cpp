@@ -4,7 +4,7 @@
 using namespace Renderer;
 
 
-PhongRaytracingMaterial::PhongRaytracingMaterial(Eigen::Vector3f& DiffuseCcolor,
+PhongDiffuseMaterial::PhongDiffuseMaterial(Eigen::Vector3f& DiffuseCcolor,
 	Eigen::Vector3f& SpecularColor,
 	Eigen::Vector3f& ambientColor,
 	float Reflectivity,
@@ -15,11 +15,11 @@ PhongRaytracingMaterial::PhongRaytracingMaterial(Eigen::Vector3f& DiffuseCcolor,
 }
 
 
-PhongRaytracingMaterial::~PhongRaytracingMaterial()
+PhongDiffuseMaterial::~PhongDiffuseMaterial()
 {
 }
 
-Eigen::Vector3f PhongRaytracingMaterial::get_direct_illumination(Scene* scene, HitInfo& hit_info)
+Eigen::Vector3f PhongDiffuseMaterial::get_direct_illumination(Scene* scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene->getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
@@ -68,7 +68,7 @@ Eigen::Vector3f PhongRaytracingMaterial::get_direct_illumination(Scene* scene, H
 	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }
 
-Eigen::Vector3f Renderer::PhongRaytracingMaterial::get_indirect_illumination(Scene* scene, HitInfo & hit_info)
+Eigen::Vector3f Renderer::PhongDiffuseMaterial::get_indirect_illumination(Scene* scene, HitInfo & hit_info)
 {
 	if (hit_info.ray->getDepth() > scene->getMaxBounces() - 2)
 		return Eigen::Vector3f(0.0f, 0.0f, 0.0f);

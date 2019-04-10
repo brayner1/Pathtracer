@@ -35,7 +35,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene* scene)//s
 #ifdef paralellism
 	int numPixels = this->width * this->height;
 	int donePixels = 0;
-	omp_set_num_threads(4);
+	omp_set_num_threads(8);
 	std::cout << "max threads: " << omp_get_max_threads() << std::endl;
 	//std::cout << "started parallel region with " << omp_get_num_threads() << " threads" << std::endl;
 	#pragma omp parallel for

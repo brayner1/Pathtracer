@@ -49,20 +49,20 @@ glm::fvec3 PhongDiffuseMaterial::get_direct_illumination(Scene* scene, HitInfo& 
 
 			//glm::fvec3 halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
 			final_specular += scene_lights[i]->getColor() * std::powf(std::fmaxf(glm::dot(light_dir, hit_info.Normal), 0.0f), hit_info.Material->getGlossiness());
-#if defined Debug
+			#if defined Debug
 			if (hit_info.obj->name == "ground" && hit_info.x + hit_info.w / 2 - 1 == 282 && hit_info.y + hit_info.h / 2 - 1 == 292) {
 				std::cout << "halfway: " << std::fmaxf(halfway.dot(hit_info.Normal), 0.0f) << std::endl;
 			}
-#endif
+			#endif
 		}
 	}
-#if defined Debug
+	#if defined Debug
 	if (hit_info.obj->name == "ground" && hit_info.x + hit_info.w/ 2 - 1 == 282 && hit_info.y + hit_info.h/ 2 - 1 == 292) {
 		//std::cout << "halfway: " << std::fmaxf(halfway.dot(hit_info.Normal), 0.0f)
 		std::cout << "ground final diffuse: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 		std::cout << "ground final specular: " << final_specular.x() << ", " << final_specular.y() << ", " << final_specular.z() << std::endl;
 	}
-#endif
+	#endif
 	glm::fvec3 Color = hit_info.Material->getAmbient()*scene->getAmbientFactor() + 
 		hit_info.Material->getDiffuse() * final_diffuse + hit_info.Material->getSpecular() * final_specular;
 
@@ -77,7 +77,8 @@ glm::fvec3 Renderer::PhongDiffuseMaterial::get_indirect_illumination(Scene* scen
 
 	
 	glm::fvec3 indirect(0.0f, 0.0f, 0.0f);
-	for (int i = 0; i < 32; i++) {
+	int samples = 32;
+	for (int i = 0; i < samples; i++) {
 		float theta = (uniform_random_01() * 2.0f * M_PI);
 		float z = uniform_random_01();
 		float sen_phi = sqrtf(1.0f - z * z);
@@ -92,6 +93,6 @@ glm::fvec3 Renderer::PhongDiffuseMaterial::get_indirect_illumination(Scene* scen
 		indirect += PinholeCamera::trace(reflection, scene) * z;
 		delete reflection;
 	}
-	return (this->diffuse_color * indirect)/32.0f;
+	return (this->diffuse_color * indirect)/((float)samples);
 	//return glm::fvec3(0.0f, 0.0f, 0.0f);
 }

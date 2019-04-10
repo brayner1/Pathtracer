@@ -3,17 +3,17 @@ namespace Renderer {
 	class Ray
 	{
 	private:
-		Eigen::Vector3f origin, direction;
+		glm::fvec3 origin, direction;
 		int depth;
 		float attenuation;
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-			Ray(Eigen::Vector3f& Origin, Eigen::Vector3f& Direction, float attenuation = 1.0f, int Depth = 0);
+			Ray(glm::fvec3& Origin, glm::fvec3& Direction, float attenuation = 1.0f, int Depth = 0);
 		~Ray();
 
-		Eigen::Vector3f getOrigin() const;
-		Eigen::Vector3f getDirection() const;
+		glm::fvec3 getOrigin() const;
+		glm::fvec3 getDirection() const;
 		float getAttenuation() const;
 		const int getDepth() const;
 	};

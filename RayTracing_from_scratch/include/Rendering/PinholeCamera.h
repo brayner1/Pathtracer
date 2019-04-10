@@ -14,25 +14,25 @@ namespace Renderer {
 		int AA_MS;
 
 		// World Properties
-		Eigen::Vector3f position;
-		Eigen::Vector3f front;
-		Eigen::Vector3f right;
-		Eigen::Vector3f up;
+		glm::fvec3 position;
+		glm::fvec3 front;
+		glm::fvec3 right;
+		glm::fvec3 up;
 
 		//Eigen::Transform<float, 3, Eigen::Affine> view_matrix;
-		Eigen::Matrix4f view_matrix;
+		glm::fmat4 view_matrix;
 
 		// Render Function
 		bool camera_dirty;
 
-		static Eigen::Vector3f get_sky_colour(Eigen::Vector3f& ray_dir);
+		static glm::fvec3 get_sky_colour(glm::fvec3& ray_dir);
 
 		bool renderSceneOnPPM(std::string out_file, Scene* scene);
 
-		static Eigen::Vector3f trace(Ray* ray, Scene* scene);
+		static glm::fvec3 trace(Ray* ray, Scene* scene);
 
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		PinholeCamera(int width = 400, int height = 400, float horizontal_field_of_view = 60.0f);
 		~PinholeCamera();
@@ -45,11 +45,11 @@ namespace Renderer {
 
 		// World Functions
 
-		Eigen::Vector3f getPosition() const;
-		void setPosition(const Eigen::Vector3f& new_position);
+		glm::fvec3 getPosition() const;
+		void setPosition(const glm::fvec3& new_position);
 		void goForward(const float amount);
 
-		void lookAt(Eigen::Vector3f& target);
+		void lookAt(glm::fvec3& target);
 
 		void updateViewMatrix();
 

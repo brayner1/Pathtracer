@@ -2,7 +2,7 @@
 #include "Rendering/Light.h"
 using namespace Renderer;
 
-Light::Light(Eigen::Vector3f& Color) : color(Color)
+Light::Light(glm::fvec3& Color) : color(Color)
 {
 }
 
@@ -13,36 +13,36 @@ Light::~Light()
 
 void Renderer::Light::setColor(float red, float green, float blue)
 {
-	this->color = Eigen::Vector3f(red, green, blue);
+	this->color = glm::fvec3(red, green, blue);
 }
 
-void Renderer::Light::setColor(Eigen::Vector3f& Color)
+void Renderer::Light::setColor(glm::fvec3& Color)
 {
 	color = Color;
 }
 
-Eigen::Vector3f Renderer::Light::getColor() const
+glm::fvec3 Renderer::Light::getColor() const
 {
 	return this->color;
 }
 
-void Renderer::Light::setPosition(const Eigen::Vector3f& position)
+void Renderer::Light::setPosition(const glm::fvec3& position)
 {
-	this->transform.translate(position);
+	//this->transform.translate(position);
 	this->position = position;
 }
 
-Eigen::Vector3f Renderer::Light::getPosition() const
+glm::fvec3 Renderer::Light::getPosition() const
 {
 	return this->position;
 }
 
-Eigen::Matrix3f Renderer::Light::getRotation() const
+glm::fmat3 Renderer::Light::getRotation() const
 {
-	return this->transform.rotation();
+	return glm::fmat3(this->transform);//this->transform.rotation();
 }
 
-Eigen::Vector3f Renderer::Light::getDirection() const
+glm::fvec3 Renderer::Light::getDirection() const
 {
-	return -this->transform.rotation().col(1);
+	return glm::fmat3(this->transform) * glm::fvec3(0.0f, 0.0f, -1.0f);//-this->transform.rotation().col(1);
 }

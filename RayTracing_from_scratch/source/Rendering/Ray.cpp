@@ -2,7 +2,7 @@
 #include "Rendering/Ray.h"
 using namespace Renderer;
 
-Ray::Ray(Eigen::Vector3f& Origin, Eigen::Vector3f& Direction, float Attenuation, int Depth) : origin(Origin), direction(Direction), attenuation(Attenuation), depth(Depth)
+Ray::Ray(glm::fvec3& Origin, glm::fvec3& Direction, float Attenuation, int Depth) : origin(Origin), direction(Direction), attenuation(Attenuation), depth(Depth)
 {
 }
 
@@ -10,14 +10,14 @@ Ray::~Ray()
 {
 }
 
-Eigen::Vector3f Ray::getOrigin() const
+glm::fvec3 Ray::getOrigin() const
 {
-	return Eigen::Vector3f(this->origin);
+	return this->origin;
 }
 
-Eigen::Vector3f Ray::getDirection() const
+glm::fvec3 Ray::getDirection() const
 {
-	return Eigen::Vector3f(this->direction);
+	return this->direction;
 }
 
 float Renderer::Ray::getAttenuation() const

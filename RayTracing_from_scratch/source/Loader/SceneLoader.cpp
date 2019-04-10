@@ -4,38 +4,38 @@
 //#include "Object/Mesh.h"
 using namespace Renderer;
 
-Eigen::AlignedBox3f SceneLoader::get_bounding_box_for_node(const aiNode * nd, aiMatrix4x4t<float> * trafo, Eigen::AlignedBox3f previous_boundingBox)
-{
-	aiMatrix4x4t<float> prev = aiMatrix4x4t<float>(*trafo);
-	unsigned int n = 0, t;
-
-	Eigen::Vector3f min, max;
-	*trafo *= (nd->mTransformation);
-	//aiMultiplyMatrix4(trafo, &nd->mTransformation);
-
-	for (; n < nd->mNumMeshes; ++n) {
-		const struct aiMesh* mesh = this->assimp_scene->mMeshes[nd->mMeshes[n]];
-		for (t = 0; t < mesh->mNumVertices; ++t) {
-
-			aiVector3D tmp = mesh->mVertices[t];
-			tmp *= *trafo;
-			//aiTransformVecByMatrix4(&tmp, trafo);
-			min(0) = (min.x() < tmp.x)? min.x() : tmp.x;
-			min(1) = (min.y() < tmp.y)? min.y() : tmp.y;
-			min(2) = (min.z() < tmp.z)? min.z() : tmp.z;
-
-			max(0) = (max.x() > tmp.x) ? max.x() : tmp.x;
-			max(1) = (max.y() > tmp.y) ? max.y() : tmp.y;
-			max(2) = (max.z() > tmp.z) ? max.z() : tmp.z;
-		}
-	}
-	Eigen::AlignedBox3f boundingBox = previous_boundingBox.merged(Eigen::AlignedBox3f(min, max));
-	for (n = 0; n < nd->mNumChildren; ++n) {
-		boundingBox = get_bounding_box_for_node(nd->mChildren[n], trafo, boundingBox);
-	}
-	*trafo = prev;
-	return boundingBox;
-}
+//Eigen::AlignedBox3f SceneLoader::get_bounding_box_for_node(const aiNode * nd, aiMatrix4x4t<float> * trafo, Eigen::AlignedBox3f previous_boundingBox)
+//{
+//	aiMatrix4x4t<float> prev = aiMatrix4x4t<float>(*trafo);
+//	unsigned int n = 0, t;
+//
+//	Eigen::Vector3f min, max;
+//	*trafo *= (nd->mTransformation);
+//	//aiMultiplyMatrix4(trafo, &nd->mTransformation);
+//
+//	for (; n < nd->mNumMeshes; ++n) {
+//		const struct aiMesh* mesh = this->assimp_scene->mMeshes[nd->mMeshes[n]];
+//		for (t = 0; t < mesh->mNumVertices; ++t) {
+//
+//			aiVector3D tmp = mesh->mVertices[t];
+//			tmp *= *trafo;
+//			//aiTransformVecByMatrix4(&tmp, trafo);
+//			min(0) = (min.x() < tmp.x)? min.x() : tmp.x;
+//			min(1) = (min.y() < tmp.y)? min.y() : tmp.y;
+//			min(2) = (min.z() < tmp.z)? min.z() : tmp.z;
+//
+//			max(0) = (max.x() > tmp.x) ? max.x() : tmp.x;
+//			max(1) = (max.y() > tmp.y) ? max.y() : tmp.y;
+//			max(2) = (max.z() > tmp.z) ? max.z() : tmp.z;
+//		}
+//	}
+//	Eigen::AlignedBox3f boundingBox = previous_boundingBox.merged(Eigen::AlignedBox3f(min, max));
+//	for (n = 0; n < nd->mNumChildren; ++n) {
+//		boundingBox = get_bounding_box_for_node(nd->mChildren[n], trafo, boundingBox);
+//	}
+//	*trafo = prev;
+//	return boundingBox;
+//}
 
 SceneLoader::SceneLoader(std::string file_path)
 {
@@ -47,7 +47,8 @@ SceneLoader::SceneLoader(std::string file_path)
 
 void SceneLoader::convertAssimpScene()
 {	
-	std::list<aiNode*> nodes;
+	//std::
+	std::vector<aiNode*> nodes;
 	nodes.push_back(this->assimp_scene->mRootNode);
 	while (nodes.size()) {
 		aiNode * nd = nodes.back();
@@ -56,26 +57,26 @@ void SceneLoader::convertAssimpScene()
 		{
 			const struct aiMesh* mesh = this->assimp_scene->mMeshes[nd->mMeshes[i]];
 			
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;
-			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;
-			std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;
+			std::vector<glm::fvec3> vertices;
+			std::vector<glm::fvec3> vNormals;
+			std::vector<glm::fvec3> vTangent;
+			std::vector<glm::fvec3> vBitangent;
+			std::vector<glm::fvec2> textCoord;
+			std::vector<glm::ivec3> indices;
 			// Populate vertices
 			for (size_t t = 0; t < mesh->mNumVertices; t++)
 			{
 				const aiVector3D vertex = mesh->mVertices[t];
-				vertices.push_back(Eigen::Vector3f(vertex.x, vertex.y, vertex.z));
+				vertices.push_back(glm::fvec3(vertex.x, vertex.y, vertex.z));
 				if (mesh->HasNormals()) {
 					//std::cout << "Loader: mesh has normals" << std::endl;
-					vNormals.push_back(Eigen::Vector3f(mesh->mNormals[t].x, mesh->mNormals[t].y, mesh->mNormals[t].z));
+					vNormals.push_back(glm::fvec3(mesh->mNormals[t].x, mesh->mNormals[t].y, mesh->mNormals[t].z));
 				}
 				if (mesh->HasTextureCoords(0))
-					textCoord.push_back(Eigen::Vector2f(mesh->mTextureCoords[0][t].x, mesh->mTextureCoords[0][t].y));
+					textCoord.push_back(glm::fvec2(mesh->mTextureCoords[0][t].x, mesh->mTextureCoords[0][t].y));
 				if (mesh->HasTangentsAndBitangents()) {
-					vTangent.push_back(Eigen::Vector3f(mesh->mTangents[t].x, mesh->mTangents[t].y, mesh->mTangents[t].z));
-					vBitangent.push_back(Eigen::Vector3f(mesh->mBitangents[t].x, mesh->mBitangents[t].y, mesh->mBitangents[t].z));
+					vTangent.push_back(glm::fvec3(mesh->mTangents[t].x, mesh->mTangents[t].y, mesh->mTangents[t].z));
+					vBitangent.push_back(glm::fvec3(mesh->mBitangents[t].x, mesh->mBitangents[t].y, mesh->mBitangents[t].z));
 				}
 			}
 
@@ -83,7 +84,7 @@ void SceneLoader::convertAssimpScene()
 			for (size_t t = 0; t < mesh->mNumFaces; ++t) {
 				const aiFace* face = &mesh->mFaces[t];
 				if (face->mNumIndices == 3) {
-					indices.push_back(Eigen::Vector3i(face->mIndices[0], face->mIndices[1], face->mIndices[2]));
+					indices.push_back(glm::ivec3(face->mIndices[0], face->mIndices[1], face->mIndices[2]));
 				}
 			}
 			std::cout << "vertices: " << vertices.size() << std::endl;
@@ -106,9 +107,9 @@ void SceneLoader::convertAssimpScene()
 
 			Object* scene_mesh = new Mesh(vertices, indices, vNormals, textCoord, vTangent, vBitangent);
 			PhongDiffuseMaterial* converted_material = new PhongDiffuseMaterial(
-				convert_assimp_color(diffuseColor),
-				convert_assimp_color(specularColor),
-				convert_assimp_color(ambientColor),
+				*convert_assimp_color(diffuseColor),
+				*convert_assimp_color(specularColor),
+				*convert_assimp_color(ambientColor),
 				0.2f,
 				shininess,
 				0.032f);

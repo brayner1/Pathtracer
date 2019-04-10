@@ -10,17 +10,17 @@ namespace Renderer {
 		Scene renderer_scene;
 		const aiScene* assimp_scene;
 
-		Eigen::AlignedBox3f get_bounding_box_for_node(const aiNode * nd, 
+		/*Eigen::AlignedBox3f get_bounding_box_for_node(const aiNode * nd, 
 			aiMatrix4x4t<float> * trafo, 
 			Eigen::AlignedBox3f previous_boundingBox
-		);
+		);*/
 
-		Eigen::Vector3f convert_assimp_color(const aiColor4D color) {
-			return Eigen::Vector3f(color.r, color.g, color.b);
+		glm::fvec3* convert_assimp_color(const aiColor4D color) {
+			return new glm::fvec3(color.r, color.g, color.b);
 		}
 
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		SceneLoader(std::string file_path);
 

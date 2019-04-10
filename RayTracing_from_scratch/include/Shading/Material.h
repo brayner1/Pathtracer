@@ -9,33 +9,33 @@ namespace Renderer {
 	class Material 
 	{
 	protected:
-		Eigen::Vector3f diffuse_color;
-		Eigen::Vector3f specular_color;
-		Eigen::Vector3f ambient_color;
+		glm::fvec3 diffuse_color;
+		glm::fvec3 specular_color;
+		glm::fvec3 ambient_color;
 		float reflectivity, glossiness, roughness;
 
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		//aiMaterialProperty prop;
 
-		Material (Eigen::Vector3f& diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f),
-			Eigen::Vector3f& specularColor = Eigen::Vector3f(0.5f, 0.5f, 0.5f),
-			Eigen::Vector3f& ambientColor = Eigen::Vector3f(0.f, 0.f, 0.f),
+		Material (glm::fvec3& diffuseCcolor = glm::fvec3(0.5f, 0.5f, 0.5f),
+			glm::fvec3& specularColor = glm::fvec3(0.5f, 0.5f, 0.5f),
+			glm::fvec3& ambientColor = glm::fvec3(0.f, 0.f, 0.f),
 			float reflectivity = 0.5f,
 			float glossiness = 0.0f,
 			float Roughness = 0.0f);
 
-		virtual Eigen::Vector3f get_direct_illumination(Scene* scene, HitInfo& hit_info) = 0;
-		virtual Eigen::Vector3f get_indirect_illumination(Scene* scene, HitInfo& hit_info) = 0;
+		virtual glm::fvec3 get_direct_illumination(Scene* scene, HitInfo& hit_info) = 0;
+		virtual glm::fvec3 get_indirect_illumination(Scene* scene, HitInfo& hit_info) = 0;
 		//virtual Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y) = 0;
 
-		const Eigen::Vector3f getDiffuse() const;
-		void setDiffuse(Eigen::Vector3f& DiffuseColor);
-		const Eigen::Vector3f getSpecular() const;
-		void setSpecular(Eigen::Vector3f& SpecularColor);
-		const Eigen::Vector3f getAmbient() const;
-		void setAmbient(Eigen::Vector3f& AmbientColor);
+		const glm::fvec3 getDiffuse() const;
+		void setDiffuse(glm::fvec3& DiffuseColor);
+		const glm::fvec3 getSpecular() const;
+		void setSpecular(glm::fvec3& SpecularColor);
+		const glm::fvec3 getAmbient() const;
+		void setAmbient(glm::fvec3& AmbientColor);
 		const float getReflectivity() const;
 		void setReflectivity(float Reflectivity);
 		const float getGlossiness() const;

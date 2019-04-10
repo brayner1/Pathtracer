@@ -2,39 +2,39 @@
 #include "Shading/Material.h"
 using namespace Renderer;
 
-Renderer::Material::Material(Eigen::Vector3f& color, Eigen::Vector3f& specularColor, Eigen::Vector3f& ambientColor, float Reflectivity, float Glossiness, float Roughness) :
+Renderer::Material::Material(glm::fvec3& color, glm::fvec3& specularColor, glm::fvec3& ambientColor, float Reflectivity, float Glossiness, float Roughness) :
 	diffuse_color(color), specular_color(specularColor), ambient_color(ambientColor), reflectivity(Reflectivity), glossiness(Glossiness), roughness(Roughness)
 {
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse() const
+const glm::fvec3 Renderer::Material::getDiffuse() const
 {
 	return this->diffuse_color;
 }
 
-void Renderer::Material::setDiffuse(Eigen::Vector3f& DiffuseColor)
+void Renderer::Material::setDiffuse(glm::fvec3& DiffuseColor)
 {
-	this->diffuse_color = DiffuseColor.cwiseMax(Eigen::Vector3f::Zero()).cwiseMin(Eigen::Vector3f::Ones());
+	this->diffuse_color = glm::min(glm::max(glm::fvec3(0.0f), DiffuseColor), glm::fvec3(1.0f));//DiffuseColor.cwiseMax(glm::fvec3::Zero()).cwiseMin(glm::fvec3::Ones());
 }
 
-const Eigen::Vector3f Renderer::Material::getSpecular() const
+const glm::fvec3 Renderer::Material::getSpecular() const
 {
 	return this->specular_color;
 }
 
-void Renderer::Material::setSpecular(Eigen::Vector3f& SpecularColor)
+void Renderer::Material::setSpecular(glm::fvec3& SpecularColor)
 {
-	this->specular_color = SpecularColor.cwiseMax(Eigen::Vector3f::Zero()).cwiseMin(Eigen::Vector3f::Ones());
+	this->specular_color = glm::min(glm::max(glm::fvec3(0.0f), SpecularColor), glm::fvec3(1.0f));//SpecularColor.cwiseMax(glm::fvec3::Zero()).cwiseMin(glm::fvec3::Ones());
 }
 
-const Eigen::Vector3f Renderer::Material::getAmbient() const
+const glm::fvec3 Renderer::Material::getAmbient() const
 {
 	return this->ambient_color;
 }
 
-void Renderer::Material::setAmbient(Eigen::Vector3f& AmbientColor)
+void Renderer::Material::setAmbient(glm::fvec3& AmbientColor)
 {
-	this->ambient_color = AmbientColor.cwiseMax(Eigen::Vector3f::Zero()).cwiseMin(Eigen::Vector3f::Ones());
+	this->ambient_color = glm::min(glm::max(glm::fvec3(0.0f), AmbientColor), glm::fvec3(1.0f));//AmbientColor.cwiseMax(glm::fvec3::Zero()).cwiseMin(glm::fvec3::Ones());
 }
 
 const float Renderer::Material::getReflectivity() const

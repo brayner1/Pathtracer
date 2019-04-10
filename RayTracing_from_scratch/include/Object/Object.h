@@ -9,14 +9,14 @@ namespace Renderer {
 	//class Material;
 	class Object;
 	struct HitInfo {
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-		Eigen::Vector3f Point;
-		Eigen::Vector3f Normal;
-		Eigen::Vector3f U_vector, V_vector;
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		glm::fvec3 Point;
+		glm::fvec3 Normal;
+		glm::fvec3 U_vector, V_vector;
 		Object* obj;
 		Ray* ray;
 		Material * Material;
-		//Eigen::Vector3f Color;
+		//glm::fvec3 Color;
 		float U_factor, V_factor, Distance;
 		std::vector<Ray> outgoing_rays;
 		int x, y, w, h;
@@ -25,8 +25,8 @@ namespace Renderer {
 			HitInfo info;
 			info.obj = NULL;
 			info.Material = NULL;
-			//info.Color = info.Point = info.Normal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			info.U_factor = info.V_factor = info.Distance = -1.0f;
+			info.Point = info.Normal = glm::fvec3(0.0f, 0.0f, 0.0f);
+			info.U_factor = info.V_factor = info.Distance = std::numeric_limits<float>::max();
 			info.outgoing_rays.clear();
 			return info;
 		}
@@ -36,13 +36,13 @@ namespace Renderer {
 	{
 	protected:
 		Material* Material;
-		Eigen::Vector3f Color;
+		glm::fvec3 Color;
 
-		Eigen::AlignedBox3f Object_bounds;
+		//Eigen::AlignedBox3f Object_bounds;
 	public:
 		std::string name;
 
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		Object();
 		~Object();
@@ -50,7 +50,7 @@ namespace Renderer {
 		virtual bool is_hit_by_ray(
 			Ray* incoming_ray, HitInfo& hit_info) = 0;
 
-		void setColor(Eigen::Vector3f color);
+		void setColor(glm::fvec3 color);
 		void setMaterial(Renderer::Material* material);
 
 	};

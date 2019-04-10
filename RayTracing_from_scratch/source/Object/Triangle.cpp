@@ -4,12 +4,12 @@
 using namespace Renderer;
 
 
-Triangle::Triangle(Eigen::Vector3f p0, Eigen::Vector3f p1, Eigen::Vector3f p2, Eigen::Vector3f color) : P0(p0), P1(p1), P2(p2)
+Triangle::Triangle(glm::fvec3 p0, glm::fvec3 p1, glm::fvec3 p2, glm::fvec3 color) : P0(p0), P1(p1), P2(p2)
 {
 	this->u = (P1 - P0);
 	this->v = (P2 - P0);
-	this->normal = v.cross(u).normalized();
-	this->Color = Eigen::Vector3f(0.8f, 1.0f, 0.7f);
+	this->normal = glm::normalize(glm::cross(v, u));//v.cross(u).normalized();
+	this->Color = glm::fvec3(0.8f, 1.0f, 0.7f);
 }
 
 Triangle::~Triangle()
@@ -19,11 +19,11 @@ Triangle::~Triangle()
 bool Triangle::is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info)
 {
 
-	if(incoming_ray->getDirection().dot(this->normal) > 0)
+	if(glm::dot(incoming_ray->getDirection(), this->normal) > 0)
 		return false;
 
-	Eigen::Vector3f r = incoming_ray->getDirection();
-	Eigen::Vector3f o = incoming_ray->getOrigin();
+	glm::fvec3 r = incoming_ray->getDirection();
+	glm::fvec3 o = incoming_ray->getOrigin();
 
 	/*const float u_factor = (-(o.x() - P0.x())*(r.y()*v.z() - r.z() * v.y()) + (o.y() - P0.y())*(r.x()*v.z() - r.z() * v.x()) - (o.z() - P0.z())*(r.x()*v.y() - r.y() * v.x())) /
 		(r.x()*u.y()*v.z() - r.x() * u.z()*v.y() - r.y() * u.x()*v.z() + r.y() * u.z()*v.x() + r.z() * u.x()*v.y() - r.z() * u.y()*v.x());
@@ -37,24 +37,24 @@ bool Triangle::is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info)
 		dist_factor < 0)
 		return false;*/
 
-	Eigen::Vector3f tvec = o - P0;
-	Eigen::Vector3f pvec = r.cross(v);
-	float det = pvec.dot(u);
+	glm::fvec3 tvec = o - P0;
+	glm::fvec3 pvec = glm::cross(r, v);//r.cross(v);
+	float det = glm::dot(pvec, u);//pvec.dot(u);
 	float inv_det = 1.0f / det;
 
-	const float u_factor = pvec.dot(tvec)* inv_det;
+	const float u_factor = glm::dot(pvec, tvec) * inv_det;//pvec.dot(tvec)* inv_det;
 	if (u_factor < 0.0f || u_factor > 1.0f)
 		return false;
 
-	Eigen::Vector3f qvec = tvec.cross(u);
-	const float v_factor = qvec.dot(r) * inv_det;
+	glm::fvec3 qvec = glm::cross(tvec, u);// tvec.cross(u);
+	const float v_factor = glm::dot(qvec, r) * inv_det;//qvec.dot(r) * inv_det;
 	if (v_factor < 0.0f || u_factor + v_factor > 1.0f)
 		return false;
 
-	const float dist_factor = qvec.dot(v) * inv_det;
+	const float dist_factor = glm::dot(qvec, v) * inv_det;//qvec.dot(v) * inv_det;
 	if (dist_factor < 0)
 		return false;
-	float hit_distance = (incoming_ray->getDirection()*dist_factor).norm();
+	float hit_distance = (incoming_ray->getDirection()*dist_factor).length();
 	/// Without a little slack, a reflected ray sometimes hits the same
 	/// object again (machine precision..)
 	if (hit_info.Distance <= 1e-6f)
@@ -73,47 +73,48 @@ bool Triangle::is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info)
 
 bool Triangle::triangle_hit_by_ray(const TriangleStruct triangle, Ray* incoming_ray, HitInfo& hit_info)
 {
-	Eigen::Vector3f u = *triangle.P1 - *triangle.P0;
-	Eigen::Vector3f v = *triangle.P2 - *triangle.P0;
+	glm::fvec3 u = *triangle.P1 - *triangle.P0;
+	glm::fvec3 v = *triangle.P2 - *triangle.P0;
 
-	Eigen::Vector3f r = incoming_ray->getDirection();
-	Eigen::Vector3f o = incoming_ray->getOrigin();
+	glm::fvec3 r = incoming_ray->getDirection();
+	glm::fvec3 o = incoming_ray->getOrigin();
 
-	Eigen::Vector3f tvec = o - *triangle.P0;
-	Eigen::Vector3f pvec = r.cross(v);
-	float det = pvec.dot(u);
+	glm::fvec3 tvec = o - *triangle.P0;
+	glm::fvec3 pvec = glm::cross(r, v);//r.cross(v);
+	float det = glm::dot(pvec, u);//pvec.dot(u);
 	float inv_det = 1.0f / det;
 
-	const float u_factor = pvec.dot(tvec)* inv_det;
+	const float u_factor = glm::dot(pvec, tvec) * inv_det;//pvec.dot(tvec)* inv_det;
 	if (u_factor < 0.0f || u_factor > 1.0f)
 		return false;
 
-	Eigen::Vector3f qvec = tvec.cross(u);
-	const float v_factor = qvec.dot(r) * inv_det;
+	glm::fvec3 qvec = glm::cross(tvec, u);//tvec.cross(u);
+	const float v_factor = glm::dot(qvec, r) * inv_det;//qvec.dot(r) * inv_det;
 	if (v_factor < 0.0f || u_factor + v_factor > 1.0f)
 		return false;
 
-	const float dist_factor = qvec.dot(v) * inv_det;
+	const float dist_factor = glm::dot(qvec, v) * inv_det;//qvec.dot(v) * inv_det;
 	if (dist_factor < 0)
 		return false;
-	float hit_distance = (incoming_ray->getDirection()*dist_factor).norm();
+	float hit_distance = glm::length(incoming_ray->getDirection()*dist_factor);
+	
 	/// Without a little slack, a reflected ray sometimes hits the same
 	/// object again (machine precision..)
 	if (hit_distance <= 1e-6f)
 		return false;
 
-	Eigen::Vector3f normal_du;
-	Eigen::Vector3f normal_dv;
-	Eigen::Vector3f normal;
+	glm::fvec3 normal_du;
+	glm::fvec3 normal_dv;
+	glm::fvec3 normal;
 	if (triangle.N0 == nullptr || triangle.N1 == nullptr || triangle.N2 == nullptr) {
-		normal = v.cross(u).normalized();
+		normal = glm::normalize(glm::cross(v, u));//v.cross(u).normalized();
 	}
 	else {
 		normal_du = *triangle.N1 - *triangle.N0;
 		normal_dv = *triangle.N2 - *triangle.N0;
-		normal = (*triangle.N0 + u_factor * normal_du + v_factor * normal_dv).normalized();
+		normal = glm::normalize((*triangle.N0 + u_factor * normal_du + v_factor * normal_dv));//(*triangle.N0 + u_factor * normal_du + v_factor * normal_dv).normalized();
 	}
-	if (r.dot(normal) > 0)
+	if (glm::dot(r, normal) > 0)
 		return false;
 	
 	hit_info.Point = *triangle.P0 + u * u_factor + v * v_factor;

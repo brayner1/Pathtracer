@@ -4,7 +4,7 @@ using namespace Renderer;
 
 Scene::Scene(PinholeCamera mainCamera) : scene_camera(mainCamera)
 {
-	this->ambient_light = Eigen::Vector3f(0.3f, 0.3f, 0.3f);
+	this->ambient_light = glm::fvec3(0.3f, 0.3f, 0.3f);
 	this->ambient_factor = 0.0f;
 	this->maxBounces = 3;
 }
@@ -40,7 +40,7 @@ std::vector<Renderer::Light*> Renderer::Scene::getLights() const
 	return this->scene_lights;
 }
 
-const Eigen::Vector3f Renderer::Scene::getAmbientColor() const
+const glm::fvec3 Renderer::Scene::getAmbientColor() const
 {
 	return this->ambient_light;
 }

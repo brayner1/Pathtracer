@@ -5,11 +5,11 @@
 
 using namespace Renderer;
 
-Eigen::Vector3f PinholeCamera::get_sky_colour(Eigen::Vector3f& ray_dir)
+glm::fvec3 PinholeCamera::get_sky_colour(glm::fvec3& ray_dir)
 {
 	//float t = (ray_dir.y() + std::sinf((this->vertical_fov)*M_PI / 180.0f)/1.2f)/std::sinf((this->vertical_fov)*M_PI / 180.0f);
-	float t = (ray_dir.y() + 1.0f) / 2.0f;
-	return t*Eigen::Vector3f(0.5f, 0.7f, 1.0f) + (1.0f - t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+	float t = (ray_dir.y + 1.0f) / 2.0f;
+	return t* glm::fvec3(0.5f, 0.7f, 1.0f) + (1.0f - t)*(glm::fvec3(1.0f, 1.0f, 1.0f));
 	//return (t*t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f)) - (-1.0f - t)*(1.0f - t)*Eigen::Vector3f(0.5f, 0.7f, 1.0f);
 }
 
@@ -46,7 +46,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene* scene)//s
 #endif // paralellism
 		for (int x = -(width / 2) + ((width + 1) % 2); x <= width / 2; ++x) {  /// Columns
 
-			Eigen::Vector3f final_color(0.0f, 0.0f, 0.0f);
+			glm::fvec3 final_color(0.0f, 0.0f, 0.0f);
 			if(x == -255 && y == 256)
 				std::cout << "started parallel region with " << omp_get_num_threads() << " threads" << std::endl;
 			for (int i = 0; i < this->AA_MS; i++) {
@@ -54,30 +54,31 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene* scene)//s
 				if (this->AA_MS > 1) {
 					r1 = uniform_random_01(); r2 = uniform_random_01();
 				}
-				Eigen::Vector3f ray_direction = (
-					Eigen::Vector3f(
-						std::sinf((this->horizontal_fov)*M_PI/180.0f) * ((float)x - 0.5f + r1) / ((float)width),
-						std::sinf((this->vertical_fov)*M_PI/180.0f) * ((float)y - 0.5f + r2) / ((float)height),
+				glm::fvec3 ray_direction = (
+					glm::normalize(glm::fvec3(
+						std::sinf((this->horizontal_fov)*(float)M_PI/180.0f) * ((float)x - 0.5f + r1) / ((float)width),
+						std::sinf((this->vertical_fov)*(float)M_PI/180.0f) * ((float)y - 0.5f + r2) / ((float)height),
 						1.0f
-					).normalized()
+					))
 				);
-				Eigen::Vector3f pixel_color(0.0f, 0.0f, 0.0f);
-				ray_direction = this->view_matrix.transpose().block<3,3>(0, 0) * ray_direction;
+				glm::fvec3 pixel_color(0.0f, 0.0f, 0.0f);
+				//ray_direction = this->view_matrix.transpose().block<3,3>(0, 0) * ray_direction;
+				ray_direction = glm::transpose(glm::fmat3(this->view_matrix)) * ray_direction;
 				
 				final_color += trace(new Ray(this->position, ray_direction), scene);
 			}
 			
-			final_color = (final_color*(1.0f/(float)this->AA_MS)).cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+			final_color = glm::min((final_color*(1.0f/(float)this->AA_MS)), glm::fvec3(1.0f, 1.0f, 1.0f));
 #ifdef paralellism
 	
 #if defined GammaCorrection
-				frameBuffer[0][0][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.x()) * 255.99f);
-				frameBuffer[0][1][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.y()) * 255.99f);
-				frameBuffer[0][2][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.z()) * 255.99f);
+				frameBuffer[0][0][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.x) * 255.99f);
+				frameBuffer[0][1][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.y) * 255.99f);
+				frameBuffer[0][2][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.z) * 255.99f);
 #else
-				frameBuffer[0][0][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.x() * 255.99f);
-				frameBuffer[0][1][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.y() * 255.99f);
-				frameBuffer[0][2][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.z() * 255.99f);
+				frameBuffer[0][0][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.x * 255.99f);
+				frameBuffer[0][1][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.y * 255.99f);
+				frameBuffer[0][2][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.z * 255.99f);
 #pragma omp critical
 				{
 				donePixels += 1;
@@ -116,14 +117,14 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene* scene)//s
 	return false;
 }
 
-Eigen::Vector3f PinholeCamera::trace(Ray* ray, Scene* scene)
+glm::fvec3 PinholeCamera::trace(Ray* ray, Scene* scene)
 {
-	Eigen::Vector3f traceColor(0.0f, 0.0f, 0.0f);
+	glm::fvec3 traceColor(0.0f, 0.0f, 0.0f);
 
 	float min_dist = std::numeric_limits<float>::max();
 	HitInfo closest_hit;
 	bool has_hit = false;
-	float pdf = 1 / (2 * M_PI);
+	float pdf = 1 / (2 * (float)M_PI);
 	for (int i = 0; i < scene->getObjects().size(); i++) {
 		HitInfo hit_info;
 		if (scene->getObjects()[i]->is_hit_by_ray(ray, hit_info)) {
@@ -139,12 +140,12 @@ Eigen::Vector3f PinholeCamera::trace(Ray* ray, Scene* scene)
 	if (has_hit) {
 		closest_hit.ray = ray;
 		if (closest_hit.Material) {
-			Eigen::Vector3f hit_direct_color = closest_hit.Material->get_direct_illumination(scene, closest_hit);
-			Eigen::Vector3f hit_indirect_color(0.0f, 0.0f, 0.0f);
+			glm::fvec3 hit_direct_color = closest_hit.Material->get_direct_illumination(scene, closest_hit);
+			glm::fvec3 hit_indirect_color(0.0f, 0.0f, 0.0f);
 			//if (hit_direct_color != Eigen::Vector3f(0.0f, 0.0f, 0.0f))
 				hit_indirect_color = closest_hit.Material->get_indirect_illumination(scene, closest_hit);
 
-			traceColor += (hit_direct_color / M_PI + 2.0f*hit_indirect_color);
+			traceColor += (hit_direct_color / (float)M_PI + 2.0f*hit_indirect_color);
 		}
 	}
 	else {
@@ -157,11 +158,11 @@ Eigen::Vector3f PinholeCamera::trace(Ray* ray, Scene* scene)
 PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_view) : 
 	width(width), height(height), horizontal_fov(horizontal_field_of_view)
 {
-	this->AA_MS = 4;
+	this->AA_MS = 1;
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 	this->camera_dirty = false;
-	Eigen::Vector3f front = this->position + Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+	glm::fvec3 front = this->position + glm::fvec3(0.0f, 0.0f, 1.0f);
 	lookAt(front);
 }
 
@@ -186,12 +187,12 @@ void PinholeCamera::setScreenSize(int width, int height)
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 }
 
-Eigen::Vector3f PinholeCamera::getPosition() const
+glm::fvec3 PinholeCamera::getPosition() const
 {
-	return Eigen::Vector3f(this->position);
+	return glm::fvec3(this->position);
 }
 
-void PinholeCamera::setPosition(const Eigen::Vector3f& new_position)
+void PinholeCamera::setPosition(const glm::fvec3& new_position)
 {
 	this->camera_dirty = true;
 	this->position = new_position;
@@ -203,16 +204,16 @@ void PinholeCamera::goForward(float amount)
 	this->position += this->front * amount;
 }
 
-void PinholeCamera::lookAt(Eigen::Vector3f& target)
+void PinholeCamera::lookAt(glm::fvec3& target)
 {
 	this->camera_dirty = true;
-	this->front = (target - this->position).normalized();
+	this->front = glm::normalize(target - this->position);//(target - this->position).normalized();
 	//std::cout << "front vec: " << std::endl << this->front << std::endl;
 	//this->front = (this->position - target).normalized();
-	this->right = (Eigen::Vector3f(0.0, 1.0, 0.0).cross(this->front)).normalized();
+	this->right = glm::normalize(glm::cross(glm::fvec3(0.0, 1.0, 0.0), this->front));//(Eigen::Vector3f(0.0, 1.0, 0.0).cross(this->front)).normalized();
 	//std::cout << "right vec: " << std::endl << this->right << std::endl;
 	//this->right = (this->front.cross(Eigen::Vector3f(0.0, 1.0, 0.0))).normalized();
-	this->up = (this->front.cross(this->right)).normalized();
+	this->up = glm::normalize(glm::cross(this->front, this->right));//(this->front.cross(this->right)).normalized();
 	//std::cout << "up vec: " << std::endl << this->up << std::endl;
 	//this->up = (this->right.cross(this->front)).normalized();
 }
@@ -222,11 +223,12 @@ void PinholeCamera::updateViewMatrix() {
 		return;
 	// Calcula a matriz de visualização utilizando a matriz de mudança de coordenadas
 	const float viewMat[] = {
-		this->right.x()                         , this->up.x()                         , this->front.x()                       , 0,
-		this->right.y()							, this->up.y()					       , this->front.y()		               , 0,
-		this->right.z()                         , this->up.z()					       , this->front.z()                       , 0,
-		-this->right.dot(this->position)		,-this->up.dot(this->position)		   , -this->front.dot(this->position)	   , 1
+		this->right.x                               , this->up.x                                   , this->front.x                             , 0,
+		this->right.y						        , this->up.y					               , this->front.y		                       , 0,
+		this->right.z                               , this->up.z					               , this->front.z                             , 0,
+		-glm::dot(this->right, this->position)		,-glm::dot(this->up, this->position)		   , -glm::dot(this->front, this->position)	   , 1
+		//-this->right.dot(this->position)		,-this->up.dot(this->position)		   , -this->front.dot(this->position)	   , 1
 	};
 	//this->view_matrix.
-	this->view_matrix = Eigen::Matrix4f(viewMat);
+	this->view_matrix = glm::make_mat4(viewMat);
 }

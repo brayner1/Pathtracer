@@ -12,7 +12,7 @@ Object::~Object()
 {
 }
 
-void Renderer::Object::setColor(Eigen::Vector3f color)
+void Renderer::Object::setColor(glm::fvec3 color)
 {
 	this->Color = color;
 }

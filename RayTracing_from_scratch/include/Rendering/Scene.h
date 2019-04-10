@@ -7,7 +7,7 @@ namespace Renderer {
 	class Scene
 	{
 	private:
-		Eigen::Vector3f ambient_light;
+		glm::fvec3 ambient_light;
 		float ambient_factor;
 		int maxBounces;
 		std::vector<Object*> scene_objects;
@@ -15,7 +15,7 @@ namespace Renderer {
 		PinholeCamera scene_camera;
 
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		Scene(PinholeCamera mainCamera = PinholeCamera());
 		~Scene();
@@ -28,7 +28,7 @@ namespace Renderer {
 		void insertLight(Light* new_light);
 		std::vector<Light*> getLights() const;
 
-		const Eigen::Vector3f getAmbientColor() const;
+		const glm::fvec3 getAmbientColor() const;
 		const float getAmbientFactor() const;
 
 		const int getMaxBounces() const;

@@ -13,10 +13,10 @@ namespace Renderer {
 		Renderer::Material* Material2;
 
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+		//EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		GroundPlane(float height = 0.0f, bool checkerboard = false);
-		GroundPlane(Eigen::Vector3f& color, float height = 0.0f, bool checkerboard = false);
+		GroundPlane(glm::fvec3& color, float height = 0.0f, bool checkerboard = false);
 		~GroundPlane();
 
 		bool is_hit_by_ray(Ray* incoming_ray, HitInfo& hit_info);

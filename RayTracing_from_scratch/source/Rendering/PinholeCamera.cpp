@@ -5,6 +5,23 @@
 
 using namespace Renderer;
 
+PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_view) :
+	width(width), height(height), horizontal_fov(horizontal_field_of_view)
+{
+	this->gamma = 1.0f;
+	this->AA_MS = 128;
+	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
+	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
+	this->maxBounces = 12;
+	this->camera_dirty = false;
+	lookAt(this->position + Eigen::Vector3f(0.0f, 0.0f, 1.0f));
+}
+
+PinholeCamera::~PinholeCamera()
+{
+}
+
+
 Eigen::Vector3f PinholeCamera::get_sky_colour(Eigen::Vector3f ray_dir)
 {
 	//float t = (ray_dir.y() + std::sinf((this->vertical_fov)*M_PI / 180.0f)/1.2f)/std::sinf((this->vertical_fov)*M_PI / 180.0f);
@@ -32,6 +49,8 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 			}
 		}
 	}
+
+	std::cout << "Framebuffer Initialized." << std::endl;
 #ifdef paralellism
 	omp_set_num_threads(omp_get_max_threads());
 	std::cout << "max threads: " << omp_get_max_threads() << std::endl;
@@ -45,28 +64,17 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 		for (int x = -(width / 2) + ((width + 1) % 2); x <= width / 2; ++x) {  /// Columns
 
 			Eigen::Vector3f final_color(0.0f, 0.0f, 0.0f);
-			if(x == -255 && y == 256)
-				std::cout << "started parallel region with " << omp_get_num_threads() << " threads" << std::endl;
-			//srand((123456789+(x*y)) / (omp_get_thread_num()+1) + omp_get_max_threads());
+			//if(x == -255 && y == 256)
+			//	std::cout << "started parallel region with " << omp_get_num_threads() << " threads" << std::endl;
 			for (int i = 0; i < this->AA_MS; i++) {
-				//Eigen::Vector3f ray_offset(uniform_random_01()*0.01f, uniform_random_01()*0.01f, 0.0f);
-				float r1 = 0.0f, r2 = 0.0f;
-				if (this->AA_MS > 1) {
-					r1 = uniform_random_01(); r2 = uniform_random_01();
-				}
-				Eigen::Vector3f ray_direction = (
-					Eigen::Vector3f(
-						std::sinf((this->horizontal_fov)*M_PI/180.0f) * ((float)x - 0.5f + r1) / ((float)width),
-						std::sinf((this->vertical_fov)*M_PI/180.0f) * ((float)y - 0.5f + r2) / ((float)height),
-						1.0f
-					).normalized()
-				);
-				float ray_energy_left = 1.0f;
 				Eigen::Vector3f pixel_color(0.0f, 0.0f, 0.0f);
 				int numRays = 1;
+
+				Eigen::Vector3f ray_direction = this->getRayDirection(x, y);
 				std::vector<Ray> rays;
 				ray_direction = this->view_matrix.transpose().block<3,3>(0, 0) * ray_direction;
 				rays.push_back(Ray(this->position, ray_direction));
+
 				std::vector<Object*> scene_objects = scene.getObjects();
 				while (!rays.empty()) {
 					Ray ray = *rays.begin()._Ptr;
@@ -74,30 +82,15 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 					float min_dist = std::numeric_limits<float>::max();
 					HitInfo closest_hit = HitInfo::resetStruct();
 					
-					bool has_hit = false;
-					for (int i = 0; i < scene_objects.size(); i++) {
-						HitInfo hit_info;
-						if (scene_objects[i]->is_hit_by_ray(ray, hit_info)) {
-							if (hit_info.Distance <= min_dist) {
-								/*if (ray.getDepth() > 0)
-									std::cout << "is accounted" << std::endl;*/
-								has_hit = true;
-								closest_hit = hit_info;
-								min_dist = hit_info.Distance;
-							} /*else
-								if (ray.getDepth() > 0)
-									std::cout << "is not accounted: " << hit_info.Distance <<  std::endl;*/
-						}
-					}
+					bool has_hit = scene.castRay(ray, closest_hit);
 					closest_hit.x = x; closest_hit.y = y;
 					closest_hit.w = width; closest_hit.h = height;
 					if (has_hit) {
 						closest_hit.ray = &ray;
 						if (closest_hit.Material) {
-							Eigen::Vector3f hit_color = closest_hit.Material->get_hit_color(scene, closest_hit);
 							//if (ray.getDepth() > 0)
 							//	std::cout << "hitColor: " << hit_color.x() << ", " << hit_color.y() << ", " << hit_color.z() << std::endl;
-							Eigen::Vector3f ray_color = closest_hit.Material->get_hit_color(scene, closest_hit) * ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
+							Eigen::Vector3f ray_color = closest_hit.Material->get_hit_color(scene, closest_hit) * ray.getAttenuation();//ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
 #if defined DEBUG
 							if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292) {
 								std::cout << "name: " << closest_hit.obj->name << std::endl;
@@ -107,24 +100,17 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 							}
 #endif
 							final_color += ray_color;
-							ray_energy_left *= closest_hit.Material->getReflectivity();
+							//ray_energy_left *= closest_hit.Material->getReflectivity();
 #if defined DEBUG
 							if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292)
 								std::cout << "ray energy: " << ray_energy_left << std::endl;
 #endif
 						}
-						else {
-							//final_color += closest_hit.Color * ray_energy_left;
-							ray_energy_left = 0.0f;
-						}
-						if (ray_energy_left <= 0.0f)
-							break;
+
 					}
 					else {
-						final_color += get_sky_colour(ray_direction) * ray_energy_left;
+						final_color += get_sky_colour(ray_direction) * ray.getAttenuation();// * ray_energy_left;
 					}
-					/*if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 328)
-						std::cout << "ray energy: " << ray_energy_left << std::endl;*/
 				
 					for(Ray var : closest_hit.outgoing_rays)
 					{
@@ -149,9 +135,9 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 				frameBuffer[1][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.y()) * 255.99f);
 				frameBuffer[2][x+width/2-1][y+height/2-1] = (int)(std::sqrtf(final_color.z()) * 255.99f);
 #else
-				frameBuffer[0][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.x() * 255.99f);
-				frameBuffer[1][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.y() * 255.99f);
-				frameBuffer[2][x + width / 2 - 1][y + height / 2 - 1] = (int)(final_color.z() * 255.99f);
+				frameBuffer[0][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(final_color.x(), 1.0f / this->gamma) * 255.f);
+				frameBuffer[1][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(final_color.y(), 1.0f / this->gamma) * 255.f);
+				frameBuffer[2][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(final_color.z(), 1.0f / this->gamma) * 255.f);
 #endif
 			}
 #else
@@ -173,21 +159,6 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 
 	outfile.close();
 	return false;
-}
-
-PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_view) : 
-	width(width), height(height), horizontal_fov(horizontal_field_of_view)
-{
-	this->AA_MS = 1;
-	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
-	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
-	this->maxBounces = 3;
-	this->camera_dirty = false;
-	lookAt(this->position + Eigen::Vector3f(0.0f, 0.0f, 1.0f));
-}
-
-PinholeCamera::~PinholeCamera()
-{
 }
 
 const int PinholeCamera::getWidth() const
@@ -250,4 +221,18 @@ void PinholeCamera::updateViewMatrix() {
 	};
 	//this->view_matrix.
 	this->view_matrix = Eigen::Matrix4f(viewMat);
+}
+
+Eigen::Vector3f PinholeCamera::getRayDirection(float x, float y)
+{
+	float r1 = 0.0f, r2 = 0.0f;
+	if (this->AA_MS > 1) {
+		//r1 = uniform_random_01(); r2 = uniform_random_01();
+	}
+	// Compute Ray Direction
+	return Eigen::Vector3f(
+			std::sinf((this->horizontal_fov) * M_PI / 180.0f) * ((float)x - 0.5f + r1) / ((float)width),
+			std::sinf((this->vertical_fov) * M_PI / 180.0f) * ((float)y - 0.5f + r2) / ((float)height),
+			1.0f
+		).normalized();
 }

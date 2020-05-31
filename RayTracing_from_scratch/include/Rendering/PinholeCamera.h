@@ -8,6 +8,7 @@ namespace Renderer {
 	friend class Scene;
 	private:
 		// View Properties
+		float gamma;
 		float vertical_fov, horizontal_fov, screen_aspect_ratio;
 		int width, height;
 		int AA_MS;
@@ -30,6 +31,8 @@ namespace Renderer {
 		bool renderSceneOnPPM(std::string out_file, Scene scene);//std::vector<Object*> scene_objects);
 
 		Eigen::Vector3f trace(Ray ray, Scene scene);
+
+		Eigen::Vector3f getRayDirection(float x, float y);
 
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW

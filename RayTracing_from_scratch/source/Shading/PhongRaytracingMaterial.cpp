@@ -42,11 +42,15 @@ Eigen::Vector3f PhongRaytracingMaterial::get_hit_color(Scene scene, HitInfo& hit
 			}
 		}
 		if (!is_blocked) {
+			float diffCoefficient = std::fmaxf(0.0f, light_dir.dot(hit_info.Normal));
 			// Phong calculations
-			final_diffuse += scene_lights[i]->getColor() * std::fmaxf(0.0f, light_dir.dot(hit_info.Normal));
+			float lightIntensity = 1.0f / powf(light_distance/5.f, 2);
+			final_diffuse += scene_lights[i]->getColor() * diffCoefficient * lightIntensity;
 
 			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
-			final_specular += scene_lights[i]->getColor() * std::powf(std::fmaxf(light_dir.dot(hit_info.Normal), 0.0f), hit_info.Material->getGlossiness());
+			Eigen::Vector3f R = 2.0f*hit_info.Normal.dot(light_dir)*hit_info.Normal - light_dir;
+			float spec = std::fmaxf(0.0f, R.dot(-hit_info.ray->getDirection()));
+			final_specular += scene_lights[i]->getColor() * std::powf(spec, hit_info.Material->getGlossiness()) * lightIntensity;
 #if defined Debug
 			if (hit_info.obj->name == "ground" && hit_info.x + hit_info.w / 2 - 1 == 282 && hit_info.y + hit_info.h / 2 - 1 == 292) {
 				std::cout << "halfway: " << std::fmaxf(halfway.dot(hit_info.Normal), 0.0f) << std::endl;
@@ -64,22 +68,24 @@ Eigen::Vector3f PhongRaytracingMaterial::get_hit_color(Scene scene, HitInfo& hit
 	Eigen::Vector3f Color = hit_info.Material->getAmbient()*scene.getAmbientFactor() + 
 		hit_info.Material->getDiffuse().cwiseProduct(final_diffuse) + hit_info.Material->getSpecular().cwiseProduct(final_specular);
 
-	/*float theta = (uniform_random_01() * 2.0f * M_PI);
+	float theta = (uniform_random_01() * 2.0f * M_PI);
 	float z = uniform_random_01();
 	float sen_phi = sqrtf(1.0f - z*z);
-	Eigen::Vector3f u, v;
+	Eigen::Vector3f u, v, d;
 	v = hit_info.Normal.cross(hit_info.U_vector).normalized();
-	u = hit_info.U_vector;*/
+	v = hit_info.V_vector;
+	u = hit_info.U_vector;
+	d = (u * cosf(theta) * sen_phi + v * sinf(theta) * sen_phi + z * hit_info.Normal).normalized();
 
-	/*Ray reflection(hit_info.Point,
-		u*cosf(theta)*sen_phi + v*sinf(theta)*sen_phi + z*hit_info.Normal,
-		z*hit_info.ray->getAttenuation(),
-		hit_info.ray->getDepth() + 1);*/
 	Ray reflection(hit_info.Point,
-		((hit_info.ray->getDirection() - hit_info.Normal * hit_info.Normal.dot(hit_info.ray->getDirection())*2.0f).normalized()) /*+
-		(Eigen::Vector3f(uniform_random_01(), uniform_random_01(), uniform_random_01()).normalized())*this->roughness).normalized()*/,
-		1.0f,
+		d,
+		abs(hit_info.Normal.dot(d))*hit_info.ray->getAttenuation(),
 		hit_info.ray->getDepth() + 1);
+	/*Ray reflection(hit_info.Point,
+		((hit_info.ray->getDirection() - hit_info.Normal * hit_info.Normal.dot(hit_info.ray->getDirection())*2.0f).normalized()) +
+		((Eigen::Vector3f(uniform_random_01(), uniform_random_01(), uniform_random_01()).normalized())*this->roughness).normalized(),
+		1.0f,
+		hit_info.ray->getDepth() + 1);*/
 	//if (reflection.getDirection().norm() != 0.0f)
 	hit_info.outgoing_rays.push_back(reflection);
 	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));

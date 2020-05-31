@@ -31,5 +31,7 @@ namespace Renderer {
 		const float getAmbientFactor() const;
 
 		bool renderSceneOnPPM(std::string out_file);
+
+		bool castRay(Ray ray, HitInfo &hit);
 	};
 }

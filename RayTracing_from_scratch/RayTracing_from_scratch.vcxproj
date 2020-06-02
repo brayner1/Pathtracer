@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\Light.cpp" />
+    <ClCompile Include="source\Rendering\Renderer.cpp" />
     <ClCompile Include="source\Shading\Material.cpp" />
     <ClCompile Include="source\Object\Mesh.cpp" />
     <ClCompile Include="source\Object\Object.cpp" />
@@ -38,11 +39,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Rendering\Light.h" />
+    <ClInclude Include="include\Rendering\Renderer.h" />
     <ClInclude Include="include\Shading\Material.h" />
     <ClInclude Include="include\Object\Mesh.h" />
     <ClInclude Include="include\Shading\PhongRaytracingMaterial.h" />
     <ClInclude Include="include\RandUtil.h" />
-    <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\RenderHeaders.h" />
     <ClInclude Include="include\Object\GroundPlane.h" />
     <ClInclude Include="include\Object\Object.h" />
     <ClInclude Include="include\pch.h" />

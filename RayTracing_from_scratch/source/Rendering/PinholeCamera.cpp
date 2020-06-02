@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Rendering/PinholeCamera.h"
-#include "Renderer.h"
+#include "RenderHeaders.h"
 //#include "RandUtil.h"
 
 using namespace Renderer;
@@ -9,7 +9,7 @@ PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_vi
 	width(width), height(height), horizontal_fov(horizontal_field_of_view)
 {
 	this->gamma = 1.0f;
-	this->AA_MS = 128;
+	this->AA_MS = 20;
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 	this->maxBounces = 12;
@@ -26,6 +26,7 @@ Eigen::Vector3f PinholeCamera::get_sky_colour(Eigen::Vector3f ray_dir)
 {
 	//float t = (ray_dir.y() + std::sinf((this->vertical_fov)*M_PI / 180.0f)/1.2f)/std::sinf((this->vertical_fov)*M_PI / 180.0f);
 	float t = (ray_dir.y() + 1.0f) / 2.0f;
+	//return Eigen::Vector3f::Zero();
 	return t*Eigen::Vector3f(0.5f, 0.7f, 1.0f) + (1.0f - t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 	//return (t*t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f)) - (-1.0f - t)*(1.0f - t)*Eigen::Vector3f(0.5f, 0.7f, 1.0f);
 }
@@ -70,56 +71,45 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 				Eigen::Vector3f pixel_color(0.0f, 0.0f, 0.0f);
 				int numRays = 1;
 
+				// Get Ray Direction in Camera Coordinates
+				// And Transform it to Global Coordinates
 				Eigen::Vector3f ray_direction = this->getRayDirection(x, y);
-				std::vector<Ray> rays;
 				ray_direction = this->view_matrix.transpose().block<3,3>(0, 0) * ray_direction;
-				rays.push_back(Ray(this->position, ray_direction));
 
-				std::vector<Object*> scene_objects = scene.getObjects();
-				while (!rays.empty()) {
-					Ray ray = *rays.begin()._Ptr;
-					rays.erase(rays.begin());
-					float min_dist = std::numeric_limits<float>::max();
-					HitInfo closest_hit = HitInfo::resetStruct();
-					
-					bool has_hit = scene.castRay(ray, closest_hit);
-					closest_hit.x = x; closest_hit.y = y;
-					closest_hit.w = width; closest_hit.h = height;
-					if (has_hit) {
-						closest_hit.ray = &ray;
-						if (closest_hit.Material) {
-							//if (ray.getDepth() > 0)
-							//	std::cout << "hitColor: " << hit_color.x() << ", " << hit_color.y() << ", " << hit_color.z() << std::endl;
-							Eigen::Vector3f ray_color = closest_hit.Material->get_hit_color(scene, closest_hit) * ray.getAttenuation();//ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
-#if defined DEBUG
-							if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292) {
-								std::cout << "name: " << closest_hit.obj->name << std::endl;
-								std::cout << closest_hit.Color.x() << ", " << closest_hit.Color.y() << ", " << closest_hit.Color.z() << std::endl;
-								std::cout << closest_hit.Material->getDiffuse().x() << ", " << closest_hit.Material->getDiffuse().y() << ", " << closest_hit.Material->getDiffuse().z() << std::endl;
-								std::cout << "ray energy: " << ray_energy_left << std::endl;
-							}
-#endif
-							final_color += ray_color;
-							//ray_energy_left *= closest_hit.Material->getReflectivity();
-#if defined DEBUG
-							if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292)
-								std::cout << "ray energy: " << ray_energy_left << std::endl;
-#endif
-						}
+				Ray ray = Ray(this->position, ray_direction);
 
-					}
-					else {
-						final_color += get_sky_colour(ray_direction) * ray.getAttenuation();// * ray_energy_left;
-					}
-				
-					for(Ray var : closest_hit.outgoing_rays)
-					{
-						if (var.getDepth() <= this->maxBounces) {
-							rays.push_back(var);
-							numRays++;
+				HitInfo closest_hit = HitInfo::resetStruct();
+				bool has_hit = scene.castRay(ray, closest_hit);
+
+				closest_hit.x = x; closest_hit.y = y;
+				closest_hit.w = width; closest_hit.h = height;
+				if (has_hit) {
+					closest_hit.ray = &ray;
+					if (closest_hit.Material) {
+						//if (ray.getDepth() > 0)
+						//	std::cout << "hitColor: " << hit_color.x() << ", " << hit_color.y() << ", " << hit_color.z() << std::endl;
+						Eigen::Vector3f ray_color = closest_hit.Material->get_hit_color(scene, closest_hit) * ray.getAttenuation();//ray_energy_left * (1.0f - closest_hit.Material->getReflectivity());
+#if defined DEBUG
+						if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292) {
+							std::cout << "name: " << closest_hit.obj->name << std::endl;
+							std::cout << closest_hit.Color.x() << ", " << closest_hit.Color.y() << ", " << closest_hit.Color.z() << std::endl;
+							std::cout << closest_hit.Material->getDiffuse().x() << ", " << closest_hit.Material->getDiffuse().y() << ", " << closest_hit.Material->getDiffuse().z() << std::endl;
+							std::cout << "ray energy: " << ray_energy_left << std::endl;
 						}
+#endif
+						final_color += ray_color;
+						//ray_energy_left *= closest_hit.Material->getReflectivity();
+#if defined DEBUG
+						if (x + width / 2 - 1 == 282 && y + height / 2 - 1 == 292)
+							std::cout << "ray energy: " << ray_energy_left << std::endl;
+#endif
 					}
+
 				}
+				else {
+					final_color += get_sky_colour(ray_direction) * ray.getAttenuation();// * ray_energy_left;
+				}
+				
 			}
 			
 			final_color = (final_color*(1.0f/(float)this->AA_MS)).cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
@@ -149,7 +139,7 @@ bool PinholeCamera::renderSceneOnPPM(std::string out_file_path, Scene scene)//st
 	std::cout << "starting to write image" << std::endl;
 	for (int y = height-1; y >= 0; y--)
 	{
-		for (int x = 0; x < width; x++)
+		for (int x = width - 1; x >= 0; x--)
 		{
 			//std::cout << "writing pixel: " << x << ", " << y << std::endl;
 			outfile << " " << frameBuffer[0][x][y] << " " << frameBuffer[1][x][y] << " " << frameBuffer[2][x][y];
@@ -235,4 +225,9 @@ Eigen::Vector3f PinholeCamera::getRayDirection(float x, float y)
 			std::sinf((this->vertical_fov) * M_PI / 180.0f) * ((float)y - 0.5f + r2) / ((float)height),
 			1.0f
 		).normalized();
+}
+
+Eigen::Matrix4f Renderer::PinholeCamera::getViewMatrix() const
+{
+	return this->view_matrix;
 }

@@ -2,6 +2,7 @@
 #include "Object/Object.h"
 #include "Shading/Material.h"
 namespace Renderer {
+	class Material;
 	class Triangle :
 		public Object
 	{

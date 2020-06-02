@@ -15,6 +15,7 @@ namespace Renderer {
 		//Eigen::Vector3f Color;
 		Eigen::Vector3f Point;
 		Eigen::Vector3f Normal;
+		Eigen::Vector3f Attenuation;
 		float U_factor, V_factor, Distance;
 		Eigen::Vector3f U_vector, V_vector;
 		std::vector<Ray> outgoing_rays;
@@ -27,6 +28,7 @@ namespace Renderer {
 			//info.Color = info.Point = info.Normal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 			info.U_factor = info.V_factor = info.Distance = 0.0f;
 			info.outgoing_rays.clear();
+			info.Attenuation = Eigen::Vector3f::Ones();
 			return info;
 		}
 	};

@@ -84,15 +84,15 @@
     <ClCompile Include="source\Loader\SceneLoader.cpp">
       <Filter>source\Loader</Filter>
     </ClCompile>
+    <ClCompile Include="source\Rendering\Renderer.cpp">
+      <Filter>source\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="include\pch.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Renderer.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="include\RandUtil.h">
@@ -130,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="include\Loader\SceneLoader.h">
       <Filter>headers\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderHeaders.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\Renderer.h">
+      <Filter>headers\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

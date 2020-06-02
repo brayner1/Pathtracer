@@ -5,6 +5,7 @@
 #include "Rendering/PinholeCamera.h"
 #include "Rendering/Scene.h"
 #include "Rendering/Light.h"
+#include "Rendering/Renderer.h"
 #include "Object/Object.h"
 #include "Object/GroundPlane.h"
 #include "Object/Triangle.h"

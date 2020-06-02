@@ -33,5 +33,7 @@ namespace Renderer {
 		bool renderSceneOnPPM(std::string out_file);
 
 		bool castRay(Ray ray, HitInfo &hit);
+
+		Eigen::Vector3f getPixelColor(int x, int y, int maxDepth);
 	};
 }

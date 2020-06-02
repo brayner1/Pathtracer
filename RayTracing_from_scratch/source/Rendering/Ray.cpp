@@ -2,7 +2,7 @@
 #include "Rendering/Ray.h"
 using namespace Renderer;
 
-Ray::Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float Attenuation, int Depth) : origin(Origin), direction(Direction), attenuation(Attenuation), depth(Depth)
+Ray::Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float Attenuation, int Depth) : origin(Origin), direction(Direction), lightWeight(Attenuation), depth(Depth)
 {
 }
 
@@ -22,7 +22,7 @@ Eigen::Vector3f Ray::getDirection() const
 
 float Renderer::Ray::getAttenuation() const
 {
-	return this->attenuation;
+	return this->lightWeight;
 }
 
 const int Ray::getDepth() const

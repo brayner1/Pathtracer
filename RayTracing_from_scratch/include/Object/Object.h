@@ -12,23 +12,24 @@ namespace Renderer {
 		Object* obj;
 		Ray* ray;
 		Material * Material;
-		//Eigen::Vector3f Color;
 		Eigen::Vector3f Point;
 		Eigen::Vector3f Normal;
-		Eigen::Vector3f Attenuation;
+		Eigen::Vector2f TextureCoord;
 		float U_factor, V_factor, Distance;
 		Eigen::Vector3f U_vector, V_vector;
-		std::vector<Ray> outgoing_rays;
+		Eigen::Vector3f Attenuation;
+		Eigen::Vector3f Albedo;
 		int x, y, w, h;
 
 		static struct HitInfo resetStruct() {
 			HitInfo info;
 			info.obj = NULL;
 			info.Material = NULL;
-			//info.Color = info.Point = info.Normal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+			info.Point = info.Normal = Eigen::Vector3f::Zero();
+			info.TextureCoord = Eigen::Vector2f::Zero();
 			info.U_factor = info.V_factor = info.Distance = 0.0f;
-			info.outgoing_rays.clear();
 			info.Attenuation = Eigen::Vector3f::Ones();
+			info.Albedo = Eigen::Vector3f::Zero();
 			return info;
 		}
 	};

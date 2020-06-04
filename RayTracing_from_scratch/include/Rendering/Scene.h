@@ -2,6 +2,7 @@
 #include "Object/Object.h"
 #include "Rendering/Light.h"
 #include "Rendering/PinholeCamera.h"
+#include "Rendering/RenderManager.h"
 
 namespace Renderer {
 	class Scene
@@ -30,10 +31,8 @@ namespace Renderer {
 		const Eigen::Vector3f getAmbientColor() const;
 		const float getAmbientFactor() const;
 
-		bool renderSceneOnPPM(std::string out_file);
-
 		bool castRay(Ray ray, HitInfo &hit);
 
-		Eigen::Vector3f getPixelColor(int x, int y, int maxDepth);
+		void getPixelColor(int x, int y, int maxDepth, struct OutputProperties &OP);
 	};
 }

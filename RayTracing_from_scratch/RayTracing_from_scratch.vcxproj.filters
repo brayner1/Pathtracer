@@ -84,7 +84,7 @@
     <ClCompile Include="source\Loader\SceneLoader.cpp">
       <Filter>source\Loader</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\Renderer.cpp">
+    <ClCompile Include="source\Rendering\RenderManager.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,7 +134,7 @@
     <ClInclude Include="include\RenderHeaders.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Rendering\Renderer.h">
+    <ClInclude Include="include\Rendering\RenderManager.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
   </ItemGroup>

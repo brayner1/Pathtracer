@@ -19,10 +19,7 @@ namespace Renderer {
 
 		~PhongRaytracingMaterial();
 
-		Eigen::Vector3f get_hit_color(Scene scene, HitInfo& hit_info);
-
 		Eigen::Vector3f getDirectIllumination(Scene &scene, HitInfo& hit_info);
-		//Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y);
 
 	};
 }

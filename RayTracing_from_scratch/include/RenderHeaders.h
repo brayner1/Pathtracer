@@ -5,7 +5,7 @@
 #include "Rendering/PinholeCamera.h"
 #include "Rendering/Scene.h"
 #include "Rendering/Light.h"
-#include "Rendering/Renderer.h"
+#include "Rendering/RenderManager.h"
 #include "Object/Object.h"
 #include "Object/GroundPlane.h"
 #include "Object/Triangle.h"
@@ -13,6 +13,7 @@
 #include "Shading/Material.h"
 #include "Shading/PhongRaytracingMaterial.h"
 
+#include "OpenImageDenoise/oidn.hpp"
 //#define GammaCorrection
 #define paralellism
 //#define Debug

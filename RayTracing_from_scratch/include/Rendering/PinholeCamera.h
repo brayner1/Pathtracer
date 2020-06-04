@@ -8,10 +8,8 @@ namespace Renderer {
 	friend class Scene;
 	private:
 		// View Properties
-		float gamma;
 		float vertical_fov, horizontal_fov, screen_aspect_ratio;
 		int width, height;
-		int AA_MS;
 
 		// World Properties
 		Eigen::Vector3f position;
@@ -24,11 +22,6 @@ namespace Renderer {
 
 		// Render Function
 		bool camera_dirty;
-		int maxBounces;
-
-		
-
-		bool renderSceneOnPPM(std::string out_file, Scene scene);//std::vector<Object*> scene_objects);
 
 		
 

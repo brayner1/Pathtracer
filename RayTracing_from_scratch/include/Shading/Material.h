@@ -24,7 +24,6 @@ namespace Renderer {
 			float glossiness = 0.0f,
 			float Roughness = 0.0f);
 
-		virtual Eigen::Vector3f get_hit_color(Scene scene, HitInfo& hit_info) = 0;
 		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
 		//virtual Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y) = 0;
 

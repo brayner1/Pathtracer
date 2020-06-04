@@ -87,6 +87,14 @@ bool Mesh::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info) {
 		if (Triangle::triangle_hit_by_ray(tri, incoming_ray, hit_info)) {
 			hit_info.obj = this;
 			hit_info.Material = this->Material;
+
+			if (this->textCoord.size())
+			{
+				Eigen::Vector2f uDiff = hit_info.U_factor *  (*tri.UV1 - *tri.UV0);
+				Eigen::Vector2f vDiff = hit_info.V_factor * (*tri.UV2 - *tri.UV0);
+				hit_info.TextureCoord = *tri.UV0 + uDiff + vDiff;
+			}
+
 			return true;
 		}
 	}

@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\Light.cpp" />
-    <ClCompile Include="source\Rendering\Renderer.cpp" />
+    <ClCompile Include="source\Rendering\RenderManager.cpp" />
     <ClCompile Include="source\Shading\Material.cpp" />
     <ClCompile Include="source\Object\Mesh.cpp" />
     <ClCompile Include="source\Object\Object.cpp" />
@@ -39,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Rendering\Light.h" />
-    <ClInclude Include="include\Rendering\Renderer.h" />
+    <ClInclude Include="include\Rendering\RenderManager.h" />
     <ClInclude Include="include\Shading\Material.h" />
     <ClInclude Include="include\Object\Mesh.h" />
     <ClInclude Include="include\Shading\PhongRaytracingMaterial.h" />
@@ -188,7 +188,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\dependencies\assimp\include\;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\dependencies\assimp\include\;$(SolutionDir)\dependencies\OpenImageDenoiser\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <OpenMPSupport>true</OpenMPSupport>
       <EnablePREfast>true</EnablePREfast>
@@ -198,8 +198,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\assimp\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\assimp\lib\x64\;$(SolutionDir)dependencies\OpenImageDenoiser\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc140-mt.lib;OpenImageDenoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

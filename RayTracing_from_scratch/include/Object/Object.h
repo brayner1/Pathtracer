@@ -37,7 +37,7 @@ namespace Renderer {
 	class Object
 	{
 	protected:
-		Material* Material;
+		Material* material;
 		Eigen::Vector3f Color;
 
 		Eigen::AlignedBox3f Object_bounds;
@@ -50,11 +50,10 @@ namespace Renderer {
 		~Object();
 
 		virtual bool is_hit_by_ray(
-			Ray incoming_ray, HitInfo& hit_info) = 0;
+			Ray& incoming_ray, HitInfo& hit_info) = 0;
 
-		void setColor(Eigen::Vector3f color);
 		void setMaterial(Renderer::Material* material);
-
+		Material* getMaterial() const;
 	};
 }
 

@@ -7,6 +7,9 @@ namespace Renderer {
 	class PhongRaytracingMaterial :
 	public Material 
 	{
+	private:
+		
+
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -20,6 +23,8 @@ namespace Renderer {
 		~PhongRaytracingMaterial();
 
 		Eigen::Vector3f getDirectIllumination(Scene &scene, HitInfo& hit_info);
+
+
 
 	};
 }

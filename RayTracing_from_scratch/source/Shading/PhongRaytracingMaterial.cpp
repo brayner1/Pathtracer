@@ -24,7 +24,10 @@ Eigen::Vector3f Renderer::PhongRaytracingMaterial::getDirectIllumination(Scene& 
 	std::vector<Light*> scene_lights = scene.getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
 	Eigen::Vector3f final_specular(0.0f, 0.0f, 0.0f);
-	hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
+	if (useAlbedo)
+		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
+	else
+		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
 
 	//std::cout << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
 	for (size_t i = 0; i < scene_lights.size(); i++)

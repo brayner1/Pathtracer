@@ -155,7 +155,7 @@ RenderManager::RenderManager(int width, int height, float horizontal_field_of_vi
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->horizontal_fov = horizontal_field_of_view;
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
-	this->samplesPerPixel = 128;
+	this->samplesPerPixel = 20;
 	this->maxDepth = 8;
 }
 

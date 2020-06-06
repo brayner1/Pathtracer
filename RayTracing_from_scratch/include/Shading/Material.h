@@ -3,6 +3,7 @@
 //#include "Object.h"
 namespace Renderer {
 	class Scene;
+	class Texture;
 	struct HitInfo;
 	class Material 
 	{
@@ -11,6 +12,9 @@ namespace Renderer {
 		Eigen::Vector3f specular_color;
 		Eigen::Vector3f ambient_color;
 		float reflectivity, glossiness, roughness;
+
+		Texture* albedoTexture;
+		bool useAlbedo = false;
 
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -25,7 +29,6 @@ namespace Renderer {
 			float Roughness = 0.0f);
 
 		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
-		//virtual Eigen::Vector4f get_hit_color(Scene scene, HitInfo& hit_info, int x, int y) = 0;
 
 		const Eigen::Vector3f getDiffuse() const;
 		void setDiffuse(Eigen::Vector3f DiffuseColor);
@@ -40,6 +43,10 @@ namespace Renderer {
 		const float getRoughness() const;
 		void setRoughness(float Roughness);
 	
+		void setAlbedoTexture(Texture* texture);
+
+		Eigen::Vector3f getTextureColorUV(float u, float v);
+
 		~Material();
 	};
 }

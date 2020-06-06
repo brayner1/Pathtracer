@@ -36,6 +36,7 @@
     <ClCompile Include="source\Rendering\Scene.cpp" />
     <ClCompile Include="source\Loader\SceneLoader.cpp" />
     <ClCompile Include="source\Object\Triangle.cpp" />
+    <ClCompile Include="source\Shading\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Rendering\Light.h" />
@@ -54,6 +55,7 @@
     <ClInclude Include="include\Rendering\Scene.h" />
     <ClInclude Include="include\Loader\SceneLoader.h" />
     <ClInclude Include="include\Object\Triangle.h" />
+    <ClInclude Include="include\Shading\Texture.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

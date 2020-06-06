@@ -87,6 +87,9 @@
     <ClCompile Include="source\Rendering\RenderManager.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="source\Shading\Texture.cpp">
+      <Filter>source\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="include\Rendering\RenderManager.h">
       <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\Texture.h">
+      <Filter>headers\Shading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

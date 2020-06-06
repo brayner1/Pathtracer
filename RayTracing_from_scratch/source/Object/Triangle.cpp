@@ -16,7 +16,7 @@ Triangle::~Triangle()
 {
 }
 
-bool Triangle::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
+bool Triangle::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 {
 
 	if(incoming_ray.getDirection().dot(this->normal) > 0)
@@ -62,7 +62,7 @@ bool Triangle::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
 
 	// Perfect reflection
 	hit_info.Point = P0 + u * u_factor + v * v_factor;
-	hit_info.Material = this->Material;
+	hit_info.Material = this->material;
 	hit_info.Normal = this->normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;
@@ -71,7 +71,7 @@ bool Triangle::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
 
 }
 
-bool Triangle::triangle_hit_by_ray(const TriangleStruct triangle, Ray incoming_ray, HitInfo& hit_info)
+bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming_ray, HitInfo& hit_info)
 {
 	Eigen::Vector3f u = triangle.P1 - triangle.P0;
 	Eigen::Vector3f v = triangle.P2 - triangle.P0;
@@ -116,6 +116,17 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct triangle, Ray incoming_r
 	if (r.dot(normal) > 0)
 		return false;
 	
+	if (triangle.UV0 == nullptr || triangle.UV1 == nullptr || triangle.UV2 == nullptr)
+	{
+		hit_info.TextureCoord = Eigen::Vector3f::Zero();
+	}
+	else
+	{
+		Eigen::Vector2f uDiff = hit_info.U_factor * (*triangle.UV1 - *triangle.UV0);
+		Eigen::Vector2f vDiff = hit_info.V_factor * (*triangle.UV2 - *triangle.UV0);
+		hit_info.TextureCoord = *triangle.UV0 + uDiff + vDiff;
+	}
+
 	hit_info.Point = triangle.P0 + u * u_factor + v * v_factor;
 	hit_info.Normal = normal;
 	hit_info.U_factor = u_factor;

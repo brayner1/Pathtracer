@@ -6,14 +6,14 @@ using namespace Renderer;
 
 GroundPlane::GroundPlane(float height, bool checkerboard) : Height(height), is_checkerboard(checkerboard)
 {
-	this->Material = new PhongRaytracingMaterial(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.5f, 0.5f, 0.5f), 0.1f, 512.0f, 0.05f);
+	this->material = new PhongRaytracingMaterial(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.5f, 0.5f, 0.5f), 0.1f, 512.0f, 0.05f);
 	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.1f, 512.0f, 0.05f);
 }
 
 GroundPlane::GroundPlane(Eigen::Vector3f color, float height, bool checkerboard):  Height(height), is_checkerboard(checkerboard)
 {
-	this->setColor(color);
-	this->Material = new PhongRaytracingMaterial(color, color, color, 0.1f, 512.0f, 0.05f);
+	//this->setColor(color);
+	this->material = new PhongRaytracingMaterial(color, color, color, 0.1f, 512.0f, 0.05f);
 	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f)*0.05f, 0.1f, 512.0f, 0.05f);
 }
 
@@ -22,7 +22,7 @@ GroundPlane::~GroundPlane()
 {
 }
 
-bool GroundPlane::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
+bool GroundPlane::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 {
 	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
 		return false;
@@ -32,19 +32,19 @@ bool GroundPlane::is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info)
 	float hit_point_Z = incoming_ray.getOrigin().z() + incoming_ray.getDirection().z() * hit_info.Distance;
 
 	if (!is_checkerboard) {
-		hit_info.Material = this->Material;
+		hit_info.Material = this->material;
 		return true;
 	}
 	
 	if ((int)std::abs(std::floorf(hit_point_X)) % (square_size * 2) < square_size) {
 		if ((int)std::abs(std::floorf(hit_point_Z)) % (square_size * 2) < square_size)
-			hit_info.Material = this->Material;
+			hit_info.Material = this->material;
 		else
 			hit_info.Material = this->Material2;
 	}
 	else {
 		if ((int)std::abs(std::floorf(hit_point_Z)) % (square_size * 2) >= square_size)
-			hit_info.Material = this->Material;
+			hit_info.Material = this->material;
 		else
 			hit_info.Material = this->Material2;
 	}

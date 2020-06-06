@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Shading/Material.h"
+#include "RenderHeaders.h"
 using namespace Renderer;
 
 Renderer::Material::Material(Eigen::Vector3f color, Eigen::Vector3f specularColor, Eigen::Vector3f ambientColor, float Reflectivity, float Glossiness, float Roughness) :
@@ -65,6 +66,21 @@ const float Renderer::Material::getRoughness() const
 void Renderer::Material::setRoughness(float Roughness)
 {
 	this->roughness = Roughness;
+}
+
+void Renderer::Material::setAlbedoTexture(Texture* texture)
+{
+	if (texture)
+	{
+		this->albedoTexture = texture;
+		this->useAlbedo = true;
+	}
+}
+
+Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v)
+{
+	Eigen::Vector3i temp = this->albedoTexture->getColorUV(u, v);
+	return Eigen::Vector3f(temp.x(), temp.y(), temp.z()) / 255.0f;
 }
 
 Renderer::Material::~Material()

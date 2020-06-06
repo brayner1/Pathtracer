@@ -5,6 +5,7 @@ namespace Renderer {
 		public Object
 	{
 	private:
+		// Mesh Properties
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;
 		std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;
@@ -32,7 +33,7 @@ namespace Renderer {
 			Eigen::Vector3f* vertex_bitangent_array = nullptr
 		);
 
-		bool is_hit_by_ray(Ray incoming_ray, HitInfo& hit_info);
+		bool is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info);
 
 		~Mesh();
 	};

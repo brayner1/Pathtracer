@@ -75,10 +75,11 @@ void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputPro
 	this->scene_camera.updateViewMatrix();
 	Eigen::Vector3f rDirection = this->scene_camera.getRayDirection(x, y);
 	rDirection = RotateVector(this->scene_camera.getViewMatrix(), rDirection);
-	Eigen::Vector3f rPosition = this->scene_camera.getPosition();
 
 	HitInfo closest_hit = HitInfo::resetStruct();
 	closest_hit.x = x; closest_hit.y = y;
+	closest_hit.Point = this->scene_camera.getPosition();
+	closest_hit.ray = new Ray(closest_hit.Point, rDirection, 0);
 	//closest_hit.w = width; closest_hit.h = height;
 	
 
@@ -87,20 +88,19 @@ void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputPro
 	int depth = 0;
 	while (true)
 	{
-		Ray ray = Ray(rPosition, rDirection, depth);
 //		if (x % 64 == 0 || y % 64 == 0)
 //#pragma omp critical
 //		{
 //			std::cout << x << "x" << y << ": " << closest_hit.Attenuation.x() << ", " << closest_hit.Attenuation.y() << ", " << closest_hit.Attenuation.z() << std::endl;
 //		}
-		bool has_hit = this->castRay(ray, closest_hit);
+		bool has_hit = this->castRay(*closest_hit.ray, closest_hit);
+		rDirection = closest_hit.ray->getDirection();
 
 		if (!has_hit)
 		{
 			pixelColor +=  this->scene_camera.get_sky_colour(rDirection).cwiseProduct(closest_hit.Attenuation);
 			break;
 		}
-		closest_hit.ray = &ray;
 		Eigen::Vector3f radiance = closest_hit.Material->getDirectIllumination(*this, closest_hit);
 		pixelColor += radiance.cwiseProduct(closest_hit.Attenuation);
 		
@@ -121,19 +121,6 @@ void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputPro
 				break;
 			closest_hit.Attenuation /= pcont;
 		}
-			
-
-		rPosition = closest_hit.Point;
-		float theta = (uniform_random_01() * 2.0f * M_PI);
-		float r = uniform_random_01();
-		float sen_phi = sqrtf(1.0f - r * r);
-		float uFactor = cosf(theta) * sen_phi;
-		float vFactor = sinf(theta) * sen_phi;
-		Eigen::Vector3f u, v;
-		v = closest_hit.Normal.cross(closest_hit.U_vector).normalized();
-		u = closest_hit.U_vector.normalized();
-		rDirection = (u * uFactor + v * vFactor + r * closest_hit.Normal).normalized();
-
 
 	}
 	OP.Color = pixelColor;

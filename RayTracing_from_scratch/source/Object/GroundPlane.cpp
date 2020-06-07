@@ -6,15 +6,15 @@ using namespace Renderer;
 
 GroundPlane::GroundPlane(float height, bool checkerboard) : Height(height), is_checkerboard(checkerboard)
 {
-	this->material = new PhongRaytracingMaterial(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.5f, 0.5f, 0.5f), 0.1f, 512.0f, 0.05f);
-	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.1f, 512.0f, 0.05f);
+	this->material = new DiffuseMaterial(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.5f, 0.5f, 0.5f), 0.1f, 512.0f, 0.05f);
+	this->Material2 = new DiffuseMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f), 0.1f, 512.0f, 0.05f);
 }
 
 GroundPlane::GroundPlane(Eigen::Vector3f color, float height, bool checkerboard):  Height(height), is_checkerboard(checkerboard)
 {
 	//this->setColor(color);
-	this->material = new PhongRaytracingMaterial(color, color, color, 0.1f, 512.0f, 0.05f);
-	this->Material2 = new PhongRaytracingMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f)*0.05f, 0.1f, 512.0f, 0.05f);
+	this->material = new DiffuseMaterial(color, color, color, 0.1f, 512.0f, 0.05f);
+	this->Material2 = new DiffuseMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f(0.7f, 0.7f, 0.7f), Eigen::Vector3f(1.0f, 1.0f, 1.0f)*0.05f, 0.1f, 512.0f, 0.05f);
 }
 
 

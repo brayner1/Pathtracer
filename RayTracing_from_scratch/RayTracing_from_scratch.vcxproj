@@ -22,6 +22,7 @@
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\Light.cpp" />
     <ClCompile Include="source\Rendering\RenderManager.cpp" />
+    <ClCompile Include="source\Shading\GlossyMaterial.cpp" />
     <ClCompile Include="source\Shading\Material.cpp" />
     <ClCompile Include="source\Object\Mesh.cpp" />
     <ClCompile Include="source\Object\Object.cpp" />
@@ -29,7 +30,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="source\Shading\PhongRaytracingMaterial.cpp" />
+    <ClCompile Include="source\Shading\DiffuseMaterial.cpp" />
     <ClCompile Include="source\Rendering\PinholeCamera.cpp" />
     <ClCompile Include="source\Rendering\Ray.cpp" />
     <ClCompile Include="source\RayTracing_from_scratch.cpp" />
@@ -41,9 +42,10 @@
   <ItemGroup>
     <ClInclude Include="include\Rendering\Light.h" />
     <ClInclude Include="include\Rendering\RenderManager.h" />
+    <ClInclude Include="include\Shading\GlossyMaterial.h" />
     <ClInclude Include="include\Shading\Material.h" />
     <ClInclude Include="include\Object\Mesh.h" />
-    <ClInclude Include="include\Shading\PhongRaytracingMaterial.h" />
+    <ClInclude Include="include\Shading\DiffuseMaterial.h" />
     <ClInclude Include="include\RandUtil.h" />
     <ClInclude Include="include\RenderHeaders.h" />
     <ClInclude Include="include\Object\GroundPlane.h" />

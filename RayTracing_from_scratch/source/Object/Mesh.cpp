@@ -13,7 +13,7 @@ Mesh::Mesh(
 	vertices(vertex_array), indices(index_array), vNormals(vertex_normals_array), textCoord(texture_coord_array),
 	vTangent(vertex_tangent_array), vBitangent(vertex_bitangent_array)
 {
-	//this->Material = new PhongRaytracingMaterial(Eigen::Vector3f(0.8f, 0.8f, 0.8f), Eigen::Vector3f(0.5f, 0.7f, 0.8f), 0.5f, 128.0f, 0.005f);
+	//this->Material = new DiffuseMaterial(Eigen::Vector3f(0.8f, 0.8f, 0.8f), Eigen::Vector3f(0.5f, 0.7f, 0.8f), 0.5f, 128.0f, 0.005f);
 }
 
 Mesh::Mesh(
@@ -25,7 +25,7 @@ Mesh::Mesh(
 	Eigen::Vector3f * vertex_tangent_array, 
 	Eigen::Vector3f * vertex_bitangent_array)
 {
-	//this->Material = new PhongRaytracingMaterial(Eigen::Vector3f(0.8f, 0.5f, 0.7f), Eigen::Vector3f(0.5f, 0.7f, 0.8f), 0.5f, 128.0f, 0.0f);
+	//this->Material = new DiffuseMaterial(Eigen::Vector3f(0.8f, 0.5f, 0.7f), Eigen::Vector3f(0.5f, 0.7f, 0.8f), 0.5f, 128.0f, 0.0f);
 	for (size_t i = 0; i < num_vertices; i++)
 	{
 		this->vertices.push_back(vertex_array[i]);

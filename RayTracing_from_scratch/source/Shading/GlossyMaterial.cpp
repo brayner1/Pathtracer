@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "Shading/PhongRaytracingMaterial.h"
+#include "Shading/GlossyMaterial.h"
 #include "RenderHeaders.h"
 using namespace Renderer;
 
 
-PhongRaytracingMaterial::PhongRaytracingMaterial(Eigen::Vector3f DiffuseCcolor,
+GlossyMaterial::GlossyMaterial(Eigen::Vector3f DiffuseCcolor,
 	Eigen::Vector3f SpecularColor,
 	Eigen::Vector3f ambientColor,
 	float Reflectivity,
@@ -15,11 +15,11 @@ PhongRaytracingMaterial::PhongRaytracingMaterial(Eigen::Vector3f DiffuseCcolor,
 }
 
 
-PhongRaytracingMaterial::~PhongRaytracingMaterial()
+GlossyMaterial::~GlossyMaterial()
 {
 }
 
-Eigen::Vector3f Renderer::PhongRaytracingMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
+Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene.getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
@@ -57,12 +57,26 @@ Eigen::Vector3f Renderer::PhongRaytracingMaterial::getDirectIllumination(Scene& 
 		}
 	}
 
-	Eigen::Vector3f Color = final_diffuse;
+	Eigen::Vector3f Color = final_diffuse;// +final_specular;
 //	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
 //#pragma omp critical
 //	{
 //		std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
 //		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 //	}
+
+	/*float theta = (uniform_random_01() * 2.0f * M_PI * this->roughness);
+	float r = uniform_random_01();
+	float sen_phi = sqrtf(1.0f - r * r);
+	float uFactor = cosf(theta) * sen_phi;
+	float vFactor = sinf(theta) * sen_phi;
+	Eigen::Vector3f u, v;
+	v = hit_info.Normal.cross(hit_info.U_vector).normalized();
+	u = hit_info.U_vector.normalized();*/
+	Eigen::Vector3f rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
+	Ray* temp = hit_info.ray;
+	hit_info.ray = new Ray(hit_info.Point, rDirection, temp->getDepth() + 1);
+	delete temp;
+
 	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

@@ -105,7 +105,7 @@ void SceneLoader::convertAssimpScene()
 			std::cout << "Data: " << specularColor.r << ", " << specularColor.g << ", " << specularColor.b << /*", " << cor.a <<*/ std::endl;
 
 			Object* scene_mesh = new Mesh(vertices, indices, vNormals, textCoord, vTangent, vBitangent);
-			PhongRaytracingMaterial* converted_material = new PhongRaytracingMaterial(
+			DiffuseMaterial* converted_material = new DiffuseMaterial(
 				convert_assimp_color(diffuseColor),
 				convert_assimp_color(specularColor),
 				convert_assimp_color(ambientColor),

@@ -12,7 +12,8 @@
 #include "Object/Mesh.h"
 #include "Shading/Texture.h"
 #include "Shading/Material.h"
-#include "Shading/PhongRaytracingMaterial.h"
+#include "Shading/DiffuseMaterial.h"
+#include "Shading/GlossyMaterial.h"
 
 #include "OpenImageDenoise/oidn.hpp"
 //#define GammaCorrection

@@ -118,7 +118,7 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming
 	
 	if (triangle.UV0 == nullptr || triangle.UV1 == nullptr || triangle.UV2 == nullptr)
 	{
-		hit_info.TextureCoord = Eigen::Vector3f::Zero();
+		hit_info.TextureCoord = Eigen::Vector2f::Zero();
 	}
 	else
 	{

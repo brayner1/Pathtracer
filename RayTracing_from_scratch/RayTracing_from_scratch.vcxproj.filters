@@ -66,9 +66,6 @@
     <ClCompile Include="source\Shading\Material.cpp">
       <Filter>source\Shading</Filter>
     </ClCompile>
-    <ClCompile Include="source\Shading\PhongRaytracingMaterial.cpp">
-      <Filter>source\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="source\Rendering\PinholeCamera.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
@@ -88,6 +85,12 @@
       <Filter>source\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="source\Shading\Texture.cpp">
+      <Filter>source\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shading\DiffuseMaterial.cpp">
+      <Filter>source\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shading\GlossyMaterial.cpp">
       <Filter>source\Shading</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,9 +119,6 @@
     <ClInclude Include="include\Shading\Material.h">
       <Filter>headers\Shading</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shading\PhongRaytracingMaterial.h">
-      <Filter>headers\Shading</Filter>
-    </ClInclude>
     <ClInclude Include="include\Rendering\Light.h">
       <Filter>headers\Rendering\Lights</Filter>
     </ClInclude>
@@ -141,6 +141,12 @@
       <Filter>headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="include\Shading\Texture.h">
+      <Filter>headers\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\DiffuseMaterial.h">
+      <Filter>headers\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\GlossyMaterial.h">
       <Filter>headers\Shading</Filter>
     </ClInclude>
   </ItemGroup>

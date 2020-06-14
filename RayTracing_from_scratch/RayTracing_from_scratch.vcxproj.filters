@@ -93,6 +93,9 @@
     <ClCompile Include="source\Shading\GlossyMaterial.cpp">
       <Filter>source\Shading</Filter>
     </ClCompile>
+    <ClCompile Include="source\Shading\RefractiveMaterial.cpp">
+      <Filter>source\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
@@ -147,6 +150,9 @@
       <Filter>headers\Shading</Filter>
     </ClInclude>
     <ClInclude Include="include\Shading\GlossyMaterial.h">
+      <Filter>headers\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\RefractiveMaterial.h">
       <Filter>headers\Shading</Filter>
     </ClInclude>
   </ItemGroup>

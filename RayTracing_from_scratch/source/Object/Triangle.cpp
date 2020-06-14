@@ -114,7 +114,13 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming
 		normal = (*triangle.N0 + u_factor * normal_du + v_factor * normal_dv).normalized();
 	}
 	if (r.dot(normal) > 0)
-		return false;
+		if (!incoming_ray.getIsBackfaceHit())
+			return false;
+		else
+		{
+			hit_info.hitBackface = true;
+			normal = -normal;
+		}
 	
 	if (triangle.UV0 == nullptr || triangle.UV1 == nullptr || triangle.UV2 == nullptr)
 	{

@@ -2,7 +2,8 @@
 #include "Rendering/Ray.h"
 using namespace Renderer;
 
-Ray::Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float Attenuation, int Depth) : origin(Origin), direction(Direction), lightWeight(Attenuation), depth(Depth)
+Ray::Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, int Depth, bool BackfaceHit, float MediumIndex) : origin(Origin), direction(Direction), 
+depth(Depth), isBackfaceHit(BackfaceHit), RefractiveIndex(MediumIndex)
 {
 }
 
@@ -20,9 +21,14 @@ Eigen::Vector3f Ray::getDirection() const
 	return Eigen::Vector3f(this->direction);
 }
 
-float Renderer::Ray::getAttenuation() const
+const bool Renderer::Ray::getIsBackfaceHit() const
 {
-	return this->lightWeight;
+	return this->isBackfaceHit;
+}
+
+const float Renderer::Ray::getRefractiveIndex() const
+{
+	return this->RefractiveIndex;
 }
 
 const int Ray::getDepth() const

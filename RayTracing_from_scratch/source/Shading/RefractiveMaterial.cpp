@@ -1,20 +1,20 @@
 #include "pch.h"
-#include "Shading/DiffuseMaterial.h"
+#include "Shading/RefractiveMaterial.h"
 #include "RenderHeaders.h"
 using namespace Renderer;
 
 
-DiffuseMaterial::DiffuseMaterial(Eigen::Vector3f DiffuseCcolor) : Material(DiffuseCcolor)
+RefractiveMaterial::RefractiveMaterial(Eigen::Vector3f DiffuseCcolor, float RefractiveIndex) : Material(DiffuseCcolor), RefractiveIndex(RefractiveIndex)
 {
 	
 }
 
 
-DiffuseMaterial::~DiffuseMaterial()
+RefractiveMaterial::~RefractiveMaterial()
 {
 }
 
-Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
+Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene.getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
@@ -52,7 +52,7 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 		}
 	}
 
-	Eigen::Vector3f Color = final_diffuse;// +final_specular;
+	Eigen::Vector3f Color = Eigen::Vector3f::Ones();// +final_specular;
 //	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
 //#pragma omp critical
 //	{
@@ -60,11 +60,25 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 //		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 //	}
 
-	Eigen::Vector3f rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);//(u * uFactor + v * vFactor + r * hit_info.Normal).normalized();
+	float r = (!hit_info.hitBackface)? hit_info.ray->getRefractiveIndex() / this->RefractiveIndex : hit_info.ray->getRefractiveIndex();
+	float cosCritic = cos(asinf(1 / r));
+	float cosi = -hit_info.ray->getDirection().dot(hit_info.Normal);
+	Eigen::Vector3f rDirection;
+	if (r > 1.0f && cosi < cosCritic)
+	{
+		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
+	}
+	else
+	{
+		float cosr = sqrtf(1.0f - r * r * (1 - cosi * cosi));
+		rDirection = (r * hit_info.ray->getDirection() + (r * cosi - cosr) * hit_info.Normal).normalized();
+	}
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
-	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
-	
+	if (!hit_info.hitBackface)
+		hit_info.ray = new Ray(hit_info.Point, rDirection, depth, true, hit_info.ray->getRefractiveIndex());
+	else
+		hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
 	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

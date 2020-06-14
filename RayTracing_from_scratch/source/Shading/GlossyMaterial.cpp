@@ -4,12 +4,7 @@
 using namespace Renderer;
 
 
-GlossyMaterial::GlossyMaterial(Eigen::Vector3f DiffuseCcolor,
-	Eigen::Vector3f SpecularColor,
-	Eigen::Vector3f ambientColor,
-	float Reflectivity,
-	float Glossiness,
-	float Roughness) : Material(DiffuseCcolor, SpecularColor, ambientColor, Reflectivity, Glossiness, Roughness)
+GlossyMaterial::GlossyMaterial(Eigen::Vector3f DiffuseCcolor, float Roughness) : Material(DiffuseCcolor), roughness(Roughness)
 {
 	
 }
@@ -17,6 +12,16 @@ GlossyMaterial::GlossyMaterial(Eigen::Vector3f DiffuseCcolor,
 
 GlossyMaterial::~GlossyMaterial()
 {
+}
+
+const float Renderer::GlossyMaterial::getRoughness() const
+{
+	return this->roughness;
+}
+
+void Renderer::GlossyMaterial::setRoughness(float Roughness)
+{
+	this->roughness = Roughness;
 }
 
 Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
@@ -51,9 +56,9 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 			final_diffuse += scene_lights[i]->getColor() * diffCoefficient * lightIntensity / M_PI;
 
 			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
-			Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
-			float spec = std::fmaxf(0.0f, R.dot(-hit_info.ray->getDirection()));
-			final_specular += scene_lights[i]->getColor() * std::powf(spec, hit_info.Material->getGlossiness()) * lightIntensity;
+			//Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
+			//float spec = std::fmaxf(0.0f, R.dot(-hit_info.ray->getDirection()));
+			//final_specular += scene_lights[i]->getColor() * std::powf(spec, hit_info.Material->getGlossiness()) * lightIntensity;
 		}
 	}
 
@@ -65,18 +70,20 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 //		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 //	}
 
-	/*float theta = (uniform_random_01() * 2.0f * M_PI * this->roughness);
-	float r = uniform_random_01();
-	float sen_phi = sqrtf(1.0f - r * r);
-	float uFactor = cosf(theta) * sen_phi;
-	float vFactor = sinf(theta) * sen_phi;
-	Eigen::Vector3f u, v;
-	v = hit_info.Normal.cross(hit_info.U_vector).normalized();
-	u = hit_info.U_vector.normalized();*/
-	Eigen::Vector3f rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
-	Ray* temp = hit_info.ray;
-	hit_info.ray = new Ray(hit_info.Point, rDirection, temp->getDepth() + 1);
-	delete temp;
+	Eigen::Vector3f rDirection;
+	float selector = uniform_random_01();
+	if (selector >= this->roughness)
+	{
+		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
+	}
+	else
+	{
+		rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);
+	}
+
+	int depth = hit_info.ray->getDepth() + 1;
+	delete hit_info.ray;
+	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
 	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

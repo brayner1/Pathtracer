@@ -20,6 +20,7 @@ namespace Renderer {
 		Eigen::Vector3f Attenuation;
 		Eigen::Vector3f Albedo;
 		int x, y, w, h;
+		bool hitBackface;
 
 		static struct HitInfo resetStruct() {
 			HitInfo info;
@@ -30,6 +31,7 @@ namespace Renderer {
 			info.U_factor = info.V_factor = info.Distance = 0.0f;
 			info.Attenuation = Eigen::Vector3f::Ones();
 			info.Albedo = Eigen::Vector3f::Zero();
+			info.hitBackface = false;
 			return info;
 		}
 	};

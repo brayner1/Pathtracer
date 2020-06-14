@@ -14,6 +14,7 @@
 #include "Shading/Material.h"
 #include "Shading/DiffuseMaterial.h"
 #include "Shading/GlossyMaterial.h"
+#include "Shading/RefractiveMaterial.h"
 
 #include "OpenImageDenoise/oidn.hpp"
 //#define GammaCorrection

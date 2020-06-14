@@ -84,6 +84,7 @@ bool Mesh::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info) {
 		else {
 			tri.B0 = tri.B1 = tri.B2 = nullptr;
 		}
+		hit_info.hitBackface = false;
 		if (Triangle::triangle_hit_by_ray(tri, incoming_ray, hit_info)) {
 			hit_info.obj = this;
 			hit_info.Material = this->material;

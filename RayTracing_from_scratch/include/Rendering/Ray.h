@@ -6,19 +6,21 @@ namespace Renderer {
 		Eigen::Vector3f origin, direction;
 		
 		int depth;
-		float lightWeight;
+		bool isBackfaceHit = false;
+		float RefractiveIndex = 1.0f;
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-			Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float lightWeight = 1.0f, int Depth = 0);
+			Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, int Depth = 0, bool BackfaceHit = false, float MediumIndex = 1.0f);
 		~Ray();
 
 		Eigen::Vector3f attenuation = Eigen::Vector3f::Zero();
 
 		Eigen::Vector3f getOrigin() const;
 		Eigen::Vector3f getDirection() const;
-		float getAttenuation() const;
 		const int getDepth() const;
+		const bool getIsBackfaceHit() const;
+		const float getRefractiveIndex() const;
 	};
 
 }

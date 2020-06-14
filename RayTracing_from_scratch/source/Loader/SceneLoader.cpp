@@ -106,12 +106,7 @@ void SceneLoader::convertAssimpScene()
 
 			Object* scene_mesh = new Mesh(vertices, indices, vNormals, textCoord, vTangent, vBitangent);
 			DiffuseMaterial* converted_material = new DiffuseMaterial(
-				convert_assimp_color(diffuseColor),
-				convert_assimp_color(specularColor),
-				convert_assimp_color(ambientColor),
-				0.5f,
-				shininess,
-				0.032f);
+				convert_assimp_color(diffuseColor));
 			scene_mesh->setMaterial(converted_material);
 			std::stringstream ss;
 			ss << "mesh[" << i << "]";

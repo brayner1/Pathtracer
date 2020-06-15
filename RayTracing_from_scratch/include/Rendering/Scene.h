@@ -31,8 +31,10 @@ namespace Renderer {
 		const Eigen::Vector3f getAmbientColor() const;
 		const float getAmbientFactor() const;
 
-		bool castRay(Ray ray, HitInfo &hit);
+		bool RayCast(Ray ray, HitInfo &hit);
 
-		void getPixelColor(int x, int y, int maxDepth, struct OutputProperties &OP);
+		Eigen::Vector3f RayCastColor(Ray ray, HitInfo& hit);
+
+		void PixelColor(int x, int y, int maxDepth, struct OutputProperties &OP);
 	};
 }

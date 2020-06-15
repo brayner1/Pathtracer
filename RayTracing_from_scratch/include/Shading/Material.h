@@ -23,6 +23,7 @@ namespace Renderer {
 
 		Material (Eigen::Vector3f diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f));
 
+		virtual Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info) = 0;
 		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
 
 		const Eigen::Vector3f getDiffuse() const;

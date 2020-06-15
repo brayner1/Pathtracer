@@ -50,7 +50,7 @@ const float Renderer::Scene::getAmbientFactor() const
 	return this->ambient_factor;
 }
 
-bool Renderer::Scene::castRay(Ray ray, HitInfo &hit)
+bool Renderer::Scene::RayCast(Ray ray, HitInfo &hit)
 {
 	float min_dist = std::numeric_limits<float>::max();
 
@@ -70,7 +70,12 @@ bool Renderer::Scene::castRay(Ray ray, HitInfo &hit)
 
 
 
-void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputProperties &OP)
+Eigen::Vector3f Renderer::Scene::RayCastColor(Ray ray, HitInfo& hit)
+{
+	return Eigen::Vector3f::Zero();
+}
+
+void Renderer::Scene::PixelColor(int x, int y, int maxDepth, struct OutputProperties &OP)
 {
 	this->scene_camera.updateViewMatrix();
 	Eigen::Vector3f rDirection = this->scene_camera.getRayDirection(x, y);
@@ -93,7 +98,7 @@ void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputPro
 //		{
 //			std::cout << x << "x" << y << ": " << closest_hit.Attenuation.x() << ", " << closest_hit.Attenuation.y() << ", " << closest_hit.Attenuation.z() << std::endl;
 //		}
-		bool has_hit = this->castRay(*closest_hit.ray, closest_hit);
+		bool has_hit = this->RayCast(*closest_hit.ray, closest_hit);
 		rDirection = closest_hit.ray->getDirection();
 
 		if (!has_hit)
@@ -102,7 +107,7 @@ void Renderer::Scene::getPixelColor(int x, int y, int maxDepth, struct OutputPro
 			break;
 		}
 		Eigen::Vector3f radiance = closest_hit.Material->getDirectIllumination(*this, closest_hit);
-		pixelColor += radiance.cwiseProduct(closest_hit.Attenuation);
+		pixelColor += radiance;//radiance.cwiseProduct(closest_hit.Attenuation);
 		
 		if (firstHit)
 		{

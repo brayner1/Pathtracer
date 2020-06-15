@@ -18,6 +18,7 @@ namespace Renderer {
 
 		~RefractiveMaterial();
 
+		Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info);
 		Eigen::Vector3f getDirectIllumination(Scene &scene, HitInfo& hit_info);
 
 

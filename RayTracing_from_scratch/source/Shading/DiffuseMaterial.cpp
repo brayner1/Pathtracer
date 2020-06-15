@@ -14,16 +14,28 @@ DiffuseMaterial::~DiffuseMaterial()
 {
 }
 
+Eigen::Vector3f Renderer::DiffuseMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info)
+{
+	Eigen::Vector3f DirectIllum = this->getDirectIllumination(scene, hit_info);
+
+	Eigen::Vector3f rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);//(u * uFactor + v * vFactor + r * hit_info.Normal).normalized();
+	int depth = hit_info.ray->getDepth() + 1;
+	delete hit_info.ray;
+	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
+}
+
 Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene.getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
 	Eigen::Vector3f final_specular(0.0f, 0.0f, 0.0f);
+	Eigen::Vector3f color;
 	if (useAlbedo)
-		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
+		color = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
 	else
-		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
+		color = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
 
+	hit_info.Attenuation = color;
 	//std::cout << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
 	for (size_t i = 0; i < scene_lights.size(); i++)
 	{
@@ -37,13 +49,13 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 		//Shadow rays
 		HitInfo temp;
 		Ray light_ray = Ray(hit_info.Point, light_dir);
-		bool is_blocked = scene.castRay(light_ray, temp) && temp.Distance < light_distance;
+		bool is_blocked = scene.RayCast(light_ray, temp) && temp.Distance < light_distance;
 
 		if (!is_blocked) {
 			float diffCoefficient = std::fabs(light_dir.dot(hit_info.Normal));
 			// Phong calculations
 			float lightIntensity = 10.0f / powf(light_distance, 2);
-			final_diffuse += scene_lights[i]->getColor() * diffCoefficient * lightIntensity / M_PI;
+			final_diffuse += color.cwiseProduct(scene_lights[i]->getColor()) * diffCoefficient * lightIntensity / M_PI;
 
 			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
 			//Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
@@ -52,7 +64,7 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 		}
 	}
 
-	Eigen::Vector3f Color = final_diffuse;// +final_specular;
+	//Eigen::Vector3f Color = final_diffuse;// +final_specular;
 //	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
 //#pragma omp critical
 //	{
@@ -64,7 +76,6 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
 	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
-	
 
-	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

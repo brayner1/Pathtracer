@@ -64,7 +64,7 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 			for (int i = 0; i < this->samplesPerPixel; i++) 
 			{
 				OutputProperties OP = OutputProperties();
-				scene.getPixelColor(x, y, maxDepth, OP);
+				scene.PixelColor(x, y, maxDepth, OP);
 				finalColor += OP.Color;
 				finalAlbedo = OP.Albedo;
 				finalNormal = OP.Normal;

@@ -14,6 +14,11 @@ RefractiveMaterial::~RefractiveMaterial()
 {
 }
 
+Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info)
+{
+	return Eigen::Vector3f::Zero();
+}
+
 Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene.getLights();
@@ -37,13 +42,13 @@ Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene
 		//Shadow rays
 		HitInfo temp;
 		Ray light_ray = Ray(hit_info.Point, light_dir);
-		bool is_blocked = scene.castRay(light_ray, temp) && temp.Distance < light_distance;
+		bool is_blocked = scene.RayCast(light_ray, temp) && temp.Distance < light_distance;
 
 		if (!is_blocked) {
 			float diffCoefficient = std::fabs(light_dir.dot(hit_info.Normal));
 			// Phong calculations
 			float lightIntensity = 10.0f / powf(light_distance, 2);
-			final_diffuse += scene_lights[i]->getColor() * diffCoefficient * lightIntensity / M_PI;
+			final_diffuse += hit_info.Attenuation.cwiseProduct(scene_lights[i]->getColor()) * diffCoefficient * lightIntensity / M_PI;
 
 			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
 			//Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
@@ -52,7 +57,7 @@ Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene
 		}
 	}
 
-	Eigen::Vector3f Color = Eigen::Vector3f::Ones();// +final_specular;
+	//Eigen::Vector3f Color = Eigen::Vector3f::Ones();// +final_specular;
 //	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
 //#pragma omp critical
 //	{
@@ -64,9 +69,11 @@ Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene
 	float cosCritic = cos(asinf(1 / r));
 	float cosi = -hit_info.ray->getDirection().dot(hit_info.Normal);
 	Eigen::Vector3f rDirection;
+	bool internalReflection = false;
 	if (r > 1.0f && cosi < cosCritic)
 	{
 		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
+		internalReflection = true;
 	}
 	else
 	{
@@ -75,10 +82,10 @@ Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene
 	}
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
-	if (!hit_info.hitBackface)
+	if (internalReflection)
 		hit_info.ray = new Ray(hit_info.Point, rDirection, depth, true, hit_info.ray->getRefractiveIndex());
 	else
 		hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
-	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

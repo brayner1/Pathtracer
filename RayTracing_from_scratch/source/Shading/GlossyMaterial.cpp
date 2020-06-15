@@ -24,16 +24,21 @@ void Renderer::GlossyMaterial::setRoughness(float Roughness)
 	this->roughness = Roughness;
 }
 
+Eigen::Vector3f Renderer::GlossyMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info)
+{
+	return Eigen::Vector3f::Zero();
+}
+
 Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
 	std::vector<Light*> scene_lights = scene.getLights();
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
 	Eigen::Vector3f final_specular(0.0f, 0.0f, 0.0f);
+
 	if (useAlbedo)
 		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
 	else
 		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
-
 	//std::cout << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
 	for (size_t i = 0; i < scene_lights.size(); i++)
 	{
@@ -47,13 +52,13 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 		//Shadow rays
 		HitInfo temp;
 		Ray light_ray = Ray(hit_info.Point, light_dir);
-		bool is_blocked = scene.castRay(light_ray, temp) && temp.Distance < light_distance;
+		bool is_blocked = scene.RayCast(light_ray, temp) && temp.Distance < light_distance;
 
 		if (!is_blocked) {
 			float diffCoefficient = std::fabs(light_dir.dot(hit_info.Normal));
 			// Phong calculations
 			float lightIntensity = 10.0f / powf(light_distance, 2);
-			final_diffuse += scene_lights[i]->getColor() * diffCoefficient * lightIntensity / M_PI;
+			final_diffuse += hit_info.Attenuation.cwiseProduct(scene_lights[i]->getColor()) * diffCoefficient * lightIntensity / M_PI;
 
 			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
 			//Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
@@ -62,7 +67,7 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 		}
 	}
 
-	Eigen::Vector3f Color = final_diffuse;// +final_specular;
+	//Eigen::Vector3f Color = final_diffuse;// +final_specular;
 //	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
 //#pragma omp critical
 //	{
@@ -85,5 +90,5 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 	delete hit_info.ray;
 	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
-	return Color.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

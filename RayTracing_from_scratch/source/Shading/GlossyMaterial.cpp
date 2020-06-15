@@ -26,7 +26,27 @@ void Renderer::GlossyMaterial::setRoughness(float Roughness)
 
 Eigen::Vector3f Renderer::GlossyMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info)
 {
-	return Eigen::Vector3f::Zero();
+	Eigen::Vector3f DirectIllum = this->getDirectIllumination(scene, hit_info);
+
+	Eigen::Vector3f rDirection;
+	float selector = uniform_random_01();
+	if (selector >= this->roughness)
+	{
+		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
+	}
+	else
+	{
+		rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);
+	}
+
+	int depth = hit_info.ray->getDepth() + 1;
+	delete hit_info.ray;
+	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
+
+	Eigen::Vector3f baseColor = this->getDiffuse(hit_info.TextureCoord.x(), hit_info.TextureCoord.y());
+	Eigen::Vector3f IndirectIllum = baseColor.cwiseProduct(scene.RayCastColor(*hit_info.ray, hit_info));
+
+	return DirectIllum + IndirectIllum;
 }
 
 Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
@@ -75,20 +95,7 @@ Eigen::Vector3f Renderer::GlossyMaterial::getDirectIllumination(Scene& scene, Hi
 //		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 //	}
 
-	Eigen::Vector3f rDirection;
-	float selector = uniform_random_01();
-	if (selector >= this->roughness)
-	{
-		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
-	}
-	else
-	{
-		rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);
-	}
 
-	int depth = hit_info.ray->getDepth() + 1;
-	delete hit_info.ray;
-	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
 	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

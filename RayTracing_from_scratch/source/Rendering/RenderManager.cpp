@@ -151,7 +151,7 @@ void Renderer::RenderManager::ExecuteDenoiser()
 RenderManager::RenderManager(int width, int height, float horizontal_field_of_view)
 {
 	this->width = width; this->height = height;
-	this->gamma = 1.0f;
+	this->gamma = 1.f;
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->horizontal_fov = horizontal_field_of_view;
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;

@@ -14,6 +14,8 @@ namespace Renderer {
 		std::vector<Light*> scene_lights;
 		PinholeCamera scene_camera;
 
+		int renderingMaxDepth = 8;
+
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

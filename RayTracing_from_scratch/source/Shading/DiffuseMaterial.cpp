@@ -22,6 +22,10 @@ Eigen::Vector3f Renderer::DiffuseMaterial::ObjectHitColor(Scene& scene, HitInfo&
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
 	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
+
+	Eigen::Vector3f IndirectIllum = scene.RayCastColor(*hit_info.ray, hit_info);// * std::fabs(rDirection.dot(hit_info.Normal));
+
+	return DirectIllum + IndirectIllum;
 }
 
 Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
@@ -30,10 +34,9 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
 	Eigen::Vector3f final_specular(0.0f, 0.0f, 0.0f);
 	Eigen::Vector3f color;
-	if (useAlbedo)
-		color = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
-	else
-		color = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
+	const float u = hit_info.TextureCoord.x(), v = hit_info.TextureCoord.y();
+
+	color = hit_info.Attenuation.cwiseProduct(this->getDiffuse(u, v));
 
 	hit_info.Attenuation = color;
 	//std::cout << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
@@ -72,10 +75,10 @@ Eigen::Vector3f Renderer::DiffuseMaterial::getDirectIllumination(Scene& scene, H
 //		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
 //	}
 
-	Eigen::Vector3f rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);//(u * uFactor + v * vFactor + r * hit_info.Normal).normalized();
-	int depth = hit_info.ray->getDepth() + 1;
-	delete hit_info.ray;
-	hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
+	//Eigen::Vector3f rDirection = random_hemisphere_vector(hit_info.Normal, hit_info.U_vector, hit_info.V_vector);//(u * uFactor + v * vFactor + r * hit_info.Normal).normalized();
+	//int depth = hit_info.ray->getDepth() + 1;
+	//delete hit_info.ray;
+	//hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
 
 	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 }

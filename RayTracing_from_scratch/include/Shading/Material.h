@@ -26,7 +26,8 @@ namespace Renderer {
 		virtual Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info) = 0;
 		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
 
-		const Eigen::Vector3f getDiffuse() const;
+		const Eigen::Vector3f getDiffuse();
+		const Eigen::Vector3f getDiffuse(float u, float v);
 		void setDiffuse(Eigen::Vector3f DiffuseColor);
 		//const Eigen::Vector3f getSpecular() const;
 		//void setSpecular(Eigen::Vector3f SpecularColor);
@@ -41,7 +42,7 @@ namespace Renderer {
 	
 		void setAlbedoTexture(Texture* texture);
 
-		Eigen::Vector3f getTextureColorUV(float u, float v);
+		const Eigen::Vector3f getTextureColorUV(float u, float v);
 
 		~Material();
 	};

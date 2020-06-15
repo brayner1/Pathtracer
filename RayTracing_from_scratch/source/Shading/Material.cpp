@@ -7,9 +7,17 @@ Renderer::Material::Material(Eigen::Vector3f color) : diffuse_color(color)
 {
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse() const
+const Eigen::Vector3f Renderer::Material::getDiffuse()
 {
 	return this->diffuse_color;
+}
+
+const Eigen::Vector3f Renderer::Material::getDiffuse(float u, float v)
+{
+	if (useAlbedo)
+		return this->getTextureColorUV(u, v);
+	else
+		return this->diffuse_color;
 }
 
 void Renderer::Material::setDiffuse(Eigen::Vector3f DiffuseColor)
@@ -76,7 +84,7 @@ void Renderer::Material::setAlbedoTexture(Texture* texture)
 	}
 }
 
-Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v)
+const Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v)
 {
 	Eigen::Vector3i temp = this->albedoTexture->getColorUV(u, v);
 	return Eigen::Vector3f(temp.x(), temp.y(), temp.z()) / 255.0f;

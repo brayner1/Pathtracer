@@ -14,84 +14,111 @@ RefractiveMaterial::~RefractiveMaterial()
 {
 }
 
-Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info)
+Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples)
 {
+	int wantedX = 338, wantedY = 433;
 	//Eigen::Vector3f DirectIllum = this->getDirectIllumination(scene, hit_info);
+	Eigen::Vector3f PathTroughput = hit_info.Attenuation;
+	Eigen::Vector3f Point = hit_info.Point;
+	Eigen::Vector3f N = hit_info.Normal;
+	Eigen::Vector3f rayDir = hit_info.ray->getDirection();
+	float u = hit_info.TextureCoord.x(), v = hit_info.TextureCoord.y();
+	bool isBackfaceHit = hit_info.hitBackface;
 
-	float r = (!hit_info.hitBackface) ? hit_info.ray->getRefractiveIndex() / this->RefractiveIndex : hit_info.ray->getRefractiveIndex();
-	float cosCritic = cos(asinf(1 / r));
+	float etai = (hit_info.ray->getRefractiveIndex() == this->RefractiveIndex)? 1.0f : hit_info.ray->getRefractiveIndex();
+	float etat = this->RefractiveIndex;
+	if (isBackfaceHit) std::swap(etai, etat);
+	float r = etai / etat;
+	//float cosCritic = cos(asinf(1 / r));
 	float cosi = -hit_info.ray->getDirection().dot(hit_info.Normal);
-	Eigen::Vector3f rDirection;
-	bool internalReflection = false;
-	if (r > 1.0f && cosi < cosCritic)
-	{
-		rDirection = (hit_info.ray->getDirection() - 2.0f * hit_info.Normal.dot(hit_info.ray->getDirection()) * hit_info.Normal).normalized();
-		internalReflection = true;
-	}
-	else
-	{
-		float cosr = sqrtf(1.0f - r * r * (1 - cosi * cosi));
-		rDirection = (r * hit_info.ray->getDirection() + (r * cosi - cosr) * hit_info.Normal).normalized();
-	}
+	float sint = r * sqrtf(1.0f - cosi * cosi);
+	float cost = sqrtf(1.0f - sint * sint);
+	bool internalReflection = sint >= 1;
+	float Fr = (internalReflection)? 1.0f : FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
+	//Fr = FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
+
+	/*if (r > 1.0f && cosi < cosCritic)
+		internalReflection = true;*/
+
+	Eigen::Vector3f rDirection, tDirection;
+	rDirection = (rayDir - 2.0f * N.dot(rayDir) * N).normalized();
+
+	
+
+	Eigen::Vector3f IndirectIllum = Eigen::Vector3f::Zero();
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
 	if (internalReflection)
-		hit_info.ray = new Ray(hit_info.Point, rDirection, depth, true, hit_info.ray->getRefractiveIndex());
-	else
-		hit_info.ray = new Ray(hit_info.Point, rDirection, depth);
+	{
+		hit_info.Attenuation = this->getDiffuse(u, v).array() * PathTroughput.array();
+		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+			//#pragma omp critical
+		{
+			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+			std::cout << "Internal Reflection Fresnel " << "; depth: " << depth - 1 << std::endl;
+			std::cout << "EtaI: " << etai << std::endl;
+			std::cout << "EtaT: " << etat << std::endl;
+			std::cout << "D: " << hit_info.Distance << std::endl;
+		}
+		
 
-	Eigen::Vector3f baseColor = this->getDiffuse(hit_info.TextureCoord.x(), hit_info.TextureCoord.y());
-	Eigen::Vector3f IndirectIllum = baseColor.cwiseProduct(scene.RayCastColor(*hit_info.ray, hit_info));
-	return IndirectIllum;
+		hit_info.ray = new Ray(Point, rDirection, depth, true, this->RefractiveIndex);
+		IndirectIllum = scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
+
+		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+			//#pragma omp critical
+		{
+			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+			std::cout << "Internal Reflection back; depth: " << depth - 1 << std::endl;
+		}
+	}
+	else
+	{
+		hit_info.Attenuation = Fr * this->getDiffuse(u, v).array() * PathTroughput.array();
+		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+			//#pragma omp critical
+		{
+			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+			std::cout << "Refraction Fresnel: " << Fr << "; depth: " << depth - 1 << std::endl;
+			std::cout << "EtaI: " << etai << std::endl;
+			std::cout << "EtaT: " << etat << std::endl;
+			std::cout << "Reflection Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+		}
+
+		
+
+		hit_info.ray = new Ray(Point, rDirection, depth, true, etai);
+		IndirectIllum = scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
+		delete hit_info.ray;
+		
+		hit_info.Attenuation = (1.0f - Fr) * this->getDiffuse(u, v).array() * PathTroughput.array();
+
+
+		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+			//#pragma omp critical
+		{
+			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+			std::cout << "Reflection back; depth: " << depth - 1 << std::endl;
+			std::cout << "Refraction Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+		}
+		
+
+		tDirection = (r * rayDir + (r * cosi - cost) * N).normalized();
+		hit_info.ray = new Ray(Point, tDirection, depth, true, etat);
+		IndirectIllum += scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
+
+		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+			//#pragma omp critical
+		{
+			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+			std::cout << "Refraction back; depth: " << depth - 1 << std::endl;
+		}
+	}
+
+	return IndirectIllum.array();
 }
 
 Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
-	std::vector<Light*> scene_lights = scene.getLights();
-	Eigen::Vector3f final_diffuse(0.0f, 0.0f, 0.0f);
-	Eigen::Vector3f final_specular(0.0f, 0.0f, 0.0f);
-	if (useAlbedo)
-		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getTextureColorUV(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()));
-	else
-		hit_info.Attenuation = hit_info.Attenuation.cwiseProduct(this->getDiffuse());
-
-	//std::cout << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-	for (size_t i = 0; i < scene_lights.size(); i++)
-	{
-		Eigen::Vector3f light_dir = (scene_lights[i]->getPosition() - hit_info.Point);
-		float light_distance = light_dir.norm();
-		light_dir.normalize();
-
-		if (light_dir.dot(hit_info.Normal) < 0.0f)
-			continue;
-
-		//Shadow rays
-		HitInfo temp;
-		Ray light_ray = Ray(hit_info.Point, light_dir);
-		bool is_blocked = scene.RayCast(light_ray, temp) && temp.Distance < light_distance;
-
-		if (!is_blocked) {
-			float diffCoefficient = std::fabs(light_dir.dot(hit_info.Normal));
-			// Phong calculations
-			float lightIntensity = 10.0f / powf(light_distance, 2);
-			final_diffuse += this->getDiffuse(hit_info.TextureCoord.x(), hit_info.TextureCoord.y()).cwiseProduct(scene_lights[i]->getColor()) * diffCoefficient * lightIntensity / M_PI;
-
-			//Eigen::Vector3f halfway = (light_dir.normalized() + hit_info.Normal.normalized()).normalized();
-			//Eigen::Vector3f R = 2.0f * hit_info.Normal.dot(light_dir) * hit_info.Normal - light_dir;
-			//float spec = std::fmaxf(0.0f, R.dot(-hit_info.ray->getDirection()));
-			//final_specular += scene_lights[i]->getColor() * std::powf(spec, hit_info.Material->getGlossiness()) * lightIntensity;
-		}
-	}
-
-	//Eigen::Vector3f Color = Eigen::Vector3f::Ones();// +final_specular;
-//	if (hit_info.x + 256 % 64 == 0 || hit_info.y + 256 % 64 == 0)
-//#pragma omp critical
-//	{
-//		std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-//		std::cout << "Radiance: " << final_diffuse.x() << ", " << final_diffuse.y() << ", " << final_diffuse.z() << std::endl;
-//	}
-
-
-
-	return final_diffuse.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f)).cwiseMax(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	return Eigen::Vector3f::Zero();
 }

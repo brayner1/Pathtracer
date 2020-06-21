@@ -50,7 +50,7 @@ const float Renderer::Scene::getAmbientFactor() const
 	return this->ambient_factor;
 }
 
-bool Renderer::Scene::RayCast(Ray ray, HitInfo &hit)
+bool Renderer::Scene::RayCast(Ray& ray, HitInfo &hit)
 {
 	float min_dist = std::numeric_limits<float>::max();
 
@@ -70,23 +70,28 @@ bool Renderer::Scene::RayCast(Ray ray, HitInfo &hit)
 
 
 
-Eigen::Vector3f Renderer::Scene::RayCastColor(Ray ray, HitInfo& hit)
+Eigen::Vector3f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSamples)
 {
 	Eigen::Vector3f luminosity = Eigen::Vector3f::Zero();
+
+	if (hit.ray->getDepth() >= 3)
+	{
+		
+		float pcont = hit.Attenuation.maxCoeff();
+		float rnd = uniform_random_01();
+		if (rnd >= pcont)
+			return Eigen::Vector3f::Zero();
+		hit.Attenuation /= pcont;
+	}
 
 	if (hit.ray->getDepth() >= this->renderingMaxDepth)
 	{
 		return Eigen::Vector3f::Zero();
-		/*float pcont = closest_hit.Attenuation.maxCoeff();
-		float rnd = uniform_random_01();
-		if (rnd >= pcont)
-			break;
-		closest_hit.Attenuation /= pcont;*/
 	}
 
 	if (this->RayCast(*hit.ray, hit))
 	{
-		luminosity = hit.Material->ObjectHitColor(*this, hit);
+		luminosity = hit.Material->ObjectHitColor(*this, hit, nSamples);
 	}
 	else
 	{
@@ -95,7 +100,7 @@ Eigen::Vector3f Renderer::Scene::RayCastColor(Ray ray, HitInfo& hit)
 	return luminosity;
 }
 
-void Renderer::Scene::PixelColor(int x, int y, int maxDepth, struct OutputProperties &OP)
+void Renderer::Scene::PixelColor(int x, int y, int maxDepth, int nSamples, struct OutputProperties &OP)
 {
 	this->renderingMaxDepth = maxDepth;
 	this->scene_camera.updateViewMatrix();
@@ -112,33 +117,17 @@ void Renderer::Scene::PixelColor(int x, int y, int maxDepth, struct OutputProper
 	Eigen::Vector3f pixelColor = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 	bool firstHit = true;
 	int depth = 0;
-//		if (x % 64 == 0 || y % 64 == 0)
-//#pragma omp critical
-//		{
-//			std::cout << x << "x" << y << ": " << closest_hit.Attenuation.x() << ", " << closest_hit.Attenuation.y() << ", " << closest_hit.Attenuation.z() << std::endl;
-//		}
-	//bool has_hit = this->RayCast(*closest_hit.ray, closest_hit);
 
 	if (this->RayCast(*closest_hit.ray, closest_hit))
 	{
-		OP.Albedo = closest_hit.Material->getDiffuse();
+		OP.Albedo = closest_hit.Material->getDiffuse(closest_hit.TextureCoord.x(), closest_hit.TextureCoord.y());
 		OP.Normal = closest_hit.Normal;
-		pixelColor = closest_hit.Material->ObjectHitColor(*this, closest_hit);
+		pixelColor = closest_hit.Material->ObjectHitColor(*this, closest_hit, nSamples);
 	}
 	else 
 	{
 		pixelColor = this->scene_camera.get_sky_colour(closest_hit.ray->getDirection()).cwiseProduct(closest_hit.Attenuation);
 	}
 
-	//depth += 1;
-	//if (depth >= maxDepth)
-	//{
-	//	break;
-	//	float pcont = closest_hit.Attenuation.maxCoeff();
-	//	float rnd = uniform_random_01();
-	//	if (rnd >= pcont)
-	//		break;
-	//	closest_hit.Attenuation /= pcont;
-	//}
 	OP.Color = pixelColor;
 }

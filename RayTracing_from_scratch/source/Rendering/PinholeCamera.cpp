@@ -21,6 +21,7 @@ PinholeCamera::~PinholeCamera()
 
 Eigen::Vector3f PinholeCamera::get_sky_colour(Eigen::Vector3f ray_dir)
 {
+	return Eigen::Vector3f(0.051f, 0.051f, 0.051f);
 	//float t = (ray_dir.y() + std::sinf((this->vertical_fov)*M_PI / 180.0f)/1.2f)/std::sinf((this->vertical_fov)*M_PI / 180.0f);
 	float t = (ray_dir.y() + 1.0f) / 2.0f;
 	//return Eigen::Vector3f::Zero();

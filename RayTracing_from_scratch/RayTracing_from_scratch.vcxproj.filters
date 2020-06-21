@@ -43,6 +43,24 @@
     <Filter Include="headers\Loader">
       <UniqueIdentifier>{f77a6e3c-a66b-4d6f-9e5f-b1ec2b1fcddb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source\Rendering\Utils">
+      <UniqueIdentifier>{603a6b35-4d82-45b2-9373-4734b1110fa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\Rendering\Utils">
+      <UniqueIdentifier>{fea2ab03-496d-42e5-b751-62a699ee883d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Shading\BxDFs">
+      <UniqueIdentifier>{a4d24b3a-8b6b-4fb0-8ff6-5c9eb17bff73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\Shading\BxDFs">
+      <UniqueIdentifier>{09021a33-d4f1-471b-8e6d-628698771b3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Shading\Material">
+      <UniqueIdentifier>{6885029a-f8fd-4f87-b4bc-b2050cd8cc19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\Shading\Material">
+      <UniqueIdentifier>{b57c8be6-d768-46cc-b495-d35df155dee0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\RayTracing_from_scratch.cpp">
@@ -62,9 +80,6 @@
     </ClCompile>
     <ClCompile Include="source\Object\Triangle.cpp">
       <Filter>source\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Shading\Material.cpp">
-      <Filter>source\Shading</Filter>
     </ClCompile>
     <ClCompile Include="source\Rendering\PinholeCamera.cpp">
       <Filter>source\Rendering</Filter>
@@ -87,14 +102,20 @@
     <ClCompile Include="source\Shading\Texture.cpp">
       <Filter>source\Shading</Filter>
     </ClCompile>
+    <ClCompile Include="source\Shading\BxDF.cpp">
+      <Filter>source\Shading\BxDFs</Filter>
+    </ClCompile>
     <ClCompile Include="source\Shading\DiffuseMaterial.cpp">
-      <Filter>source\Shading</Filter>
+      <Filter>source\Shading\Material</Filter>
     </ClCompile>
     <ClCompile Include="source\Shading\GlossyMaterial.cpp">
-      <Filter>source\Shading</Filter>
+      <Filter>source\Shading\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shading\Material.cpp">
+      <Filter>source\Shading\Material</Filter>
     </ClCompile>
     <ClCompile Include="source\Shading\RefractiveMaterial.cpp">
-      <Filter>source\Shading</Filter>
+      <Filter>source\Shading\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,9 +139,6 @@
     </ClInclude>
     <ClInclude Include="include\Object\Object.h">
       <Filter>headers\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Shading\Material.h">
-      <Filter>headers\Shading</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\Light.h">
       <Filter>headers\Rendering\Lights</Filter>
@@ -146,14 +164,23 @@
     <ClInclude Include="include\Shading\Texture.h">
       <Filter>headers\Shading</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shading\DiffuseMaterial.h">
-      <Filter>headers\Shading</Filter>
+    <ClInclude Include="include\Rendering\Utils\Spectrum.h">
+      <Filter>headers\Rendering\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shading\GlossyMaterial.h">
-      <Filter>headers\Shading</Filter>
+    <ClInclude Include="include\Shading\BxDF.h">
+      <Filter>headers\Shading\BxDFs</Filter>
     </ClInclude>
     <ClInclude Include="include\Shading\RefractiveMaterial.h">
-      <Filter>headers\Shading</Filter>
+      <Filter>headers\Shading\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\DiffuseMaterial.h">
+      <Filter>headers\Shading\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\GlossyMaterial.h">
+      <Filter>headers\Shading\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\Material.h">
+      <Filter>headers\Shading\Material</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

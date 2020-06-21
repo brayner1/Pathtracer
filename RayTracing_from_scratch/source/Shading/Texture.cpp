@@ -19,7 +19,8 @@ Eigen::Vector3i Texture::getColor(uint32_t x, uint32_t y)
 {
 	uint32_t index = (y * this->w + x) * 3;
 	if (index > this->w * this->h * 3) {
-		std::cout << "texture index out of range" << std::endl;
+		std::cout << "Error: texture index (" << x << ", " << y  << ") out of range" << std::endl;
+		std::cout << "Image Size: " << this->w << " x " << this->h << std::endl;
 		return Eigen::Vector3i::Zero();
 	}
 	uint32_t r = this->data[index];
@@ -30,17 +31,9 @@ Eigen::Vector3i Texture::getColor(uint32_t x, uint32_t y)
 
 Eigen::Vector3i Texture::getColorUV(float u, float v)
 {
-	uint32_t x = uint32_t(u*this->w);
-	uint32_t y = uint32_t(v*this->h);
-	uint32_t index = (y * this->w + x) * 3;
-	if (index > this->w * this->h * 3) {
-		std::cout << "texture index out of range: " << u << ", " << v << std::endl;
-		return Eigen::Vector3i::Zero();
-	}
-	uint32_t r = this->data[index];
-	uint32_t g = this->data[index + 1];
-	uint32_t b = this->data[index + 2];
-	return Eigen::Vector3i(r, g, b);
+	uint32_t x = uint32_t(floorf(u*(this->w-1)));
+	uint32_t y = uint32_t(floorf((1.0f - v)*(this->h-1)));
+	return getColor(x, y);
 }
 
 

@@ -22,6 +22,7 @@
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\Light.cpp" />
     <ClCompile Include="source\Rendering\RenderManager.cpp" />
+    <ClCompile Include="source\Shading\BxDF.cpp" />
     <ClCompile Include="source\Shading\GlossyMaterial.cpp" />
     <ClCompile Include="source\Shading\Material.cpp" />
     <ClCompile Include="source\Object\Mesh.cpp" />
@@ -43,6 +44,8 @@
   <ItemGroup>
     <ClInclude Include="include\Rendering\Light.h" />
     <ClInclude Include="include\Rendering\RenderManager.h" />
+    <ClInclude Include="include\Rendering\Utils\Spectrum.h" />
+    <ClInclude Include="include\Shading\BxDF.h" />
     <ClInclude Include="include\Shading\GlossyMaterial.h" />
     <ClInclude Include="include\Shading\Material.h" />
     <ClInclude Include="include\Object\Mesh.h" />

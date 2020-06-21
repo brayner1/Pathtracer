@@ -9,7 +9,7 @@ inline float uniform_random_01()
 	//return 0.0f;
 }
 
-inline Eigen::Vector3f random_hemisphere_vector(Eigen::Vector3f Normal, Eigen::Vector3f U_vector, Eigen::Vector3f V_vector)
+inline Eigen::Vector3f random_hemisphere_vector(Eigen::Vector3f& Normal, Eigen::Vector3f& U_vector)
 {
 	float theta = (uniform_random_01() * 2.0f * M_PI);
 	float r = uniform_random_01();
@@ -23,7 +23,37 @@ inline Eigen::Vector3f random_hemisphere_vector(Eigen::Vector3f Normal, Eigen::V
 	return (u * uFactor + v * vFactor + r * Normal).normalized();
 }
 
-inline Eigen::Vector3f RotateVector(Eigen::Matrix4f matrix, Eigen::Vector3f vector)
+inline Eigen::Vector3f RotateVector(Eigen::Matrix4f& matrix, Eigen::Vector3f& vector)
 {
 	return matrix.transpose().block<3, 3>(0, 0) * vector;
+}
+
+inline float FrDieletric(const float CosI, const float CosT, const float EtaI, const float EtaT, int x = 0, int y = 0)
+{
+
+	//if (x + 256 == 512 - 346 && y + 256 == 512 - 452)
+	//	//#pragma omp critical
+	//{
+	//	//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+	//	std::cout << "CosI: " << CosI << std::endl;
+	//	std::cout << "CosT: " << CosT << std::endl;
+	//	std::cout << "EtaI: " << EtaI << std::endl;
+	//	std::cout << "EtaT: " << EtaT << std::endl;
+	//}
+
+	//float Rparl = (EtaI * CosI - EtaT * CosT) / (EtaI * CosI + EtaT * CosT);
+	//float Rperp = (EtaI * CosT - EtaT * CosI) / (EtaI * CosT + EtaT * CosI);
+
+	float Rperp = ((EtaI * CosI) - (EtaT * CosT)) / ((EtaI * CosI) + (EtaT * CosT));
+	float Rparl = ((EtaT * CosI) - (EtaI * CosT)) / ((EtaT * CosI) + (EtaI * CosT));
+
+	//if (x + 256 == 346 && y + 256 == 512 - 452)
+	//	//#pragma omp critical
+	//{
+	//	//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+	//	std::cout << "Rparl: " << Rparl << std::endl;
+	//	std::cout << "Rperp: " << Rperp << std::endl;
+	//}
+
+	return (Rparl * Rparl + Rperp * Rperp) / 2.0f;
 }

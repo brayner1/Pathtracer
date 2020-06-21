@@ -21,7 +21,7 @@ namespace Renderer {
 		const float getRoughness() const;
 		void setRoughness(float Roughness);
 
-		Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info);
+		Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples);
 		Eigen::Vector3f getDirectIllumination(Scene &scene, HitInfo& hit_info);
 
 

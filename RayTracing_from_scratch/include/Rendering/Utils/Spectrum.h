@@ -15,7 +15,7 @@ namespace Renderer
 		Spectrum(const Spectrum& spectrum) : Color(Eigen::Vector3f(spectrum.Color)) {}
 		
 		// Operators Overloads
-#pragma region Operators
+#pragma region Operators Overloads
 		Spectrum& operator+=(const Spectrum& s) {
 			Color += s.Color;
 			return *this;
@@ -161,6 +161,7 @@ namespace Renderer
 		const float r() const { return Color.x(); }
 		const float g() const { return Color.y(); }
 		const float b() const { return Color.z(); }
+
 		const Eigen::Vector3f Vector() const { return Color; }
 	protected:
 		Eigen::Vector3f Color;

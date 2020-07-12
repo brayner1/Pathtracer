@@ -34,11 +34,7 @@ Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 	float sint = r * sqrtf(1.0f - cosi * cosi);
 	float cost = sqrtf(1.0f - sint * sint);
 	bool internalReflection = sint >= 1;
-	float Fr = (internalReflection)? 1.0f : FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
-	//Fr = FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
-
-	/*if (r > 1.0f && cosi < cosCritic)
-		internalReflection = true;*/
+	float Fr = FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
 
 	Eigen::Vector3f rDirection, tDirection;
 	rDirection = (rayDir - 2.0f * N.dot(rayDir) * N).normalized();
@@ -51,39 +47,39 @@ Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 	if (internalReflection)
 	{
 		hit_info.Attenuation = this->getDiffuse(u, v).array() * PathTroughput.array();
-		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
-			//#pragma omp critical
-		{
-			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-			std::cout << "Internal Reflection Fresnel " << "; depth: " << depth - 1 << std::endl;
-			std::cout << "EtaI: " << etai << std::endl;
-			std::cout << "EtaT: " << etat << std::endl;
-			std::cout << "D: " << hit_info.Distance << std::endl;
-		}
+// 		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+// 			//#pragma omp critical
+// 		{
+// 			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 			std::cout << "Internal Reflection Fresnel " << "; depth: " << depth - 1 << std::endl;
+// 			std::cout << "EtaI: " << etai << std::endl;
+// 			std::cout << "EtaT: " << etat << std::endl;
+// 			std::cout << "D: " << hit_info.Distance << std::endl;
+// 		}
 		
 
 		hit_info.ray = new Ray(Point, rDirection, depth, true, this->RefractiveIndex);
 		IndirectIllum = scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
 
-		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
-			//#pragma omp critical
-		{
-			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-			std::cout << "Internal Reflection back; depth: " << depth - 1 << std::endl;
-		}
+// 		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+// 			//#pragma omp critical
+// 		{
+// 			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 			std::cout << "Internal Reflection back; depth: " << depth - 1 << std::endl;
+// 		}
 	}
 	else
 	{
 		hit_info.Attenuation = Fr * this->getDiffuse(u, v).array() * PathTroughput.array();
-		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
-			//#pragma omp critical
-		{
-			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-			std::cout << "Refraction Fresnel: " << Fr << "; depth: " << depth - 1 << std::endl;
-			std::cout << "EtaI: " << etai << std::endl;
-			std::cout << "EtaT: " << etat << std::endl;
-			std::cout << "Reflection Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-		}
+// 		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+// 			//#pragma omp critical
+// 		{
+// 			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 			std::cout << "Refraction Fresnel: " << Fr << "; depth: " << depth - 1 << std::endl;
+// 			std::cout << "EtaI: " << etai << std::endl;
+// 			std::cout << "EtaT: " << etat << std::endl;
+// 			std::cout << "Reflection Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 		}
 
 		
 
@@ -94,25 +90,25 @@ Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 		hit_info.Attenuation = (1.0f - Fr) * this->getDiffuse(u, v).array() * PathTroughput.array();
 
 
-		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
-			//#pragma omp critical
-		{
-			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-			std::cout << "Reflection back; depth: " << depth - 1 << std::endl;
-			std::cout << "Refraction Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-		}
-		
+// 		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+// 			//#pragma omp critical
+// 		{
+// 			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 			std::cout << "Reflection back; depth: " << depth - 1 << std::endl;
+// 			std::cout << "Refraction Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 		}
+// 		
 
 		tDirection = (r * rayDir + (r * cosi - cost) * N).normalized();
 		hit_info.ray = new Ray(Point, tDirection, depth, true, etat);
 		IndirectIllum += scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
 
-		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
-			//#pragma omp critical
-		{
-			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
-			std::cout << "Refraction back; depth: " << depth - 1 << std::endl;
-		}
+// 		if (hit_info.x + 256 == 512 - wantedX && hit_info.y + 256 == 512 - wantedY)
+// 			//#pragma omp critical
+// 		{
+// 			//std::cout << hit_info.x << "x" << hit_info.y << ": " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
+// 			std::cout << "Refraction back; depth: " << depth - 1 << std::endl;
+// 		}
 	}
 
 	return IndirectIllum.array();

@@ -9,9 +9,7 @@ Scene::Scene(PinholeCamera mainCamera) : scene_camera(mainCamera)
 	this->ambient_factor = 0.05f;
 }
 
-Scene::~Scene()
-{
-}
+Scene::~Scene() {}
 
 void Scene::setCamera(PinholeCamera mainCamera)
 {
@@ -27,6 +25,13 @@ void Scene::insertObject(Object * new_object)
 std::vector<Renderer::Object*> Renderer::Scene::getObjects() const
 {
 	return this->scene_objects;
+}
+
+void Renderer::Scene::BuildSceneTree()
+{
+	//this->SceneRoot = new FlatTree(this->scene_objects);
+	this->SceneRoot = new BVHTree(this->scene_objects);
+	((BVHTree*)this->SceneRoot)->PrinTree();
 }
 
 void Renderer::Scene::insertLight(Light * new_light)
@@ -52,7 +57,8 @@ const float Renderer::Scene::getAmbientFactor() const
 
 bool Renderer::Scene::RayCast(Ray& ray, HitInfo &hit)
 {
-	float min_dist = std::numeric_limits<float>::max();
+	return this->SceneRoot->Intersect(ray, hit);
+	/*float min_dist = std::numeric_limits<float>::max();
 
 	bool has_hit = false;
 	for (int i = 0; i < scene_objects.size(); i++) {
@@ -65,7 +71,7 @@ bool Renderer::Scene::RayCast(Ray& ray, HitInfo &hit)
 			}
 		}
 	}
-	return has_hit;
+	return has_hit;*/
 }
 
 

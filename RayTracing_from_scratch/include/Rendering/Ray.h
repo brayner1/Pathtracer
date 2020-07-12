@@ -16,7 +16,7 @@ namespace Renderer {
 		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float MaxDistance);
 		~Ray();
 
-		Eigen::Vector3f attenuation = Eigen::Vector3f::Zero();
+		//Eigen::Vector3f attenuation = Eigen::Vector3f::Zero();
 
 		Eigen::Vector3f getOrigin() const;
 		Eigen::Vector3f getDirection() const;

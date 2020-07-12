@@ -46,9 +46,6 @@
     <Filter Include="source\Rendering\Utils">
       <UniqueIdentifier>{603a6b35-4d82-45b2-9373-4734b1110fa2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="headers\Rendering\Utils">
-      <UniqueIdentifier>{fea2ab03-496d-42e5-b751-62a699ee883d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="source\Shading\BxDFs">
       <UniqueIdentifier>{a4d24b3a-8b6b-4fb0-8ff6-5c9eb17bff73}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,15 @@
     </Filter>
     <Filter Include="headers\Shading\Material">
       <UniqueIdentifier>{b57c8be6-d768-46cc-b495-d35df155dee0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\Rendering\Color">
+      <UniqueIdentifier>{fea2ab03-496d-42e5-b751-62a699ee883d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\Rendering\Integrators">
+      <UniqueIdentifier>{6c73ee40-f97d-4ade-9d0a-ad11cf13e916}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Rendering\Integrators">
+      <UniqueIdentifier>{3e6a51d9-0369-4013-92eb-a16f2be2df14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +123,21 @@
     <ClCompile Include="source\Shading\RefractiveMaterial.cpp">
       <Filter>source\Shading\Material</Filter>
     </ClCompile>
+    <ClCompile Include="source\Rendering\Integrator\Integrator.cpp">
+      <Filter>source\Rendering\Integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\Integrator\SamplerIntegrator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\ObjectTree.cpp">
+      <Filter>source\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\FlatTree.cpp">
+      <Filter>source\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rendering\BVHTree.cpp">
+      <Filter>source\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
@@ -165,7 +186,7 @@
       <Filter>headers\Shading</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\Utils\Spectrum.h">
-      <Filter>headers\Rendering\Utils</Filter>
+      <Filter>headers\Rendering\Color</Filter>
     </ClInclude>
     <ClInclude Include="include\Shading\BxDF.h">
       <Filter>headers\Shading\BxDFs</Filter>
@@ -182,5 +203,28 @@
     <ClInclude Include="include\Shading\Material.h">
       <Filter>headers\Shading\Material</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\Integrator\Integrator.h">
+      <Filter>headers\Rendering\Integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\Integrator\SamplerIntegrator.h">
+      <Filter>headers\Rendering\Integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\ObjectTree.h">
+      <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\FlatTree.h">
+      <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\BVHTree.h">
+      <Filter>headers\Rendering</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RayTracing_from_scratch.rc">
+      <Filter>Arquivos de Recurso</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

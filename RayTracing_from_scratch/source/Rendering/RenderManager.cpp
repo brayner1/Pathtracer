@@ -53,6 +53,8 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 	int* it = new int; *it = 0;
 	int* lastreport = new int; *lastreport = -1;
 
+	
+
 #pragma omp parallel for shared(lastreport, it)
 #endif // paralellism
 	for (int y = height / 2; y >= -(height / 2) + ((height + 1) % 2); --y) 
@@ -75,7 +77,8 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 			finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 
 			
-			
+			int rawIndex = (x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3;
+			int xIndex = x + width / 2 - 1, yIndex = y + height / 2 - 1;
 
 #pragma omp critical
 			{
@@ -87,21 +90,21 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 					std::cout << "Progress: " << prog << "%" << std::endl << "Pixel: " << *it << " of " << total << std::endl;
 				}
 				
-				this->colorBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 0] = finalColor.x();
-				this->colorBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 1] = finalColor.y();
-				this->colorBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 2] = finalColor.z();
+				this->colorBuffer[rawIndex + 0] = finalColor.x();
+				this->colorBuffer[rawIndex + 1] = finalColor.y();
+				this->colorBuffer[rawIndex + 2] = finalColor.z();
 
-				this->albedoBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 0] = finalAlbedo.x();
-				this->albedoBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 1] = finalAlbedo.y();
-				this->albedoBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 2] = finalAlbedo.z();
+				this->albedoBuffer[rawIndex + 0] = finalAlbedo.x();
+				this->albedoBuffer[rawIndex + 1] = finalAlbedo.y();
+				this->albedoBuffer[rawIndex + 2] = finalAlbedo.z();
 
-				this->normalBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 0] = finalNormal.x();
-				this->normalBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 1] = finalNormal.y();
-				this->normalBuffer[(x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3 + 2] = finalNormal.z();
+				this->normalBuffer[rawIndex + 0] = finalNormal.x();
+				this->normalBuffer[rawIndex + 1] = finalNormal.y();
+				this->normalBuffer[rawIndex + 2] = finalNormal.z();
 				
-				frameBuffer[0][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(finalColor.x(), 1.0f / this->gamma) * 255.f);
-				frameBuffer[1][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(finalColor.y(), 1.0f / this->gamma) * 255.f);
-				frameBuffer[2][x + width / 2 - 1][y + height / 2 - 1] = (int)(powf(finalColor.z(), 1.0f / this->gamma) * 255.f);
+				frameBuffer[0][xIndex][yIndex] = (int)(powf(finalColor.x(), 1.0f / this->gamma) * 255.f);
+				frameBuffer[1][xIndex][yIndex] = (int)(powf(finalColor.y(), 1.0f / this->gamma) * 255.f);
+				frameBuffer[2][xIndex][yIndex] = (int)(powf(finalColor.z(), 1.0f / this->gamma) * 255.f);
 			}
 		}
 	}

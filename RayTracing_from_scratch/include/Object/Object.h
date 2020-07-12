@@ -54,8 +54,13 @@ namespace Renderer {
 		virtual bool is_hit_by_ray(
 			Ray& incoming_ray, HitInfo& hit_info) = 0;
 
+		bool is_bounds_hit(Ray& incoming_ray);
+
 		void setMaterial(Renderer::Material* material);
 		Material* getMaterial() const;
+
+		void SetBounds(Eigen::AlignedBox3f& bounds);
+		Eigen::AlignedBox3f& GetBounds() { return this->Object_bounds; }
 	};
 }
 

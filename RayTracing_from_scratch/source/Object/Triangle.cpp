@@ -73,13 +73,13 @@ bool Triangle::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 
 bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming_ray, HitInfo& hit_info)
 {
-	Eigen::Vector3f u = triangle.P1 - triangle.P0;
-	Eigen::Vector3f v = triangle.P2 - triangle.P0;
+	Eigen::Vector3f u = *triangle.P1 - *triangle.P0;
+	Eigen::Vector3f v = *triangle.P2 - *triangle.P0;
 
 	Eigen::Vector3f r = incoming_ray.getDirection();
 	Eigen::Vector3f o = incoming_ray.getOrigin();
 
-	Eigen::Vector3f tvec = o - triangle.P0;
+	Eigen::Vector3f tvec = o - *triangle.P0;
 	Eigen::Vector3f pvec = r.cross(v);
 	float det = pvec.dot(u);
 	float inv_det = 1.0f / det;
@@ -96,7 +96,7 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming
 	const float dist_factor = qvec.dot(v) * inv_det;
 	if (dist_factor < 0)
 		return false;
-	float hit_distance = (incoming_ray.getDirection()*dist_factor).norm();
+	float hit_distance = (r*dist_factor).norm();
 	/// Without a little slack, a reflected ray sometimes hits the same
 	/// object again (machine precision..)
 	if (hit_distance <= 1e-6f)
@@ -133,7 +133,7 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming
 		hit_info.TextureCoord = *triangle.UV0 + uDiff + vDiff;
 	}
 
-	hit_info.Point = triangle.P0 + u * u_factor + v * v_factor;
+	hit_info.Point = *triangle.P0 + u * u_factor + v * v_factor;
 	hit_info.Normal = normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;

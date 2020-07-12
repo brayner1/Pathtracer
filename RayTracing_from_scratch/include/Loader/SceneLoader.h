@@ -11,9 +11,11 @@ namespace Renderer {
 		const aiScene* assimp_scene;
 
 		Eigen::AlignedBox3f get_bounding_box_for_node(const aiNode * nd, 
-			aiMatrix4x4t<float> * trafo, 
-			Eigen::AlignedBox3f previous_boundingBox
+			aiMatrix4x4t<float> trafo, 
+			const Eigen::AlignedBox3f* const previous_boundingBox
 		);
+
+		Eigen::AlignedBox3f SceneLoader::get_bounding_box_for_mesh(const aiMesh* mesh);
 
 		Eigen::Vector3f convert_assimp_color(const aiColor4D color) {
 			return Eigen::Vector3f(color.r, color.g, color.b);

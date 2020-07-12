@@ -20,7 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Object\GroundPlane.cpp" />
+    <ClCompile Include="source\Rendering\BVHTree.cpp" />
+    <ClCompile Include="source\Rendering\FlatTree.cpp" />
+    <ClCompile Include="source\Rendering\Integrator\Integrator.cpp" />
+    <ClCompile Include="source\Rendering\Integrator\SamplerIntegrator.cpp" />
     <ClCompile Include="source\Rendering\Light.cpp" />
+    <ClCompile Include="source\Rendering\ObjectTree.cpp" />
     <ClCompile Include="source\Rendering\RenderManager.cpp" />
     <ClCompile Include="source\Shading\BxDF.cpp" />
     <ClCompile Include="source\Shading\GlossyMaterial.cpp" />
@@ -42,7 +47,12 @@
     <ClCompile Include="source\Shading\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Rendering\BVHTree.h" />
+    <ClInclude Include="include\Rendering\FlatTree.h" />
+    <ClInclude Include="include\Rendering\Integrator\Integrator.h" />
+    <ClInclude Include="include\Rendering\Integrator\SamplerIntegrator.h" />
     <ClInclude Include="include\Rendering\Light.h" />
+    <ClInclude Include="include\Rendering\ObjectTree.h" />
     <ClInclude Include="include\Rendering\RenderManager.h" />
     <ClInclude Include="include\Rendering\Utils\Spectrum.h" />
     <ClInclude Include="include\Shading\BxDF.h" />
@@ -63,6 +73,10 @@
     <ClInclude Include="include\Object\Triangle.h" />
     <ClInclude Include="include\Shading\RefractiveMaterial.h" />
     <ClInclude Include="include\Shading\Texture.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RayTracing_from_scratch.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -201,6 +215,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <OpenMPSupport>true</OpenMPSupport>
       <EnablePREfast>true</EnablePREfast>
+      <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

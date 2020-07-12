@@ -4,7 +4,7 @@ namespace Renderer {
 	class Mesh :
 		public Object
 	{
-	private:
+	public:
 		// Mesh Properties
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;
@@ -14,7 +14,7 @@ namespace Renderer {
 		std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;
 
 		Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> transf;
-	public:
+
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		Mesh(std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertex_array, 

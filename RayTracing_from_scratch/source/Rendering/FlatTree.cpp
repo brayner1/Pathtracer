@@ -6,8 +6,8 @@ using namespace Renderer;
 
 bool FlatTree::Intersect(Ray& ray, HitInfo& hit)
 {
-	Eigen::Vector3f Dir = ray.getDirection();
-	Eigen::Vector3f invDir = Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());
+	Eigen::Vector4f Dir = ray.getDirection();
+	Eigen::Vector4f invDir = Eigen::Vector4f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z(), 0.0f);
 
 	float min_dist = std::numeric_limits<float>::max();
 	bool has_hit = false;

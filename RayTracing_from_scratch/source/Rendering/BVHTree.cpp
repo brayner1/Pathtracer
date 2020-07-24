@@ -6,6 +6,7 @@ using namespace Renderer;
 
 BVHTree::BVHTree(std::vector<Object*>& objects) : Objects(objects)
 {
+	heuristic = SplitHeuristic::MiddleSplit;
 	int ObjCount = Objects.size();
 
 	std::vector<ObjectBVHInfo> objectsInfo(ObjCount);
@@ -278,9 +279,9 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 {
 	bool has_hit = false;
-	Eigen::Vector3f Dir = ray.getDirection();
-	Eigen::Vector3f invDir = Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());//Dir.cwiseInverse();
-	bool DirIsNeg[3] = { Dir.x() < 0.0f, Dir.y() < 0.0f, Dir.z() < 0.0f };
+	Eigen::Vector4f Dir = ray.getDirection();
+	bool DirIsNeg[3] = { Dir(0) < 0.0f, Dir(1) < 0.0f, Dir(2) < 0.0f };
+	Eigen::Vector4f invDir = Eigen::Vector4f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z(), 0.0f);//Dir.cwiseInverse();
 	int currentNode = 0;
 	float min_dist = FLT_MAX;
 
@@ -356,10 +357,10 @@ bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 bool Renderer::BVHTree::Intersect(Ray& ray)
 {
 	//bool has_hit = false;
-	Eigen::Vector3f Dir = ray.getDirection();
-	Eigen::Vector3f invDir = Dir.cwiseInverse();
-	Eigen::Vector3i DirIsNeg = { Dir.x() < 0, Dir.y() < 0, Dir.z() < 0 };
-	int visitOffset = 0, currentNode = 0;
+	Eigen::Vector4f Dir = ray.getDirection();
+	bool DirIsNeg[3] = { Dir.x() < 0.0f, Dir.y() < 0.0f, Dir.z() < 0.0f };
+	Eigen::Vector4f invDir = Eigen::Vector4f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z(), 0.0f);
+	int currentNode = 0;
 	//float min_dist = FLT_MAX;
 
 	std::vector<int> VisitStack;
@@ -368,21 +369,27 @@ bool Renderer::BVHTree::Intersect(Ray& ray)
 	while (true)
 	{
 		BVHTreeNode* node = &NodeArray[currentNode];
-
+		
 		if (BoundingBoxIntersect(ray, invDir, node->Bounds))
 		{
 			if (node->NumObjs > 0)
 			{
-				int objOffset = node->ObjOffset, numObjs = node->NumObjs;
-				for (int i = objOffset; i < numObjs; i++)
+				int objOffset = node->ObjOffset, finalOffset = node->ObjOffset + node->NumObjs;
+				for (int i = objOffset; i < finalOffset; i++)
 				{
 					HitInfo hit_info;
-					if (Objects[i]->is_hit_by_ray(ray, hit_info))
+					if (Objects[i]->is_hit_by_ShadowRay(ray))
 					{
 						//has_hit = true;
+						//std::cout << "has shadow" << std::endl;
 						return true;
 					}
 				}
+
+				if (VisitStack.size() == 0) break;
+				currentNode = VisitStack.back();
+				VisitStack.pop_back();
+
 			}
 			else
 			{
@@ -408,7 +415,7 @@ bool Renderer::BVHTree::Intersect(Ray& ray)
 
 
 	}
-
+	//std::cout << "no shadow" << std::endl;
 	return false;
 }
 

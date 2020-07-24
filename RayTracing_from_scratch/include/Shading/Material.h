@@ -24,13 +24,13 @@ namespace Renderer {
 		Material (Eigen::Vector3f diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f));
 		Material (Texture* texture);
 
-		virtual Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples) = 0;
-		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
+		virtual Eigen::Vector4f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples) = 0;
+		virtual Eigen::Vector4f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
 
-		const Eigen::Vector3f getDiffuse() const;
-		const Eigen::Vector3f getDiffuse(float u, float v) const;
-		const Eigen::Vector3f getDiffuse(Eigen::Vector2f UV) const;
-		void setDiffuse(Eigen::Vector3f DiffuseColor);
+		const Eigen::Vector4f getDiffuse() const;
+		const Eigen::Vector4f getDiffuse(float u, float v) const;
+		const Eigen::Vector4f getDiffuse(Eigen::Vector2f& UV) const;
+		void setDiffuse(Eigen::Vector3f& DiffuseColor);
 		//const Eigen::Vector3f getSpecular() const;
 		//void setSpecular(Eigen::Vector3f SpecularColor);
 		//const Eigen::Vector3f getAmbient() const;
@@ -44,7 +44,7 @@ namespace Renderer {
 	
 		void setAlbedoTexture(Texture* texture);
 
-		const Eigen::Vector3f getTextureColorUV(float u, float v) const;
+		const Eigen::Vector4f getTextureColorUV(float u, float v) const;
 
 		~Material();
 	};

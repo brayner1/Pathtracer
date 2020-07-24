@@ -26,9 +26,6 @@ namespace Renderer {
 		~Triangle();
 
 		bool is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info);
-
-		static bool triangle_hit_by_ray(const TriangleStruct& triangle, 
-			Ray& incoming_ray,
-			HitInfo& hit_info);
+		bool is_hit_by_ShadowRay(Ray& incoming_ray) { return false; };
 	};
 }

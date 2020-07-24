@@ -17,7 +17,7 @@ bool Renderer::Object::is_bounds_hit(Ray& incoming_ray)
 	float t0 = 0.0f, t1 = FLT_MAX;
 	float tNear, tFar;
 	Eigen::AlignedBox3f bound = this->Object_bounds;
-	Eigen::Vector3f rayDir = incoming_ray.getDirection(), rayOrig = incoming_ray.getOrigin();
+	Eigen::Vector4f rayDir = incoming_ray.getDirection(), rayOrig = incoming_ray.getOrigin();
 
 	for (int i = 0; i < 3; i++)
 	{

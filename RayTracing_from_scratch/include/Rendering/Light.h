@@ -14,10 +14,10 @@ namespace Renderer {
 
 		void setColor(float red, float green, float blue);
 		void setColor(Eigen::Vector3f Color);
-		Eigen::Vector3f getColor() const;
+		Eigen::Vector4f getColor() const;
 
 		void setPosition(const Eigen::Vector3f position);
-		Eigen::Vector3f getPosition() const;
+		Eigen::Vector4f getPosition() const;
 
 		Eigen::Matrix3f getRotation() const;
 		Eigen::Vector3f getDirection() const;

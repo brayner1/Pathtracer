@@ -21,9 +21,10 @@ void Renderer::Light::setColor(Eigen::Vector3f Color)
 	color = Color;
 }
 
-Eigen::Vector3f Renderer::Light::getColor() const
+Eigen::Vector4f Renderer::Light::getColor() const
 {
-	return this->color;
+	Eigen::Vector3f c = this->color;
+	return Eigen::Vector4f(c.x(), c.y(), c.z(), 0.0f);
 }
 
 void Renderer::Light::setPosition(const Eigen::Vector3f position)
@@ -32,9 +33,10 @@ void Renderer::Light::setPosition(const Eigen::Vector3f position)
 	this->position = position;
 }
 
-Eigen::Vector3f Renderer::Light::getPosition() const
+Eigen::Vector4f Renderer::Light::getPosition() const
 {
-	return this->position;
+	Eigen::Vector3f p = this->position;
+	return Eigen::Vector4f(p.x(), p.y(), p.z(), 1.0f);
 }
 
 Eigen::Matrix3f Renderer::Light::getRotation() const

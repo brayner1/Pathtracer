@@ -17,8 +17,8 @@ namespace Renderer {
 
 		~DiffuseMaterial();
 
-		Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples);
-		Eigen::Vector3f getDirectIllumination(Scene &scene, HitInfo& hit_info);
+		Eigen::Vector4f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples);
+		Eigen::Vector4f getDirectIllumination(Scene &scene, HitInfo& hit_info);
 
 
 

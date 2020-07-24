@@ -24,7 +24,7 @@ GroundPlane::~GroundPlane()
 
 bool GroundPlane::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 {
-	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
+	/*if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
 		return false;
 	}
 	hit_info.Distance = (this->Height-incoming_ray.getOrigin().y()) / incoming_ray.getDirection().y();
@@ -53,8 +53,8 @@ bool GroundPlane::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 	hit_info.U_vector = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 	hit_info.V_vector = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
 	hit_info.obj = this;
-	return true;
-
+	return true;*/
+	return false;
 }
 
 void GroundPlane::setSquareSize(int size)

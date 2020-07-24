@@ -92,7 +92,7 @@ void SceneLoader::convertAssimpScene()
 
 			int numVerts = mesh->mNumVertices;
 			
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
+			std::vector<Eigen::Vector4f, Eigen::aligned_allocator<Eigen::Vector4f>> vertices;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
 			vertices.reserve(numVerts);
 			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
 			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;// = std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>(numVerts);
@@ -104,7 +104,7 @@ void SceneLoader::convertAssimpScene()
 			for (size_t t = 0; t < mesh->mNumVertices; t++)
 			{
 				const aiVector3D vertex = mesh->mVertices[t];
-				vertices.push_back(Eigen::Vector3f(vertex.x, vertex.y, vertex.z));
+				vertices.push_back(Eigen::Vector4f(vertex.x, vertex.y, vertex.z, 1.0f));
 				if (mesh->HasNormals()) {
 					//std::cout << "Loader: mesh has normals" << std::endl;
 					vNormals.push_back(Eigen::Vector3f(mesh->mNormals[t].x, mesh->mNormals[t].y, mesh->mNormals[t].z));

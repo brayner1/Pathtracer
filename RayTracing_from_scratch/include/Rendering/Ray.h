@@ -3,7 +3,7 @@ namespace Renderer {
 	class Ray
 	{
 	private:
-		Eigen::Vector3f Origin, Direction;
+		Eigen::Vector4f Origin, Direction;
 		
 		int depth = 0;
 		bool isBackfaceHit = false;
@@ -12,17 +12,20 @@ namespace Renderer {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, int Depth = 0, bool BackfaceHit = false, float MediumIndex = 1.0f);
-		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float MaxDistance);
+		Ray(Eigen::Vector4f Origin, Eigen::Vector4f Direction, int Depth = 0, bool BackfaceHit = false, float MediumIndex = 1.0f);
+		Ray(Eigen::Vector4f Origin, Eigen::Vector4f Direction, float MaxDistance);
 		~Ray();
 
 		//Eigen::Vector3f attenuation = Eigen::Vector3f::Zero();
 
-		Eigen::Vector3f getOrigin() const;
-		Eigen::Vector3f getDirection() const;
+		const Eigen::Vector4f& getOrigin() const;
+		const Eigen::Vector4f& getDirection() const;
 		const int getDepth() const;
 		const bool getIsBackfaceHit() const;
 		const float getRefractiveIndex() const;
+
+		//void setMaxDistance(float maxT) { MaxDistance = maxT; }
+		const float getMaxDistance() const { return MaxDistance; }
 	};
 
 }

@@ -64,9 +64,9 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 #endif // paralellism
 		for (int x = -(width / 2) + ((width + 1) % 2); x <= width / 2; ++x) 
 		{  /// Columns
-			Eigen::Vector3f finalColor = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f finalAlbedo = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f finalNormal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+			Eigen::Vector4f finalColor = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+			Eigen::Vector4f finalAlbedo = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+			Eigen::Vector4f finalNormal = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 
 			OutputProperties OP = OutputProperties();
 			scene.PixelColor(x, y, maxDepth, this->samplesPerPixel, OP);
@@ -74,7 +74,7 @@ void RenderManager::RenderScene(Scene scene, ImageType outputType)
 			finalAlbedo = OP.Albedo;
 			finalNormal = OP.Normal;
 
-			finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+			finalColor = finalColor.cwiseMin(Eigen::Vector4f(1.0f, 1.0f, 1.0f, 0.0f));
 
 			
 			int rawIndex = (x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3;

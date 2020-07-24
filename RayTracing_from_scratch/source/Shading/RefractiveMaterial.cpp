@@ -14,14 +14,14 @@ RefractiveMaterial::~RefractiveMaterial()
 {
 }
 
-Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples)
+Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples)
 {
 	int wantedX = 338, wantedY = 433;
 	//Eigen::Vector3f DirectIllum = this->getDirectIllumination(scene, hit_info);
-	Eigen::Vector3f PathTroughput = hit_info.Attenuation;
-	Eigen::Vector3f Point = hit_info.Point;
-	Eigen::Vector3f N = hit_info.Normal;
-	Eigen::Vector3f rayDir = hit_info.ray->getDirection();
+	Eigen::Vector4f PathTroughput = hit_info.Attenuation;
+	Eigen::Vector4f Point = hit_info.Point;
+	Eigen::Vector4f N = hit_info.Normal;
+	Eigen::Vector4f rayDir = hit_info.ray->getDirection();
 	float u = hit_info.TextureCoord.x(), v = hit_info.TextureCoord.y();
 	bool isBackfaceHit = hit_info.hitBackface;
 
@@ -36,12 +36,12 @@ Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 	bool internalReflection = sint >= 1;
 	float Fr = FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
 
-	Eigen::Vector3f rDirection, tDirection;
+	Eigen::Vector4f rDirection, tDirection;
 	rDirection = (rayDir - 2.0f * N.dot(rayDir) * N).normalized();
 
 	
 
-	Eigen::Vector3f IndirectIllum = Eigen::Vector3f::Zero();
+	Eigen::Vector4f IndirectIllum = Eigen::Vector4f::Zero();
 	int depth = hit_info.ray->getDepth() + 1;
 	delete hit_info.ray;
 	if (internalReflection)
@@ -114,7 +114,7 @@ Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 	return IndirectIllum.array();
 }
 
-Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
+Eigen::Vector4f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)
 {
-	return Eigen::Vector3f::Zero();
+	return Eigen::Vector4f::Zero();
 }

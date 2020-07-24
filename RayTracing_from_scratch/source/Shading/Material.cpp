@@ -12,26 +12,27 @@ Renderer::Material::Material(Texture* texture)
 	this->setAlbedoTexture(texture);
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse() const
+const Eigen::Vector4f Renderer::Material::getDiffuse() const
 {
-	return this->diffuse_color;
+	Eigen::Vector3f c = this->diffuse_color;
+	return Eigen::Vector4f(c(0), c(1), c(2), 0.0f);
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse(Eigen::Vector2f UV) const
+const Eigen::Vector4f Renderer::Material::getDiffuse(Eigen::Vector2f& UV) const
 {
 	return this->getDiffuse(UV.x(), UV.y());
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse(float u, float v) const
+const Eigen::Vector4f Renderer::Material::getDiffuse(float u, float v) const
 {
 	//this->diffuse_color.transpose();
 	if (useAlbedo)
 		return this->getTextureColorUV(u, v);
 	else
-		return this->diffuse_color;
+		return this->getDiffuse();
 }
 
-void Renderer::Material::setDiffuse(Eigen::Vector3f DiffuseColor)
+void Renderer::Material::setDiffuse(Eigen::Vector3f& DiffuseColor)
 {
 	this->diffuse_color = DiffuseColor.cwiseMax(Eigen::Vector3f::Zero()).cwiseMin(Eigen::Vector3f::Ones());
 }
@@ -95,10 +96,10 @@ void Renderer::Material::setAlbedoTexture(Texture* texture)
 	}
 }
 
-const Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v) const
+const Eigen::Vector4f Renderer::Material::getTextureColorUV(float u, float v) const
 {
 	Eigen::Vector3i temp = this->albedoTexture->getColorUV(u, v);
-	Eigen::Vector3f color = (Eigen::Vector3f(temp.x(), temp.y(), temp.z()) / 255.0f).array().pow(2.2f);
+	Eigen::Vector4f color = (Eigen::Vector4f(temp.x(), temp.y(), temp.z(), 0.0f) / 255.0f).array().pow(2.2f);
 	return color;
 }
 

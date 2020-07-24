@@ -7,15 +7,15 @@ namespace Renderer
 
 	struct OutputProperties
 	{
-		Eigen::Vector3f Color;
-		Eigen::Vector3f Albedo;
-		Eigen::Vector3f Normal;
+		Eigen::Vector4f Color;
+		Eigen::Vector4f Albedo;
+		Eigen::Vector4f Normal;
 
 		struct OutputProperties()
 		{
-			this->Color = Eigen::Vector3f::Zero();
-			this->Albedo = Eigen::Vector3f::Zero();
-			this->Normal = Eigen::Vector3f::Zero();
+			this->Color = Eigen::Vector4f::Zero();
+			this->Albedo = Eigen::Vector4f::Zero();
+			this->Normal = Eigen::Vector4f::Zero();
 		}
 	};
 

@@ -32,8 +32,8 @@ namespace Renderer {
 		~PinholeCamera();
 
 		// Rendering Functions
-		Eigen::Vector3f get_sky_colour(Eigen::Vector3f ray_dir);
-		Eigen::Vector3f getRayDirection(float x, float y);
+		Eigen::Vector4f get_sky_colour(const Eigen::Vector4f& ray_dir) const;
+		Eigen::Vector4f getRayDirection(float x, float y) const;
 
 		// View Functions
 
@@ -43,7 +43,7 @@ namespace Renderer {
 
 		// World Functions
 
-		Eigen::Vector3f getPosition() const;
+		Eigen::Vector4f getPosition() const;
 		void setPosition(const Eigen::Vector3f new_position);
 		void goForward(const float amount);
 

@@ -12,25 +12,25 @@ inline float uniform_random_01()
 	//return 0.0f;
 }
 
-inline Eigen::Vector3f random_hemisphere_vector(Eigen::Vector3f& Normal, Eigen::Vector3f& U_vector)
+inline Eigen::Vector4f random_hemisphere_vector(Eigen::Vector4f& Normal, Eigen::Vector4f& U_vector)
 {
 	float theta = (uniform_random_01() * 2.0f * M_PI);
 	float r = uniform_random_01();
 	float sen_phi = sqrtf(1.0f - r * r);
 	float uFactor = cosf(theta) * sen_phi;
 	float vFactor = sinf(theta) * sen_phi;
-	Eigen::Vector3f u, v;
+	Eigen::Vector4f u, v;
 
-	v = Normal.cross(U_vector).normalized();
+	v = Normal.cross3(U_vector).normalized();
 	u = U_vector.normalized();
 	return (u * uFactor + v * vFactor + r * Normal).normalized();
 }
 
 // Geometric Utilities Functions
 
-inline Eigen::Vector3f RotateVector(Eigen::Matrix4f& matrix, Eigen::Vector3f& vector)
+inline Eigen::Vector4f RotateVector(Eigen::Matrix4f& matrix, Eigen::Vector4f& vector)
 {
-	return matrix.transpose().block<3, 3>(0, 0) * vector;
+	return matrix.transpose() * vector;
 }
 
 // Illumination Utilities Functions
@@ -54,11 +54,11 @@ inline float BoundingBoxSurfaceArea(Eigen::AlignedBox3f& bound)
 	return 2 * (size.x() * size.y() +  size.y() * size.z() + size.z() * size.x());
 }
 
-inline bool BoundingBoxIntersect(Renderer::Ray& incoming_ray, Eigen::Vector3f& invDir, Eigen::AlignedBox3f& BoundingBox)
+inline bool BoundingBoxIntersect(Renderer::Ray& incoming_ray, Eigen::Vector4f& invDir, Eigen::AlignedBox3f& BoundingBox)
 {
 	float t0 = 0.0f, t1 = FLT_MAX;
 	float tNear, tFar;
-	Eigen::Vector3f rayOrig = incoming_ray.getOrigin();
+	Eigen::Vector4f rayOrig = incoming_ray.getOrigin();
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -73,6 +73,8 @@ inline bool BoundingBoxIntersect(Renderer::Ray& incoming_ray, Eigen::Vector3f& i
 
 		if (t0 > t1) return false;
 	}
+
+	if (t0 >= incoming_ray.getMaxDistance()) return false;
 
 	return true;
 }

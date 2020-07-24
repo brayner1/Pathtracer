@@ -76,7 +76,7 @@ namespace Renderer
 
 
 	private:
-		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
+		SplitHeuristic heuristic;
 		std::vector<Object*> Objects;
 		std::vector<BVHTreeNode> NodeArray;
 

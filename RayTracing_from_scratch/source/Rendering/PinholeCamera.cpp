@@ -19,13 +19,13 @@ PinholeCamera::~PinholeCamera()
 }
 
 
-Eigen::Vector3f PinholeCamera::get_sky_colour(Eigen::Vector3f ray_dir)
+Eigen::Vector4f PinholeCamera::get_sky_colour(const Eigen::Vector4f& ray_dir) const
 {
-	return Eigen::Vector3f(0.051f, 0.051f, 0.051f);
+	return Eigen::Vector4f(0.051f, 0.051f, 0.051f, 0.0f);
 	//float t = (ray_dir.y() + std::sinf((this->vertical_fov)*M_PI / 180.0f)/1.2f)/std::sinf((this->vertical_fov)*M_PI / 180.0f);
 	float t = (ray_dir.y() + 1.0f) / 2.0f;
 	//return Eigen::Vector3f::Zero();
-	return t*Eigen::Vector3f(0.5f, 0.7f, 1.0f) + (1.0f - t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+	return t*Eigen::Vector4f(0.5f, 0.7f, 1.0f, 0.0f) + (1.0f - t)*(Eigen::Vector4f(1.0f, 1.0f, 1.0f, 0.0f));
 	//return (t*t)*(Eigen::Vector3f(1.0f, 1.0f, 1.0f)) - (-1.0f - t)*(1.0f - t)*Eigen::Vector3f(0.5f, 0.7f, 1.0f);
 }
 
@@ -47,9 +47,10 @@ void PinholeCamera::setScreenSize(int width, int height)
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 }
 
-Eigen::Vector3f PinholeCamera::getPosition() const
+Eigen::Vector4f PinholeCamera::getPosition() const
 {
-	return Eigen::Vector3f(this->position);
+	Eigen::Vector3f p = this->position;
+	return Eigen::Vector4f(p.x(), p.y(), p.z(), 1.0f);
 }
 
 void PinholeCamera::setPosition(Eigen::Vector3f new_position)
@@ -92,15 +93,16 @@ void PinholeCamera::updateViewMatrix() {
 	this->view_matrix = Eigen::Matrix4f(viewMat);
 }
 
-Eigen::Vector3f PinholeCamera::getRayDirection(float x, float y)
+Eigen::Vector4f PinholeCamera::getRayDirection(float x, float y) const
 {
 	float r1 = 0.0f, r2 = 0.0f;
 
 	// Compute Ray Direction
-	return Eigen::Vector3f(
+	return Eigen::Vector4f(
 			std::sinf((this->horizontal_fov) * M_PI / 180.0f) * ((float)x - 0.5f + r1) / ((float)width),
 			std::sinf((this->vertical_fov) * M_PI / 180.0f) * ((float)y - 0.5f + r2) / ((float)height),
-			1.0f
+			1.0f,
+			0.0f
 		).normalized();
 }
 

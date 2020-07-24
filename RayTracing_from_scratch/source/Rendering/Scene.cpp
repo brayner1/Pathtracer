@@ -76,9 +76,15 @@ bool Renderer::Scene::RayCast(Ray& ray, HitInfo &hit)
 
 
 
-Eigen::Vector3f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSamples)
+
+bool Renderer::Scene::ShadowRayCast(Ray& ray)
 {
-	Eigen::Vector3f luminosity = Eigen::Vector3f::Zero();
+	return this->SceneRoot->Intersect(ray);
+}
+
+Eigen::Vector4f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSamples)
+{
+	Eigen::Vector4f luminosity = Eigen::Vector4f::Zero();
 
 	if (hit.ray->getDepth() >= 3)
 	{
@@ -86,13 +92,13 @@ Eigen::Vector3f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSampl
 		float pcont = hit.Attenuation.maxCoeff();
 		float rnd = uniform_random_01();
 		if (rnd >= pcont)
-			return Eigen::Vector3f::Zero();
+			return luminosity;
 		hit.Attenuation /= pcont;
 	}
 
 	if (hit.ray->getDepth() >= this->renderingMaxDepth)
 	{
-		return Eigen::Vector3f::Zero();
+		return luminosity;
 	}
 
 	if (this->RayCast(*hit.ray, hit))
@@ -110,7 +116,7 @@ void Renderer::Scene::PixelColor(int x, int y, int maxDepth, int nSamples, struc
 {
 	this->renderingMaxDepth = maxDepth;
 	this->scene_camera.updateViewMatrix();
-	Eigen::Vector3f rDirection = this->scene_camera.getRayDirection(x, y);
+	Eigen::Vector4f rDirection = this->scene_camera.getRayDirection(x, y);
 	rDirection = RotateVector(this->scene_camera.getViewMatrix(), rDirection);
 
 	HitInfo closest_hit = HitInfo::resetStruct();
@@ -120,7 +126,7 @@ void Renderer::Scene::PixelColor(int x, int y, int maxDepth, int nSamples, struc
 	//closest_hit.w = width; closest_hit.h = height;
 	
 
-	Eigen::Vector3f pixelColor = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+	Eigen::Vector4f pixelColor = Eigen::Vector4f::Zero();
 	bool firstHit = true;
 	int depth = 0;
 

@@ -2,11 +2,11 @@
 #include "Rendering/Ray.h"
 using namespace Renderer;
 
-Ray::Ray(Eigen::Vector4f Origin, Eigen::Vector4f Direction, int Depth, bool BackfaceHit, float MediumIndex) : Origin(Origin), Direction(Direction), 
+Ray::Ray(Eigen::Vector4f& Origin, Eigen::Vector4f& Direction, int Depth, bool BackfaceHit, float MediumIndex) : Origin(Origin), Direction(Direction), 
 depth(Depth), isBackfaceHit(BackfaceHit), RefractiveIndex(MediumIndex)
 {}
 
-Renderer::Ray::Ray(Eigen::Vector4f Origin, Eigen::Vector4f Direction, float MaxDistance) : Origin(Origin), Direction(Direction), MaxDistance(MaxDistance)
+Renderer::Ray::Ray(Eigen::Vector4f& Origin, Eigen::Vector4f& Direction, float MaxDistance) : Origin(Origin), Direction(Direction), MaxDistance(MaxDistance)
 {}
 
 Ray::~Ray()

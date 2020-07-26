@@ -45,6 +45,7 @@ void RenderManager::InitializeFramebuffer()
 void RenderManager::RenderScene(Scene scene, ImageType outputType)
 {
 	this->InitializeFramebuffer();
+	scene.scene_camera.updateViewMatrix();
 #ifdef paralellism
 	omp_set_num_threads(omp_get_max_threads());
 	std::cout << "max threads: " << omp_get_max_threads() << std::endl;

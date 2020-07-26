@@ -280,6 +280,8 @@ bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 {
 	bool has_hit = false;
 	Eigen::Vector4f Dir = ray.getDirection();
+	/*if (Dir(3) != 0.0f)
+		std::cout << "FUCK DIR: " << Dir(3) << std::endl;*/
 	bool DirIsNeg[3] = { Dir(0) < 0.0f, Dir(1) < 0.0f, Dir(2) < 0.0f };
 	Eigen::Vector4f invDir = Eigen::Vector4f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z(), 0.0f);//Dir.cwiseInverse();
 	int currentNode = 0;

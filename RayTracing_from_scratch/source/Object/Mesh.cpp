@@ -200,6 +200,7 @@ bool Mesh::is_hit_by_ShadowRay(Ray& incoming_ray)
 
 		if (hit_distance >= incoming_ray.getMaxDistance())
 			continue;
+
 		/// Without a little slack, a reflected ray sometimes hits the same
 		/// object again (machine precision..)
 		if (hit_distance <= 1e-6f)
@@ -209,6 +210,8 @@ bool Mesh::is_hit_by_ShadowRay(Ray& incoming_ray)
 
 		return true;
 	}
+
+	return false;
 }
 
 Mesh::~Mesh()

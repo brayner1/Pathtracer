@@ -18,9 +18,10 @@ namespace Renderer {
 		float U_factor, V_factor, Distance;
 		Eigen::Vector4f U_vector, V_vector;
 		Eigen::Vector4f Attenuation;
-		Eigen::Vector3f Albedo;
 		int x, y, w, h;
 		bool hitBackface;
+
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		static struct HitInfo resetStruct() {
 			HitInfo info;
@@ -30,7 +31,7 @@ namespace Renderer {
 			info.TextureCoord = Eigen::Vector2f::Zero();
 			info.U_factor = info.V_factor = info.Distance = 0.0f;
 			info.Attenuation = Eigen::Vector4f(1.0f, 1.0f, 1.0f, 0.0f);
-			info.Albedo = Eigen::Vector3f::Zero();
+			//info.Albedo = Eigen::Vector3f::Zero();
 			info.hitBackface = false;
 			return info;
 		}

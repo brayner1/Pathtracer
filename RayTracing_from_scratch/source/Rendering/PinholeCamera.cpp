@@ -84,13 +84,18 @@ void PinholeCamera::updateViewMatrix() {
 		return;
 	// Calcula a matriz de visualização utilizando a matriz de mudança de coordenadas
 	const float viewMat[] = {
-		this->right.x()                         , this->up.x()                         , this->front.x()                       , 0,
-		this->right.y()							, this->up.y()					       , this->front.y()		               , 0,
-		this->right.z()                         , this->up.z()					       , this->front.z()                       , 0,
-		-this->right.dot(this->position)		,-this->up.dot(this->position)		   , -this->front.dot(this->position)	   , 1
+		this->right.x()                         , this->up.x()                         , this->front.x()                       , 0.0f,
+		this->right.y()							, this->up.y()					       , this->front.y()		               , 0.0f,
+		this->right.z()                         , this->up.z()					       , this->front.z()                       , 0.0f,
+		-this->right.dot(this->position)		,-this->up.dot(this->position)		   , -this->front.dot(this->position)	   , 1.0f
 	};
+
+	//Eigen::Translation<float, 3> t = Eigen::Translation<float, 3>()
+	//Eigen::Quaternion<float, 4> q = Eigen::Quaternion<float, 4>()
 	//this->view_matrix.
+	this->camera_dirty = false;
 	this->view_matrix = Eigen::Matrix4f(viewMat);
+	
 }
 
 Eigen::Vector4f PinholeCamera::getRayDirection(float x, float y) const

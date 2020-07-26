@@ -11,6 +11,8 @@ namespace Renderer
 		Eigen::Vector4f Albedo;
 		Eigen::Vector4f Normal;
 
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 		struct OutputProperties()
 		{
 			this->Color = Eigen::Vector4f::Zero();
@@ -38,6 +40,8 @@ namespace Renderer
 		void SaveBufferToPPM(std::string out_file_path);
 
 		void InitializeFramebuffer();
+
+		//void InitializeRay
 
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW

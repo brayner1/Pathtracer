@@ -115,15 +115,16 @@ Eigen::Vector4f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSampl
 void Renderer::Scene::PixelColor(int x, int y, int maxDepth, int nSamples, struct OutputProperties &OP)
 {
 	this->renderingMaxDepth = maxDepth;
-	this->scene_camera.updateViewMatrix();
+	//this->scene_camera.updateViewMatrix();
 	Eigen::Vector4f rDirection = this->scene_camera.getRayDirection(x, y);
-	rDirection = RotateVector(this->scene_camera.getViewMatrix(), rDirection);
 
+	rDirection = RotateVector(this->scene_camera.getViewMatrix(), rDirection);
 	HitInfo closest_hit = HitInfo::resetStruct();
 	closest_hit.x = x; closest_hit.y = y;
 	closest_hit.Point = this->scene_camera.getPosition();
 	closest_hit.ray = new Ray(closest_hit.Point, rDirection, 0);
 	//closest_hit.w = width; closest_hit.h = height;
+	
 	
 
 	Eigen::Vector4f pixelColor = Eigen::Vector4f::Zero();

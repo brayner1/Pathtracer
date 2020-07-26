@@ -14,6 +14,8 @@ RefractiveMaterial::~RefractiveMaterial()
 {
 }
 
+//#define RefrColorDebug
+
 Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples)
 {
 	int wantedX = 338, wantedY = 433;
@@ -22,6 +24,16 @@ Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 	Eigen::Vector4f Point = hit_info.Point;
 	Eigen::Vector4f N = hit_info.Normal;
 	Eigen::Vector4f rayDir = hit_info.ray->getDirection();
+#ifdef RefrColorDebug
+	if (hit_info.ray->getDepth() == 0)
+	{
+
+		if (N(3) != 0.0f)
+			std::cout << "FUCK N: " << N(3) << std::endl;
+		if (rayDir(3) != 0.0f)
+			std::cout << "FUCK DIR: " << rayDir(3) << std::endl << 512 - (hit_info.x + 256) << ", " << 512 - (hit_info.y + 256) << std::endl;
+	}
+#endif // RefrColorDebug
 	float u = hit_info.TextureCoord.x(), v = hit_info.TextureCoord.y();
 	bool isBackfaceHit = hit_info.hitBackface;
 
@@ -38,8 +50,10 @@ Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 
 	Eigen::Vector4f rDirection, tDirection;
 	rDirection = (rayDir - 2.0f * N.dot(rayDir) * N).normalized();
-
-	
+#ifdef RefrColorDebug2
+	if (rDirection(3) != 0.0f)
+		std::cout << "FUCK R: " << rDirection(3)  << std::endl;
+#endif // RefrColorDebug
 
 	Eigen::Vector4f IndirectIllum = Eigen::Vector4f::Zero();
 	int depth = hit_info.ray->getDepth() + 1;
@@ -98,8 +112,12 @@ Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 // 			std::cout << "Refraction Att: " << hit_info.Attenuation.x() << ", " << hit_info.Attenuation.y() << ", " << hit_info.Attenuation.z() << std::endl;
 // 		}
 // 		
-
+		 
 		tDirection = (r * rayDir + (r * cosi - cost) * N).normalized();
+#ifdef RefrColorDebug2
+		if (tDirection(3) != 0.0f)
+			std::cout << "FUCK T: " << tDirection(3)  << std::endl;
+#endif // RefrColorDebug
 		hit_info.ray = new Ray(Point, tDirection, depth, true, etat);
 		IndirectIllum += scene.RayCastColor(*hit_info.ray, hit_info, nSamples);
 
@@ -111,7 +129,7 @@ Eigen::Vector4f Renderer::RefractiveMaterial::ObjectHitColor(Scene& scene, HitIn
 // 		}
 	}
 
-	return IndirectIllum.array();
+	return IndirectIllum;
 }
 
 Eigen::Vector4f Renderer::RefractiveMaterial::getDirectIllumination(Scene& scene, HitInfo& hit_info)

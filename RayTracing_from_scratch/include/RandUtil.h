@@ -30,7 +30,10 @@ inline Eigen::Vector4f random_hemisphere_vector(Eigen::Vector4f& Normal, Eigen::
 
 inline Eigen::Vector4f RotateVector(Eigen::Matrix4f& matrix, Eigen::Vector4f& vector)
 {
-	return matrix.transpose() * vector;
+	Eigen::Matrix4f transf = matrix.transpose();
+	transf.block<1, 3>(3, 0) = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+	Eigen::Vector4f r = transf * vector;
+	return r;
 }
 
 // Illumination Utilities Functions

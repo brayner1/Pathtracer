@@ -14,11 +14,11 @@ namespace Renderer {
 		std::vector<Object*> scene_objects;
 		ObjectTree* SceneRoot;
 		std::vector<Light*> scene_lights;
-		PinholeCamera scene_camera;
 
 		int renderingMaxDepth = 8;
 
 	public:
+		PinholeCamera scene_camera;
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		Scene(PinholeCamera mainCamera = PinholeCamera());

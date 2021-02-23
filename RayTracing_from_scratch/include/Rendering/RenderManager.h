@@ -44,7 +44,7 @@ namespace Renderer
 
 		RenderManager(int width = 512, int height = 512, float horizontal_field_of_view = 60.0f);
 
-		void RenderScene(Scene scene, ImageType outputType);
+		void RenderScene(Scene& scene, ImageType outputType);
 
 
 		void ExecuteDenoiser();

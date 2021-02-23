@@ -38,7 +38,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	BVHTreeNode node;
 
 	// Calculate node bound
-	Eigen::AlignedBox3f bound = objsInfo[start].bounds;
+	Eigen::AlignedBox3f bound;
 	for (size_t i = start; i < end; i++)
 	{
 		bound.extend(objsInfo[i].bounds);
@@ -73,7 +73,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	
 	// Calculate Centroid Bounds
 	Eigen::AlignedBox3f centroidBounds;
-	for (int i = 0; i < end; i++)
+	for (int i = start; i < end; i++)
 	{
 		Eigen::Vector3f centroid = objsInfo[i].centroid;
 		centroidBounds.extend(centroid);
@@ -159,7 +159,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 			for (int i = start; i < end; i++)
 			{
 				int j = NSlices * BoundOffset(centroidBounds, objsInfo[i].centroid)(dim);
-				if (j == NSlices) j--;
+				if (j == NSlices) j -= 1;
 
 				slices[j].ObjCount++;
 				slices[j].bounds.extend(objsInfo[i].bounds);
@@ -190,7 +190,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 
 			float minCost = cost[0];
 			int minCostIndex = 0;
-			for (int i = 0; i < NSlices - 1; i++)
+			for (int i = 1; i < NSlices - 1; i++)
 			{
 				if (cost[i] < minCost)
 				{

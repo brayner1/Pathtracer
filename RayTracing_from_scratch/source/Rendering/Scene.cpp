@@ -109,7 +109,7 @@ Eigen::Vector3f Renderer::Scene::RayCastColor(Ray& ray, HitInfo& hit, int nSampl
 void Renderer::Scene::PixelColor(int x, int y, int maxDepth, int nSamples, struct OutputProperties &OP)
 {
 	this->renderingMaxDepth = maxDepth;
-	this->scene_camera.updateViewMatrix();
+	//this->scene_camera.updateViewMatrix();
 	Eigen::Vector3f rDirection = this->scene_camera.getRayDirection(x, y);
 	rDirection = RotateVector(this->scene_camera.getViewMatrix(), rDirection);
 

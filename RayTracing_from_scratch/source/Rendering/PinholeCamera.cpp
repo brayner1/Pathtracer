@@ -81,7 +81,7 @@ void PinholeCamera::lookAt(Eigen::Vector3f target)
 void PinholeCamera::updateViewMatrix() {
 	if (!this->camera_dirty)
 		return;
-	// Calcula a matriz de visualização utilizando a matriz de mudança de coordenadas
+	// Calcula a matriz de visualização utilizando a matriz de mudança de coordenadas (Column-wise order)
 	const float viewMat[] = {
 		this->right.x()                         , this->up.x()                         , this->front.x()                       , 0,
 		this->right.y()							, this->up.y()					       , this->front.y()		               , 0,

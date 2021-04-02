@@ -1,5 +1,5 @@
 # Raytracer
-Pure C++ Pathtracer being implemented for study purposes. Use some open external librarys for 3D object loading, image loading for textures and vector operations.
+Pure C++ Pathtracer being implemented for study purposes. Use some open external librarys for 3D object loading, image loading for textures, rendering denoising and vector operations.
 For now, it supports pure diffuse, pure specular and pure transparent materials.
 
 ## Sample Image:

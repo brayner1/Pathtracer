@@ -9,9 +9,10 @@ namespace Renderer
 	class ObjectTree
 	{
 	public:
+		virtual ~ObjectTree() = default;
 
-		virtual bool Intersect(Ray& ray) = 0;
-		virtual bool Intersect(Ray& ray, HitInfo& hit) = 0;
+		virtual bool Intersect(const Ray& ray, HitInfo& hit) = 0;
+		virtual float Intersect(const Ray& ray) = 0;
 
 	};
 

@@ -218,7 +218,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 			{
 				int firstObjIndex = orderedObjs.size();
 
-				std::cout << "adding same SAH non dividible primitives: " << nObjs << std::endl;
+				std::cout << "adding same SAH non divisible primitives: " << nObjs << std::endl;
 
 				for (int i = start; i < end; i++)
 				{
@@ -227,7 +227,6 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 				}
 
 				node.Leaf(firstObjIndex, nObjs, bound);
-				//NodeArray.push_back(node);
 
 				return node;
 			}
@@ -251,7 +250,7 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	NodeArray.push_back(left);
 	left = RecursiveBuildTree(orderedObjs, objsInfo, start, mid, totalNodes);
 	NodeArray[leftIndex] = left;
-	//left = RecursiveBuildTree(orderedObjs, objsInfo, start, mid, totalNodes);
+	
 	BVHTreeNode right;
 	int SecondChildIndex = NodeArray.size();
 	std::cout << "node " << nodeIndex << " second child index: " << SecondChildIndex << std::endl;
@@ -275,12 +274,12 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	return node;
 }
 
-bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
+bool Renderer::BVHTree::Intersect(const Ray& ray, HitInfo& hit)
 {
 	bool has_hit = false;
 	Eigen::Vector3f Dir = ray.getDirection();
 	Eigen::Vector3f invDir = Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());//Dir.cwiseInverse();
-	bool DirIsNeg[3] = { Dir.x() < 0.0f, Dir.y() < 0.0f, Dir.z() < 0.0f };
+	//bool DirIsNeg[3] = { Dir.x() < 0.0f, Dir.y() < 0.0f, Dir.z() < 0.0f };
 	int currentNode = 0;
 	float min_dist = FLT_MAX;
 
@@ -300,12 +299,10 @@ bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 			if (node->NumObjs > 0)
 			{
 				//std::cout << "Leaf bound hit" << std::endl;
-				int objOffset = node->ObjOffset, finalOffset = node->ObjOffset + node->NumObjs;
+				const int objOffset = node->ObjOffset, finalOffset = node->ObjOffset + node->NumObjs;
 				//std::cout << "currentNode: " << currentNode << std::endl;
 				for (int i = objOffset; i < finalOffset; i++)
 				{
-					if (!Objects[i])
-						std::cout << "testing obj: " << i << std::endl;
 					HitInfo hit_info = hit;
 					if (Objects[i]->is_hit_by_ray(ray, hit_info))
 					{
@@ -323,12 +320,12 @@ bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 		 	}
 			else
 			{
-				if (DirIsNeg[node->SplitAxis])
+				/*if (DirIsNeg[node->SplitAxis])
 				{
 					VisitStack.push_back(currentNode + 1);
 					currentNode = node->SecondChildOffset;
 				}
-				else
+				else*/
 				{
 					currentNode++;
 					VisitStack.push_back(node->SecondChildOffset);
@@ -353,14 +350,15 @@ bool Renderer::BVHTree::Intersect(Ray& ray, HitInfo& hit)
 	return has_hit;
 }
 
-bool Renderer::BVHTree::Intersect(Ray& ray)
+float Renderer::BVHTree::Intersect(const Ray& ray)
 {
 	//bool has_hit = false;
 	Eigen::Vector3f Dir = ray.getDirection();
 	Eigen::Vector3f invDir = Dir.cwiseInverse();
 	Eigen::Vector3i DirIsNeg = { Dir.x() < 0, Dir.y() < 0, Dir.z() < 0 };
 	int visitOffset = 0, currentNode = 0;
-	//float min_dist = FLT_MAX;
+	float min_dist = FLT_MAX;
+	bool hasHit = false;
 
 	std::vector<int> VisitStack;
 	VisitStack.reserve(128);
@@ -373,25 +371,28 @@ bool Renderer::BVHTree::Intersect(Ray& ray)
 		{
 			if (node->NumObjs > 0)
 			{
-				int objOffset = node->ObjOffset, numObjs = node->NumObjs;
-				for (int i = objOffset; i < numObjs; i++)
+				const int objOffset = node->ObjOffset, finalOffset = node->ObjOffset + node->NumObjs;
+				for (int i = objOffset; i < finalOffset; i++)
 				{
-					HitInfo hit_info;
-					if (Objects[i]->is_hit_by_ray(ray, hit_info))
+					float t = Objects[i]->is_hit_by_ray(ray);
+					if (t > 0.f && t < min_dist)
 					{
-						//has_hit = true;
-						return true;
+						hasHit = true;
+						min_dist = t;
 					}
 				}
+				if (VisitStack.size() == 0) break;
+				currentNode = VisitStack.back();
+				VisitStack.pop_back();
 			}
 			else
 			{
-				if (DirIsNeg[node->SplitAxis])
+				/*if (DirIsNeg[node->SplitAxis])
 				{
 					VisitStack.push_back(currentNode + 1);
 					currentNode = node->SecondChildOffset;
 				}
-				else
+				else*/
 				{
 					currentNode++;
 					VisitStack.push_back(node->SecondChildOffset);
@@ -409,11 +410,11 @@ bool Renderer::BVHTree::Intersect(Ray& ray)
 
 	}
 
-	return false;
+	return hasHit? min_dist : -1.f;
 }
 
 
-void Renderer::BVHTree::PrinTree()
+void Renderer::BVHTree::PrintTree()
 {
 	int count = 0, currentNode = 0;
 

@@ -1,19 +1,18 @@
-#pragma once
-#include "Rendering/Ray.h"
-#include "Shading/Material.h"
-
 #ifndef OBJECT_H
 #define OBJECT_H
+#include "Rendering/Ray.h"
+#include "Shading/Material.h"
 
 namespace Renderer {
 	//class Material;
 	class Object;
 	struct HitInfo {
 		Object* obj;
-		Ray* ray;
+
 		Material * Material;
 		Eigen::Vector3f Point;
-		Eigen::Vector3f Normal;
+		Eigen::Vector3f surfNormal;
+		Eigen::Vector3f shadNormal;
 		Eigen::Vector2f TextureCoord;
 		float U_factor, V_factor, Distance;
 		Eigen::Vector3f U_vector, V_vector;
@@ -26,7 +25,7 @@ namespace Renderer {
 			HitInfo info;
 			info.obj = NULL;
 			info.Material = NULL;
-			info.Point = info.Normal = Eigen::Vector3f::Zero();
+			info.Point = info.surfNormal = Eigen::Vector3f::Zero();
 			info.TextureCoord = Eigen::Vector2f::Zero();
 			info.U_factor = info.V_factor = info.Distance = 0.0f;
 			info.Attenuation = Eigen::Vector3f::Ones();
@@ -49,10 +48,10 @@ namespace Renderer {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		Object();
-		~Object();
+		virtual ~Object();
 
-		virtual bool is_hit_by_ray(
-			Ray& incoming_ray, HitInfo& hit_info) = 0;
+		virtual bool is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) = 0;
+		virtual float is_hit_by_ray(const Ray& incoming_ray) = 0;
 
 		bool is_bounds_hit(Ray& incoming_ray);
 

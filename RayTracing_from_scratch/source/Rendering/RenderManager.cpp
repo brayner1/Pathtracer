@@ -6,12 +6,12 @@ using namespace Renderer;
 
 void RenderManager::SaveBufferToPPM(std::string out_file_path)
 {
+	std::cout << "starting to write image" << std::endl;
 	std::ofstream outfile(out_file_path);
 	outfile << "P3 " << this->width << " " << this->height << " 255";
-	std::cout << "starting to write image" << std::endl;
-	for (int y = height - 1; y >= 0; y--)
+	for (int y = 0; y < height; y++)
 	{
-		for (int x = width - 1; x >= 0; x--)
+		for (int x = 0; x < width; x++)
 		{
 			//std::cout << "writing pixel: " << x << ", " << y << std::endl;
 			outfile << " " << frameBuffer[0][x][y] << " " << frameBuffer[1][x][y] << " " << frameBuffer[2][x][y];
@@ -45,7 +45,6 @@ void RenderManager::InitializeFramebuffer()
 void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 {
 	this->InitializeFramebuffer();
-	scene.scene_camera.updateViewMatrix();
 #ifdef paralellism
 	omp_set_num_threads(omp_get_max_threads());
 	std::cout << "max threads: " << omp_get_max_threads() << std::endl;
@@ -54,64 +53,64 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 	int* it = new int; *it = 0;
 	int* lastreport = new int; *lastreport = -1;
 
-	
+	const std::clock_t start = std::clock();
 
-#pragma omp parallel for shared(lastreport, it)
-#endif // paralellism
-	for (int y = height / 2; y >= -(height / 2) + ((height + 1) % 2); --y) 
-	{    /// Rows
-#ifdef paralellism
 //#pragma omp parallel for shared(lastreport, it)
+	#pragma omp parallel for shared(lastreport, it) schedule(dynamic, 16)
 #endif // paralellism
-		for (int x = -(width / 2) + ((width + 1) % 2); x <= width / 2; ++x) 
-		{  /// Columns
-			Eigen::Vector3f finalColor = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f finalAlbedo = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-			Eigen::Vector3f finalNormal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+	for (int idx = 0; idx < width * height; idx++)
+	{  /// Columns
+		int x = idx % height;
+		int y = idx / width;
+		Eigen::Vector3f finalColor = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		Eigen::Vector3f finalAlbedo = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+		Eigen::Vector3f finalNormal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 
-			OutputProperties OP = OutputProperties();
-			scene.PixelColor(x, y, maxDepth, this->samplesPerPixel, OP);
-			finalColor = OP.Color;
-			finalAlbedo = OP.Albedo;
-			finalNormal = OP.Normal;
+		OutputProperties OP = OutputProperties();
+		scene.PixelColor(x, y, maxDepth, this->samplesPerPixel, OP);
+		finalColor = OP.Color;
+		finalAlbedo = OP.Albedo;
+		finalNormal = OP.Normal;
 
-			finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+		finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 
-			
-			int rawIndex = (x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3;
-			int xIndex = x + width / 2 - 1, yIndex = y + height / 2 - 1;
+		
+		//int rawIndex = (x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3;
+		int rawIndex = (x + (y * width)) * 3;
+		//int xIndex = x + width / 2 - 1, yIndex = y + height / 2 - 1;
 
 #pragma omp critical
+		{
+			*it += 1;
+			int prog = (*it)*100.0f / total;
+			if ((prog % 5) == 0 && prog != *lastreport)
 			{
-				*it += 1;
-				int prog = (*it)*100.0f / total;
-				if ((prog % 5) == 0 && prog != *lastreport)
-				{
-					*lastreport = prog;
-					std::cout << "Progress: " << prog << "%" << std::endl << "Pixel: " << *it << " of " << total << std::endl;
-				}
-				
-				this->colorBuffer[rawIndex + 0] = finalColor.x();
-				this->colorBuffer[rawIndex + 1] = finalColor.y();
-				this->colorBuffer[rawIndex + 2] = finalColor.z();
-
-				this->albedoBuffer[rawIndex + 0] = finalAlbedo.x();
-				this->albedoBuffer[rawIndex + 1] = finalAlbedo.y();
-				this->albedoBuffer[rawIndex + 2] = finalAlbedo.z();
-
-				this->normalBuffer[rawIndex + 0] = finalNormal.x();
-				this->normalBuffer[rawIndex + 1] = finalNormal.y();
-				this->normalBuffer[rawIndex + 2] = finalNormal.z();
-				
-				frameBuffer[0][xIndex][yIndex] = (int)(powf(finalColor.x(), 1.0f / this->gamma) * 255.f);
-				frameBuffer[1][xIndex][yIndex] = (int)(powf(finalColor.y(), 1.0f / this->gamma) * 255.f);
-				frameBuffer[2][xIndex][yIndex] = (int)(powf(finalColor.z(), 1.0f / this->gamma) * 255.f);
+				*lastreport = prog;
+				std::cout << "Progress: " << prog << "%" << std::endl << "Pixel: " << *it << " of " << total << std::endl;
 			}
+			
+			this->colorBuffer[rawIndex + 0] = finalColor.x();
+			this->colorBuffer[rawIndex + 1] = finalColor.y();
+			this->colorBuffer[rawIndex + 2] = finalColor.z();
+
+			this->albedoBuffer[rawIndex + 0] = finalAlbedo.x();
+			this->albedoBuffer[rawIndex + 1] = finalAlbedo.y();
+			this->albedoBuffer[rawIndex + 2] = finalAlbedo.z();
+
+			this->normalBuffer[rawIndex + 0] = finalNormal.x();
+			this->normalBuffer[rawIndex + 1] = finalNormal.y();
+			this->normalBuffer[rawIndex + 2] = finalNormal.z();
+			
+			frameBuffer[0][x][y] = (int)(powf(finalColor.x(), 1.0f / this->gamma) * 255.f);
+			frameBuffer[1][x][y] = (int)(powf(finalColor.y(), 1.0f / this->gamma) * 255.f);
+			frameBuffer[2][x][y] = (int)(powf(finalColor.z(), 1.0f / this->gamma) * 255.f);
 		}
 	}
+	
 
 
-
+	const float duration = (std::clock() - start) / (float)CLOCKS_PER_SEC;
+	std::cout << "rendered in " << duration << " seconds" << std::endl;
 
 	
 
@@ -122,9 +121,9 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 	this->SaveBufferToPPM("img.ppm");
 
 
-	for (int x = 0; x < width; x++)
+	for (int y = 0; y < height; y++)
 	{
-		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
 			frameBuffer[0][x][y] = (int)(powf((normalBuffer[(x + y * width) * 3 + 0] + 1.0f)/2.0f, 1.0f / this->gamma) * 255.f);
 			frameBuffer[1][x][y] = (int)(powf((normalBuffer[(x + y * width) * 3 + 1] + 1.0f)/2.0f, 1.0f / this->gamma) * 255.f);
@@ -133,9 +132,9 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 	}
 	this->SaveBufferToPPM("normal.ppm");
 
-	for (int x = 0; x < width; x++)
+	for (int y = 0; y < height; y++)
 	{
-		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
 			frameBuffer[0][x][y] = (int)(powf(albedoBuffer[(x + y * width) * 3 + 0], 1.0f / this->gamma) * 255.f);
 			frameBuffer[1][x][y] = (int)(powf(albedoBuffer[(x + y * width) * 3 + 1], 1.0f / this->gamma) * 255.f);
@@ -168,9 +167,9 @@ void Renderer::RenderManager::ExecuteDenoiser()
 	else
 		std::cout << "No error!" << std::endl;
 	
-	for (int x = 0; x < width; x++)
+	for (int y = 0; y < height; y++)
 	{
-		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
 			frameBuffer[0][x][y] = (int)(powf(output[(x + y * width) * 3 + 0], 1.0f / this->gamma) * 255.f);
 			frameBuffer[1][x][y] = (int)(powf(output[(x + y * width) * 3 + 1], 1.0f / this->gamma) * 255.f);
@@ -186,7 +185,7 @@ RenderManager::RenderManager(int width, int height, float horizontal_field_of_vi
 	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
 	this->horizontal_fov = horizontal_field_of_view;
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
-	this->samplesPerPixel = 20;
+	this->samplesPerPixel = 32;
 	this->maxDepth = 8;
 }
 

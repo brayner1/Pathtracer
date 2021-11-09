@@ -76,10 +76,10 @@ void SceneLoader::convertAssimpScene()
 	std::list<aiNode*> nodes;
 
 	nodes.push_back(this->assimp_scene->mRootNode);
-	int i = 0;
+	int j = 0;
 	while (nodes.size()) {
 		aiNode * nd = nodes.back();
-		std::cout << "node: " << i << std::endl;
+		std::cout << "node: " << j++ << std::endl;
 		std::cout << "numMesh: " << nd->mNumMeshes << std::endl;
 		std::cout << "numChildren: " << nd->mNumChildren << std::endl;
 		nodes.pop_back();
@@ -94,11 +94,11 @@ void SceneLoader::convertAssimpScene()
 			
 			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
 			vertices.reserve(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;// = std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;// = std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>>(numVerts);
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
+			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;	// = std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>(numVerts);
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
+			std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;	// = std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>>(numVerts);
 			indices.reserve(mesh->mNumFaces);
 			// Populate vertices
 			for (size_t t = 0; t < mesh->mNumVertices; t++)
@@ -129,23 +129,31 @@ void SceneLoader::convertAssimpScene()
 			int materialIndex = mesh->mMaterialIndex;
 			aiMaterial* material = this->assimp_scene->mMaterials[materialIndex];
 			//aiPropertyTypeInfo type = prop->mType;
-			aiColor4D specularColor;
 			aiColor4D diffuseColor;
+			aiColor4D specularColor;
 			aiColor4D ambientColor;
 			float shininess;
+			float opacity;
 
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &specularColor);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &ambientColor);
 			aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &shininess);
+			material->Get(AI_MATKEY_OPACITY, opacity);
 			//mat->Get(key.C_Str(), 0, 0, cor);
 			
 			std::cout << "Data: " << specularColor.r << ", " << specularColor.g << ", " << specularColor.b << /*", " << cor.a <<*/ std::endl;
 
 			Object* scene_mesh = new Mesh(vertices, indices, vNormals, textCoord, vTangent, vBitangent);
-			DiffuseMaterial* converted_material = new DiffuseMaterial(convert_assimp_color(diffuseColor));
+			Material* mat = nullptr;
+			if (opacity < 1.f)
+				mat = new Renderer::RefractiveMaterial(convert_assimp_color(diffuseColor), 1.45f);
+			else if (!specularColor.IsBlack())
+				mat = new Renderer::GlossyMaterial(convert_assimp_color(diffuseColor));
+			else
+				mat = new DiffuseMaterial(convert_assimp_color(diffuseColor));
 			scene_mesh->SetBounds(boundingBox);
-			scene_mesh->setMaterial(converted_material);
+			scene_mesh->setMaterial(mat);
 			//aiMatrix4x4t<float> transf;
 			
 

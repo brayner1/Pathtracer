@@ -67,6 +67,12 @@
     <Filter Include="source\Rendering\Integrators">
       <UniqueIdentifier>{3e6a51d9-0369-4013-92eb-a16f2be2df14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers\Memory">
+      <UniqueIdentifier>{c5b72356-91e3-4b59-bf17-3b5a04cd1e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Memory">
+      <UniqueIdentifier>{7d4ee954-0f0c-46ba-8461-71369563d3bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\RayTracing_from_scratch.cpp">
@@ -134,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="source\Rendering\BVHTree.cpp">
       <Filter>source\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Memory\MemoryPool.cpp">
+      <Filter>source\Memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +222,12 @@
       <Filter>headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\BVHTree.h">
+      <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Memory\MemoryPool.h">
+      <Filter>headers\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\RenderingUtils.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,7 +19,7 @@
 #include "Shading/DiffuseMaterial.h"
 #include "Shading/GlossyMaterial.h"
 #include "Shading/RefractiveMaterial.h"
-#include "Shading/BxDF.h"
+//#include "Shading/BxDF.h"
 
 #include "OpenImageDenoise/oidn.hpp"
 #include "RandUtil.h"

@@ -4,7 +4,7 @@
 
 using namespace Renderer;
 
-bool FlatTree::Intersect(Ray& ray, HitInfo& hit)
+bool FlatTree::Intersect(const Ray& ray, HitInfo& hit)
 {
 	Eigen::Vector3f Dir = ray.getDirection();
 	Eigen::Vector3f invDir = Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());
@@ -27,13 +27,14 @@ bool FlatTree::Intersect(Ray& ray, HitInfo& hit)
 	return has_hit;
 }
 
-bool FlatTree::Intersect(Ray& ray)
+float FlatTree::Intersect(const Ray& ray)
 {
+	float min_dist = std::numeric_limits<float>::max();
 	for (int i = 0; i < Objects.size(); i++) {
-		HitInfo temp;
-		if (Objects[i]->is_hit_by_ray(ray, temp)) {
-			return true;
+		float t = Objects[i]->is_hit_by_ray(ray);
+		if (t > 0.f && t < min_dist) {
+			min_dist = t;
 		}
 	}
-	return false;
+	return min_dist != std::numeric_limits<float>::max()? min_dist : -1.f;
 }

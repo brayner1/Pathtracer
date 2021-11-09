@@ -20,9 +20,11 @@ GroundPlane::GroundPlane(Eigen::Vector3f color, float height, bool checkerboard)
 
 GroundPlane::~GroundPlane()
 {
+	Object::~Object();
+	delete Material2;
 }
 
-bool GroundPlane::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
+bool GroundPlane::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
 {
 	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
 		return false;
@@ -49,12 +51,20 @@ bool GroundPlane::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 			hit_info.Material = this->Material2;
 	}
 	hit_info.Point = Eigen::Vector3f(hit_point_X, this->Height, hit_point_Z);
-	hit_info.Normal = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
+	hit_info.surfNormal = Eigen::Vector3f(0.0f, 1.0f, 0.0f);
 	hit_info.U_vector = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 	hit_info.V_vector = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
 	hit_info.obj = this;
 	return true;
 
+}
+
+float GroundPlane::is_hit_by_ray(const Ray& incoming_ray)
+{
+	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
+		return false;
+	}
+	return (this->Height-incoming_ray.getOrigin().y()) / incoming_ray.getDirection().y();;
 }
 
 void GroundPlane::setSquareSize(int size)

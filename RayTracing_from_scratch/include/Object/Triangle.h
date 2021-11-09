@@ -25,7 +25,8 @@ namespace Renderer {
 		Triangle(Eigen::Vector3f p0, Eigen::Vector3f p1, Eigen::Vector3f p2, Eigen::Vector3f color = Eigen::Vector3f(0.8f, 0.5f, 0.8f));
 		~Triangle();
 
-		bool is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info);
+		bool is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) override;
+		float is_hit_by_ray(const Ray& incoming_ray) override;
 
 		static bool triangle_hit_by_ray(const TriangleStruct& triangle, 
 			Ray& incoming_ray,

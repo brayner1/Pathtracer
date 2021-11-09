@@ -14,8 +14,8 @@ namespace Renderer
 
         FlatTree(std::vector<Object*>& objects) : Objects(objects) {}
 
-        bool Intersect(Ray& ray, HitInfo& hit);
-        bool Intersect(Ray& ray);
+        bool Intersect(const Ray& ray, HitInfo& hit);
+        float Intersect(const Ray& ray);
 
     private:
         std::vector<Object*> Objects;

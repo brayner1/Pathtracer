@@ -1,4 +1,7 @@
 #pragma once
+#include <Unsupported/Eigen/AlignedVector3>
+#include <Unsupported/Eigen/AlignedVector3>
+
 #include "Object/Object.h"
 #include "Rendering/Light.h"
 #include "Rendering/PinholeCamera.h"
@@ -27,19 +30,20 @@ namespace Renderer {
 		void setCamera(PinholeCamera mainCamera);
 
 		void insertObject(Renderer::Object* new_object);
-		std::vector<Renderer::Object*> getObjects() const;
+		const std::vector<Renderer::Object*>& getObjects() const;
 
 		void BuildSceneTree();
 
 		void insertLight(Light* new_light);
-		std::vector<Light*> getLights() const;
+		const std::vector<Renderer::Light*>& getLights() const;
 
 		const Eigen::Vector3f getAmbientColor() const;
 		const float getAmbientFactor() const;
 
-		bool RayCast(Ray& ray, HitInfo &hit);
+		bool RayCast(const Ray& ray, HitInfo &hit) const;
+		float RayCast(const Ray& ray) const;
 
-		Eigen::Vector3f RayCastColor(Ray& ray, HitInfo& hit, int nSamples);
+		Eigen::Vector3f GetPathLi(const Ray& ray, HitInfo& hit);
 
 		void PixelColor(int x, int y, int maxDepth, int nSamples, struct OutputProperties &OP);
 	};

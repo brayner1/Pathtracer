@@ -10,8 +10,8 @@ namespace Renderer {
 		Scene renderer_scene;
 		const aiScene* assimp_scene;
 
-		Eigen::AlignedBox3f get_bounding_box_for_node(const aiNode * nd, 
-			aiMatrix4x4t<float> trafo, 
+		Eigen::AlignedBox3f get_bounding_box_for_node(const aiNode* nd,
+			aiMatrix4x4t<float> trafo,
 			const Eigen::AlignedBox3f* const previous_boundingBox
 		);
 
@@ -24,11 +24,13 @@ namespace Renderer {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		SceneLoader(std::string file_path);
+			SceneLoader(std::string file_path);
 
 		void convertAssimpScene();
 		const Scene getRendererScene();
 
 		~SceneLoader();
 	};
+
+
 }

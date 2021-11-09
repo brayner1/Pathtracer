@@ -16,7 +16,7 @@ Triangle::~Triangle()
 {
 }
 
-bool Triangle::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
+bool Triangle::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
 {
 
 	if(incoming_ray.getDirection().dot(this->normal) > 0)
@@ -63,12 +63,45 @@ bool Triangle::is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info)
 	// Perfect reflection
 	hit_info.Point = P0 + u * u_factor + v * v_factor;
 	hit_info.Material = this->material;
-	hit_info.Normal = this->normal;
+	hit_info.surfNormal = this->normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;
 	hit_info.Distance = hit_distance;
 	return true;
 
+}
+
+float Triangle::is_hit_by_ray(const Ray& incoming_ray)
+{
+	
+	if(incoming_ray.getDirection().dot(this->normal) > 0)
+		return -1.f;
+
+	Eigen::Vector3f r = incoming_ray.getDirection();
+	Eigen::Vector3f o = incoming_ray.getOrigin();
+
+	Eigen::Vector3f tvec = o - P0;
+	Eigen::Vector3f pvec = r.cross(v);
+	float det = pvec.dot(u);
+	float inv_det = 1.0f / det;
+
+	const float u_factor = pvec.dot(tvec)* inv_det;
+	if (u_factor < 0.0f || u_factor > 1.0f)
+		return -1.f;
+
+	Eigen::Vector3f qvec = tvec.cross(u);
+	const float v_factor = qvec.dot(r) * inv_det;
+	if (v_factor < 0.0f || u_factor + v_factor > 1.0f)
+		return -1.f;
+
+	const float dist_factor = qvec.dot(v) * inv_det;
+	if (dist_factor < 0)
+		return -1.f;
+
+	if (dist_factor <= 1e-6f)
+		return false;
+
+	return dist_factor;
 }
 
 bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming_ray, HitInfo& hit_info)
@@ -134,7 +167,7 @@ bool Triangle::triangle_hit_by_ray(const TriangleStruct &triangle, Ray& incoming
 	}
 
 	hit_info.Point = *triangle.P0 + u * u_factor + v * v_factor;
-	hit_info.Normal = normal;
+	hit_info.surfNormal = normal;
 	hit_info.U_factor = u_factor;
 	hit_info.V_factor = v_factor;
 	hit_info.U_vector = u;

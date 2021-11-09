@@ -11,7 +11,7 @@ namespace Renderer
 		Eigen::Vector3f Albedo;
 		Eigen::Vector3f Normal;
 
-		struct OutputProperties()
+		OutputProperties()
 		{
 			this->Color = Eigen::Vector3f::Zero();
 			this->Albedo = Eigen::Vector3f::Zero();

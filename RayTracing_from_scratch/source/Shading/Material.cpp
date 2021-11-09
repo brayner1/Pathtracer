@@ -104,4 +104,5 @@ const Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v) co
 
 Renderer::Material::~Material()
 {
+	delete albedoTexture;
 }

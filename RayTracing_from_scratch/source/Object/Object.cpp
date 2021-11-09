@@ -10,6 +10,7 @@ Object::Object()
 
 Object::~Object()
 {
+	delete material;
 }
 
 bool Renderer::Object::is_bounds_hit(Ray& incoming_ray)

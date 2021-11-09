@@ -4,7 +4,19 @@
 namespace Renderer {
 	class Scene;
 	class Texture;
+	class Ray;
 	struct HitInfo;
+
+	enum eSampleType
+	{
+		BSDF_NONE = 0,
+		BSDF_DIFFUSE = 1 << 0,
+		BSDF_SPECULAR = 1 << 1,
+		BSDF_REFLECTION = 1 << 2,
+		BSDF_TRANSMISSION = 1 << 3,
+		BSDF_ALL = BSDF_DIFFUSE | BSDF_SPECULAR | BSDF_REFLECTION | BSDF_TRANSMISSION
+	};
+
 	class Material 
 	{
 	protected:
@@ -24,8 +36,10 @@ namespace Renderer {
 		Material (Eigen::Vector3f diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f));
 		Material (Texture* texture);
 
-		virtual Eigen::Vector3f ObjectHitColor(Scene& scene, HitInfo& hit_info, int nSamples) = 0;
-		virtual Eigen::Vector3f getDirectIllumination(Scene& scene, HitInfo& hit_info) = 0;
+		virtual Eigen::Vector3f ObjectHitColor(const Ray& ray, Scene& scene, HitInfo& hit_info) const = 0;
+		virtual Eigen::Vector3f getDirectIllumination(const Ray& ray, const Scene& scene, const HitInfo& hit_info) const = 0;
+
+		virtual Eigen::Vector3f SampleBSDF(const Ray& outgoing_ray, const HitInfo& hit_info, Ray& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
 
 		const Eigen::Vector3f getDiffuse() const;
 		const Eigen::Vector3f getDiffuse(float u, float v) const;

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\Memory\MemoryPool.cpp" />
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\BVHTree.cpp" />
     <ClCompile Include="source\Rendering\FlatTree.cpp" />
@@ -46,12 +47,14 @@
     <ClCompile Include="source\Shading\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Memory\MemoryPool.h" />
     <ClInclude Include="include\Rendering\BVHTree.h" />
     <ClInclude Include="include\Rendering\FlatTree.h" />
     <ClInclude Include="include\Rendering\Integrator\Integrator.h" />
     <ClInclude Include="include\Rendering\Integrator\SamplerIntegrator.h" />
     <ClInclude Include="include\Rendering\Light.h" />
     <ClInclude Include="include\Rendering\ObjectTree.h" />
+    <ClInclude Include="include\Rendering\RenderingUtils.h" />
     <ClInclude Include="include\Rendering\RenderManager.h" />
     <ClInclude Include="include\Rendering\Utils\Spectrum.h" />
     <ClInclude Include="include\Shading\GlossyMaterial.h" />
@@ -205,7 +208,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>

@@ -55,7 +55,7 @@ namespace Renderer
 		};
 			uint16_t NumObjs;
 			uint8_t SplitAxis;
-			uint8_t pad;	// 32 bytes pad
+			uint8_t pad;	// 1 byte pad
 	};
 
 	class BVHTree :
@@ -69,10 +69,10 @@ namespace Renderer
 
 		BVHTree(std::vector<Object*>& objects);
 
-		bool Intersect(Ray& ray, HitInfo& hit);
-		bool Intersect(Ray& ray);
+		bool Intersect(const Ray& ray, HitInfo& hit) override;
+		float Intersect(const Ray& ray) override;
 
-		void PrinTree();
+		void PrintTree();
 
 
 	private:

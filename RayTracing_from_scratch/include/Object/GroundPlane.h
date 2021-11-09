@@ -17,11 +17,11 @@ namespace Renderer {
 
 		GroundPlane(float height = 0.0f, bool checkerboard = false);
 		GroundPlane(Eigen::Vector3f color, float height = 0.0f, bool checkerboard = false);
-		~GroundPlane();
+		~GroundPlane() override;
 
-		bool is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info);
+		bool is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) override;
+		float is_hit_by_ray(const Ray& incoming_ray) override;
 
 		void setSquareSize(int size);
-
 	};
 }

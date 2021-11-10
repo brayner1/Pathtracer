@@ -16,7 +16,7 @@ bool FlatTree::Intersect(const Ray& ray, HitInfo& hit)
 		HitInfo hit_info = hit;
 		Eigen::AlignedBox3f bounds = Objects[i]->GetBounds();
 		if (BoundingBoxIntersect(ray, invDir, bounds))
-			if (Objects[i]->is_hit_by_ray(ray, hit_info)) {
+			if (Objects[i]->isHitByRay(ray, hit_info)) {
 				if (hit_info.Distance <= min_dist) {
 					has_hit = true;
 					hit = hit_info;
@@ -31,7 +31,7 @@ float FlatTree::Intersect(const Ray& ray)
 {
 	float min_dist = std::numeric_limits<float>::max();
 	for (int i = 0; i < Objects.size(); i++) {
-		float t = Objects[i]->is_hit_by_ray(ray);
+		float t = Objects[i]->isHitByRay(ray);
 		if (t > 0.f && t < min_dist) {
 			min_dist = t;
 		}

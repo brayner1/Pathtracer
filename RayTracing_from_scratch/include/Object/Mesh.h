@@ -33,9 +33,12 @@ namespace Renderer {
 			Eigen::Vector3f* vertex_bitangent_array = nullptr
 		);
 
-		bool is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) override;
-		float is_hit_by_ray(const Ray& incoming_ray) override;
+		bool isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) override;
+		float isHitByRay(const Ray& incoming_ray) override;
 
+		float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) override;
+		float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) override;
 
+		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() override;
 	};
 }

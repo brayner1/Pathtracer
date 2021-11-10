@@ -9,9 +9,10 @@ namespace Renderer
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		ObjectBVHInfo() {}
-		ObjectBVHInfo(int i, Eigen::AlignedBox3f& b) : index(i), bounds(b), centroid(b.center()) {}
+		ObjectBVHInfo(int i, const Eigen::AlignedBox3f& b) : objectIndex(i), bounds(b), centroid(b.center()) {}
 
-		int index;
+		int objectIndex;
+		int primitiveIndex;
 		Eigen::AlignedBox3f bounds;
 		Eigen::Vector3f centroid;
 	};
@@ -22,13 +23,11 @@ namespace Renderer
 
 		void Leaf(int objIndex, int numObjs, const Eigen::AlignedBox3f& b)
 		{
-			ObjOffset = objIndex;
-			NumObjs = numObjs;
+			pimOffset = objIndex;
+			NumPrimitives = numObjs;
 			Bounds = b;
 
 			SplitAxis = -1;
-
-			//child[0] = child[1] = nullptr;
 		}
 
 		//void Intermediate(int axis, BVHTreeNode* left, BVHTreeNode* right)
@@ -37,25 +36,26 @@ namespace Renderer
 			SplitAxis = axis;
 			SecondChildOffset = Child2Index;
 			Bounds = b;
-			
-			//left->bounds.merged(right->bounds);
-			/*child[0] = left;
-			child[1] = right;*/
 
-			NumObjs = 0;
+			NumPrimitives = 0;
 		}
 
 		Eigen::AlignedBox3f Bounds;
-		//BVHTreeNode* child[2];
 
 		union
 		{
 			int SecondChildOffset;
-			int ObjOffset;
+			int pimOffset;
 		};
-			uint16_t NumObjs;
-			uint8_t SplitAxis;
-			uint8_t pad;	// 1 byte pad
+		uint16_t NumPrimitives;
+		uint8_t SplitAxis;
+		uint8_t pad;	// 1 byte pad
+	};
+
+	struct NodePrimitive
+	{
+		int objectIndex;
+		int primitiveIndex;
 	};
 
 	class BVHTree :
@@ -77,8 +77,9 @@ namespace Renderer
 
 	private:
 		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
-		std::vector<Object*> Objects;
-		std::vector<BVHTreeNode> NodeArray;
+		std::vector<Object*> objects;
+		std::vector<NodePrimitive> primitives;
+		std::vector<BVHTreeNode> nodeArray;
 
 		BVHTreeNode RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
 	};

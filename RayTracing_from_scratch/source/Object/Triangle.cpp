@@ -16,7 +16,7 @@ Triangle::~Triangle()
 {
 }
 
-bool Triangle::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
+bool Triangle::isHitByRay(const Ray& incoming_ray, HitInfo& hit_info)
 {
 
 	if(incoming_ray.getDirection().dot(this->normal) > 0)
@@ -71,7 +71,7 @@ bool Triangle::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
 
 }
 
-float Triangle::is_hit_by_ray(const Ray& incoming_ray)
+float Triangle::isHitByRay(const Ray& incoming_ray)
 {
 	
 	if(incoming_ray.getDirection().dot(this->normal) > 0)

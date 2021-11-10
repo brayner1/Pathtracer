@@ -24,7 +24,7 @@ GroundPlane::~GroundPlane()
 	delete Material2;
 }
 
-bool GroundPlane::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
+bool GroundPlane::isHitByRay(const Ray& incoming_ray, HitInfo& hit_info)
 {
 	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
 		return false;
@@ -59,7 +59,7 @@ bool GroundPlane::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info)
 
 }
 
-float GroundPlane::is_hit_by_ray(const Ray& incoming_ray)
+float GroundPlane::isHitByRay(const Ray& incoming_ray)
 {
 	if (incoming_ray.getOrigin().y() <= this->Height || incoming_ray.getDirection().y() > 0.0f) {
 		return false;

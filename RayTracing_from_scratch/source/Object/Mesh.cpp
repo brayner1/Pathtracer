@@ -3,6 +3,8 @@
 #include "RenderHeaders.h"
 using namespace Renderer;
 
+Eigen::AlignedBox3f TriangleBound(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2);
+
 Mesh::Mesh(
 	std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertex_array,
 	std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> index_array,
@@ -44,7 +46,7 @@ Mesh::Mesh(
 	}
 }
 
-bool Mesh::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) {
+bool Mesh::isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) {
 	/*if (!this->is_bounds_hit(incoming_ray))
 		return false;*/
 
@@ -183,7 +185,7 @@ bool Mesh::is_hit_by_ray(const Ray& incoming_ray, HitInfo& hit_info) {
 	return triangle == -1? false : true;
 }
 
-float Mesh::is_hit_by_ray(const Ray& incoming_ray)
+float Mesh::isHitByRay(const Ray& incoming_ray)
 {
 	int nIndices = this->indices.size();
 	bool hasHit = false;
@@ -228,6 +230,170 @@ float Mesh::is_hit_by_ray(const Ray& incoming_ray)
 	}
 
 	return hasHit? minDistance : -1.f;
+}
+
+float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info)
+{
+	if (primitive_index >= indices.size())
+		return -1.f;
+
+	bool bUseNormal = this->vNormals.size() > 0;
+	bool bUseTextCoord = this->textCoord.size() > 0;
+	bool bUseTangent = this->vTangent.size() > 0;
+	bool bUseBitangent = this->vBitangent.size() > 0;
+
+	const int i0 = this->indices[primitive_index].x();
+	const int i1 = this->indices[primitive_index].y();
+	const int i2 = this->indices[primitive_index].z();
+
+	const Eigen::Vector4f v0 = { this->vertices[i0].x(), this->vertices[i0].y(), this->vertices[i0].z(), 1.f };
+	const Eigen::Vector4f v1 = { this->vertices[i1].x(), this->vertices[i1].y(), this->vertices[i1].z(), 1.f };
+	const Eigen::Vector4f v2 = { this->vertices[i2].x(), this->vertices[i2].y(), this->vertices[i2].z(), 1.f };
+	
+	const Eigen::Vector4f v1v0 = v1 - v0;
+	const Eigen::Vector4f v2v0 = v2 - v0;
+	const Eigen::Vector4f n = v1v0.cross3(v2v0);
+	const Eigen::Vector4f rayOrig = Eigen::Vector4f{ incoming_ray.getOrigin().x(), incoming_ray.getOrigin().y(), incoming_ray.getOrigin().z(), 1.f };
+	const Eigen::Vector4f origv0 = rayOrig - v0;
+	const Eigen::Vector4f rayDir = Eigen::Vector4f{ incoming_ray.getDirection().x(), incoming_ray.getDirection().y(), incoming_ray.getDirection().z(), 1.f };;
+	const Eigen::Vector4f q = origv0.cross3(rayDir);
+
+	const float d = 1.f / (rayDir.dot(n));
+	const float t = d * (-n).dot(origv0);
+	const float u = d * (-q).dot(v2v0);
+	const float v = d * q.dot(v1v0);
+
+	// Check if points are points and vectors are vectors
+	assert((v0.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex1 w() is not 1.f");
+	assert((v1.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex2 w() is not 1.f");
+	assert((v2.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex3 w() is not 1.f");
+	assert((rayOrig.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "rayOrig w() is not 1.f");
+	assert(rayDir.w() <= std::numeric_limits<float>::epsilon() && "rayDir w() is not 0.f");
+
+	if (u < 0.0f || v < 0.0f || (u + v) > 1.0f) return -1.f;
+	if (t <= 1e-5f) return -1.f;
+
+	Eigen::Vector3f surfNormal = Eigen::Vector3f{n.x(), n.y(), n.z()}.normalized();
+	if (incoming_ray.getDirection().dot(surfNormal) > 0.f)
+	{
+		/*if (!incoming_ray.getIsBackfaceHit())
+			continue;*/
+
+		hit_info.hitBackface = true;
+		surfNormal = -surfNormal;
+	}
+
+
+	Eigen::Vector3f shadNormal;
+	if (bUseNormal)
+	{
+		const Eigen::Vector3f n0 = this->vNormals[i0];
+		const Eigen::Vector3f n1 = this->vNormals[i1];
+		const Eigen::Vector3f n2 = this->vNormals[i2];
+		//const Eigen::Vector3f normal_du = n1 - n0;
+		//const Eigen::Vector3f normal_dv = n2 - n0;
+		//normal = (n0 + u * normal_du + v * normal_dv).normalized();
+		shadNormal = ((1.f - u - v) * n0 + u * n1 + v * n2).normalized();
+		if (incoming_ray.getDirection().dot(surfNormal) > 0)
+			shadNormal = -shadNormal;
+	}
+	else
+		shadNormal = surfNormal;
+	
+
+	if (!bUseTextCoord)
+	{
+		hit_info.TextureCoord = Eigen::Vector2f::Zero();
+	}
+	else
+	{
+		const Eigen::Vector2f uv0 = this->textCoord[i0];
+		const Eigen::Vector2f uv1 = this->textCoord[i1];
+		const Eigen::Vector2f uv2 = this->textCoord[i2];
+		const Eigen::Vector2f uDiff = u * (uv1 - uv0);
+		const Eigen::Vector2f vDiff = v * (uv2 - uv0);
+		hit_info.TextureCoord = uv0 + uDiff + vDiff;
+	}
+
+	hit_info.Point = incoming_ray.getOrigin() + t * incoming_ray.getDirection();
+	hit_info.surfNormal = surfNormal;
+	hit_info.shadNormal = shadNormal;
+	hit_info.U_factor = u;
+	hit_info.V_factor = v;
+	hit_info.U_vector = Eigen::Vector3f{ v2v0.x(), v2v0.y(), v2v0.z() }.normalized();
+	hit_info.V_vector = Eigen::Vector3f{ v1v0.x(), v1v0.y(), v1v0.z() }.normalized(); 
+	hit_info.Distance = t;
+	hit_info.Material = this->material;
+
+	return t;
+}
+
+float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index)
+{
+	if (primitive_index >= indices.size())
+		return -1.f;
+
+	const int& i0 = this->indices[primitive_index].x();
+	const int& i1 = this->indices[primitive_index].y();
+	const int& i2 = this->indices[primitive_index].z();
+
+	const Eigen::Vector4f v0 = { this->vertices[i0].x(), this->vertices[i0].y(), this->vertices[i0].z(), 1.f };
+	const Eigen::Vector4f v1 = { this->vertices[i1].x(), this->vertices[i1].y(), this->vertices[i1].z(), 1.f };
+	const Eigen::Vector4f v2 = { this->vertices[i2].x(), this->vertices[i2].y(), this->vertices[i2].z(), 1.f };
+	
+	const Eigen::Vector4f v1v0 = v1 - v0;
+	const Eigen::Vector4f v2v0 = v2 - v0;
+	const Eigen::Vector4f n = v1v0.cross3(v2v0);
+	const Eigen::Vector4f rayOrig = Eigen::Vector4f{ incoming_ray.getOrigin().x(), incoming_ray.getOrigin().y(), incoming_ray.getOrigin().z(), 1.f };
+	const Eigen::Vector4f origv0 = rayOrig - v0;
+	const Eigen::Vector4f rayDir = Eigen::Vector4f{ incoming_ray.getDirection().x(), incoming_ray.getDirection().y(), incoming_ray.getDirection().z(), 1.f };;
+	const Eigen::Vector4f q = origv0.cross3(rayDir);
+
+	const float d = 1.f / (rayDir.dot(n));
+	const float t = d * (-n).dot(origv0);
+	const float u = d * (-q).dot(v2v0);
+	const float v = d * q.dot(v1v0);
+
+	// Check if points are points and vectors are vectors
+	assert((v0.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex1 w() is not 1.f");
+	assert((v1.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex2 w() is not 1.f");
+	assert((v2.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex3 w() is not 1.f");
+	assert((rayOrig.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "rayOrig w() is not 1.f");
+	assert(rayDir.w() <= std::numeric_limits<float>::epsilon() && "rayDir w() is not 0.f");
+
+	if (u < 0.0f || v < 0.0f || (u + v) > 1.0f) return -1.f;
+	if (t <= 1e-5f) return -1.f;
+
+	return t;
+}
+
+std::vector<Eigen::AlignedBox3f> Mesh::GetPrimitivesBounds()
+{
+	std::vector<Eigen::AlignedBox3f> primBounds;
+	primBounds.reserve(indices.size());
+	for (auto triangle : indices)
+	{
+		const Eigen::Vector3f& v0 = vertices[triangle.x()];
+		const Eigen::Vector3f& v1 = vertices[triangle.y()];
+		const Eigen::Vector3f& v2 = vertices[triangle.z()];
+
+		primBounds.push_back(TriangleBound(v0, v1, v2));
+	}
+	return std::move(primBounds);
+}
+
+Eigen::AlignedBox3f TriangleBound(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2)
+{
+	Eigen::AlignedBox3f bounds{};
+	bounds.min().x() = std::min( { v0.x(), v1.x(), v2.x() } );
+	bounds.min().y() = std::min( { v0.y(), v1.y(), v2.y() } );
+	bounds.min().z() = std::min( { v0.z(), v1.z(), v2.z() } );
+								   						    
+	bounds.max().x() = std::max( { v0.x(), v1.x(), v2.x() } );
+	bounds.max().y() = std::max( { v0.y(), v1.y(), v2.y() } );
+	bounds.max().z() = std::max( { v0.z(), v1.z(), v2.z() } );
+
+	return bounds;
 }
 
 float TriangleIntersect(const Ray& ray, const Eigen::Vector4f& v0, const Eigen::Vector4f& v1, const Eigen::Vector4f& v2)

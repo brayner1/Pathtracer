@@ -1,4 +1,11 @@
 #pragma once
+#include <iosfwd>
+#include <iosfwd>
+#include <vector>
+#include <vector>
+#include <Eigen/src/Geometry/AlignedBox.h>
+#include <Eigen/src/Geometry/AlignedBox.h>
+
 #include "Object/Object.h"
 #include "Shading/Material.h"
 
@@ -23,7 +30,7 @@ namespace Renderer {
 		float isHitByRay(const Ray& incoming_ray) override;
 
 		void setSquareSize(int size);
-		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() override
+		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override
 		{
 			constexpr float min = std::numeric_limits<float>::lowest();
 			constexpr float max = std::numeric_limits<float>::max();

@@ -4,35 +4,47 @@
 
 using namespace Renderer;
 
-BVHTree::BVHTree(std::vector<Object*>& objects) : objects(objects)
+//#define LOAD_DEBUG
+
+BVHTree::BVHTree(const std::vector<Object*>& objects) : objects(objects)
 {
 	int ObjCount = objects.size();
 
-	std::vector<ObjectBVHInfo> objectsInfo(ObjCount);
+	std::vector<ObjectBVHInfo> objectsInfo;//(ObjCount);
 	for (int i = 0; i < ObjCount; i++)
 	{
-		objectsInfo[i] = ObjectBVHInfo(i, objects[i]->GetBounds());
+		//objectsInfo[i] = ObjectBVHInfo(i, objects[i]->GetBounds());
+		std::vector<Eigen::AlignedBox3f> objPrimitivesBounds = objects[i]->GetPrimitivesBounds();
+		for (int prim = 0; prim < objPrimitivesBounds.size(); prim++)
+		{
+			objectsInfo.emplace_back(i, prim, objPrimitivesBounds[prim]);
+		}
 	}
 
 	int totalNodes = 0;
 	
-	std::vector<Object*> OrderedObjs;
-	OrderedObjs.reserve(ObjCount);
+	/*std::vector<Object*> OrderedObjs;
+	OrderedObjs.reserve(ObjCount);*/
+
+	std::vector<NodePrimitive> orderedPrimitives;
+	orderedPrimitives.reserve(objectsInfo.size());
 
 	BVHTreeNode root;
 	nodeArray.push_back(root);
 
-	root = RecursiveBuildTree(OrderedObjs, objectsInfo, 0, ObjCount, totalNodes);
+	root = RecursiveBuildTree(orderedPrimitives, objectsInfo, 0, objectsInfo.size(), totalNodes);
 	nodeArray[0] = root;
+#ifdef LOAD_DEBUG
 	std::cout << "BVH root second child: " << std::endl;
 	std::cout << root.SecondChildOffset << std::endl;
-
-	this->objects.swap(OrderedObjs);
+#endif
+	//this->objects.swap(OrderedObjs);
+	this->primitives.swap(orderedPrimitives);
 
 	std::cout << objects[0]->GetBounds().min() << std::endl;
 }
 
-BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes)
+BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimitives, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes)
 {
 	int nObjs = end - start;
 	BVHTreeNode node;
@@ -47,26 +59,18 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	// Create Leaf Node if only one object left
 	if (nObjs == 1)
 	{
-
+		#ifdef LOAD_DEBUG
 		std::cout << "adding single primitive" << std::endl;
-
-		int firstObjIndex = orderedObjs.size();
+		#endif
+		int firstObjIndex = orderedPrimitives.size();
 
 		for (int i = start; i < end; i++)
 		{
-			int objIndex = objsInfo[i].objectIndex;
-			orderedObjs.push_back(objects[objIndex]);
+			orderedPrimitives.push_back(NodePrimitive{objsInfo[i].objectIndex, objsInfo[i].primitiveIndex});
+			//orderedPrimitives.push_back(objects[objIndex]);
 		}
 
-		Eigen::AlignedBox3f objBound = orderedObjs[firstObjIndex]->GetBounds();
-		std::cout << "Object min bound: " << objBound.min().transpose() << std::endl;
-		std::cout << "node min bound: " << bound.min().transpose() << std::endl;
-
-		std::cout << "Object max bound: " << objBound.max().transpose() << std::endl;
-		std::cout << "node max bound: " << bound.max().transpose() << std::endl;
-
 		node.Leaf(firstObjIndex, nObjs, bound);
-		//nodeArray.push_back(node);
 
 		return node;
 	}
@@ -86,14 +90,13 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	// If objects centroids are the same, create Leaf Node
 	if (centroidBounds.min()(dim) == centroidBounds.max()(dim))
 	{
-		int firstObjIndex = orderedObjs.size();
-
+		int firstObjIndex = orderedPrimitives.size();
+		#ifdef LOAD_DEBUG
 		std::cout << "adding same centroid primitives: " << nObjs << std::endl;
-
+		#endif
 		for (int i = start; i < end; i++)
 		{
-			int objIndex = objsInfo[i].objectIndex;
-			orderedObjs.push_back(objects[objIndex]);
+			orderedPrimitives.push_back(NodePrimitive{objsInfo[i].objectIndex, objsInfo[i].primitiveIndex});
 		}
 
 		node.Leaf(firstObjIndex, nObjs, bound);
@@ -216,14 +219,14 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 			}
 			else
 			{
-				int firstObjIndex = orderedObjs.size();
-
+				int firstObjIndex = orderedPrimitives.size();
+				#ifdef LOAD_DEBUG
 				std::cout << "adding same SAH non divisible primitives: " << nObjs << std::endl;
-
+				#endif
 				for (int i = start; i < end; i++)
 				{
 					int objIndex = objsInfo[i].objectIndex;
-					orderedObjs.push_back(objects[objIndex]);
+					orderedPrimitives.push_back(NodePrimitive{objsInfo[i].objectIndex, objsInfo[i].primitiveIndex});
 				}
 
 				node.Leaf(firstObjIndex, nObjs, bound);
@@ -238,38 +241,31 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::
 	}
 
 	int nodeIndex = nodeArray.size() - 1;
-
+	#ifdef LOAD_DEBUG
 	std::cout << "creating node " << nodeIndex << std::endl;
-	//nodeArray.push_back(node);
-
 	std::cout << "selected dimension: " << dim << std::endl;
-
-	std::cout << "left child objectIndex: " << nodeArray.size() << std::endl;
+	std::cout << "left child index: " << nodeArray.size() << std::endl;
+	#endif
 	int leftIndex = nodeArray.size();
 	BVHTreeNode left;
 	nodeArray.push_back(left);
-	left = RecursiveBuildTree(orderedObjs, objsInfo, start, mid, totalNodes);
+	left = RecursiveBuildTree(orderedPrimitives, objsInfo, start, mid, totalNodes);
 	nodeArray[leftIndex] = left;
 	
 	BVHTreeNode right;
 	int SecondChildIndex = nodeArray.size();
-	std::cout << "node " << nodeIndex << " second child objectIndex: " << SecondChildIndex << std::endl;
+
+	#ifdef LOAD_DEBUG
+	std::cout << "node " << nodeIndex << " second child index: " << SecondChildIndex << std::endl;
+	#endif
+
 	nodeArray.push_back(right);
-	right	= RecursiveBuildTree(orderedObjs, objsInfo, mid, end, totalNodes);
+	right	= RecursiveBuildTree(orderedPrimitives, objsInfo, mid, end, totalNodes);
 	nodeArray[SecondChildIndex] = right;
 
 	Eigen::AlignedBox3f bounds = nodeArray[leftIndex].Bounds.merged(nodeArray[SecondChildIndex].Bounds);
 
 	node.Intermediate(dim, SecondChildIndex, bound);
-	std::cout << "node " << nodeIndex << " second child objectIndex: " << node.SecondChildOffset << std::endl;
-
-	//node->Intermediate()
-
-	/*node->Intermediate(dim,
-		RecursiveBuildTree(orderedObjs, objsInfo, start, mid, totalNodes),
-		RecursiveBuildTree(orderedObjs, objsInfo, mid, end, totalNodes));*/
-
-
 
 	return node;
 }
@@ -295,16 +291,17 @@ bool Renderer::BVHTree::Intersect(const Ray& ray, HitInfo& hit)
 
 		if (BoundingBoxIntersect(ray, invDir, node->Bounds))
 		{
-			
 			if (node->NumPrimitives > 0)
 			{
 				//std::cout << "Leaf bound hit" << std::endl;
-				const int objOffset = node->pimOffset, finalOffset = node->pimOffset + node->NumPrimitives;
+				const int primOffset = node->primOffset, finalOffset = node->primOffset + node->NumPrimitives;
 				//std::cout << "currentNode: " << currentNode << std::endl;
-				for (int i = objOffset; i < finalOffset; i++)
+				for (int i = primOffset; i < finalOffset; i++)
 				{
 					HitInfo hit_info = hit;
-					if (objects[i]->isHitByRay(ray, hit_info))
+					const Object* object = objects[primitives[i].objectIndex];
+					//if (objects[i]->isHitByRay(ray, hit_info))
+					if (object->isPrimitiveHitByRay(ray,  primitives[i].primitiveIndex, hit_info) > 0.f)
 					{
 						if (hit_info.Distance <= min_dist) {
 							has_hit = true;
@@ -371,10 +368,11 @@ float Renderer::BVHTree::Intersect(const Ray& ray)
 		{
 			if (node->NumPrimitives > 0)
 			{
-				const int objOffset = node->pimOffset, finalOffset = node->pimOffset + node->NumPrimitives;
-				for (int i = objOffset; i < finalOffset; i++)
+				const int primOffset = node->primOffset, finalOffset = node->primOffset + node->NumPrimitives;
+				for (int i = primOffset; i < finalOffset; i++)
 				{
-					float t = objects[i]->isHitByRay(ray);
+					const Object* object = objects[primitives[i].objectIndex];
+					const float t = object->isPrimitiveHitByRay(ray, primitives[i].primitiveIndex);
 					if (t > 0.f && t < min_dist)
 					{
 						hasHit = true;

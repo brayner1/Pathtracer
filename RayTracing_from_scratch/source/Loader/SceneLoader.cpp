@@ -72,7 +72,12 @@ SceneLoader::SceneLoader(std::string file_path)
 }
 
 void SceneLoader::convertAssimpScene()
-{	
+{
+	if (!assimp_scene)
+	{
+		std::cout << "Scene file was not loaded. Please load a file before calling this function.\n";
+		return;
+	}
 	std::list<aiNode*> nodes;
 
 	nodes.push_back(this->assimp_scene->mRootNode);
@@ -89,16 +94,14 @@ void SceneLoader::convertAssimpScene()
 			const struct aiMesh* mesh = this->assimp_scene->mMeshes[nd->mMeshes[i]];
 			
 			Eigen::AlignedBox3f boundingBox = this->get_bounding_box_for_mesh(mesh);
-
-			int numVerts = mesh->mNumVertices;
 			
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			vertices.reserve(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;	// = std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>>(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;	// = std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>>(numVerts);
-			std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;	// = std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>>(numVerts);
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
+			vertices.reserve(mesh->mNumVertices);
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;
+			std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;
+			std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;
+			std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;
 			indices.reserve(mesh->mNumFaces);
 			// Populate vertices
 			for (size_t t = 0; t < mesh->mNumVertices; t++)

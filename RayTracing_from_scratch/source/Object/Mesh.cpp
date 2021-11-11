@@ -1,5 +1,13 @@
 #include "pch.h"
 #include "Object/Mesh.h"
+
+#include <iosfwd>
+#include <iosfwd>
+#include <vector>
+#include <vector>
+#include <Eigen/src/Geometry/AlignedBox.h>
+#include <Eigen/src/Geometry/AlignedBox.h>
+
 #include "RenderHeaders.h"
 using namespace Renderer;
 
@@ -77,7 +85,7 @@ bool Mesh::isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) {
 		const Eigen::Vector4f n = v1v0.cross3(v2v0);
 		const Eigen::Vector4f rayOrig = Eigen::Vector4f{ incoming_ray.getOrigin().x(), incoming_ray.getOrigin().y(), incoming_ray.getOrigin().z(), 1.f };
 		const Eigen::Vector4f origv0 = rayOrig - v0;
-		const Eigen::Vector4f rayDir = Eigen::Vector4f{ incoming_ray.getDirection().x(), incoming_ray.getDirection().y(), incoming_ray.getDirection().z(), 1.f };;
+		const Eigen::Vector4f rayDir = Eigen::Vector4f{ incoming_ray.getDirection().x(), incoming_ray.getDirection().y(), incoming_ray.getDirection().z(), 0.f };;
 		const Eigen::Vector4f q = origv0.cross3(rayDir);
 
 		const float d = 1.f / (rayDir.dot(n));
@@ -86,9 +94,6 @@ bool Mesh::isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) {
 		const float v = d * q.dot(v1v0);
 
 		// Check if points are points and vectors are vectors
-		assert((v0.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex1 w() is not 1.f");
-		assert((v1.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex2 w() is not 1.f");
-		assert((v2.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "vertex3 w() is not 1.f");
 		assert((rayOrig.w() - 1.f) <= std::numeric_limits<float>::epsilon() && "rayOrig w() is not 1.f");
 		assert(rayDir.w() <= std::numeric_limits<float>::epsilon() && "rayDir w() is not 0.f");
 
@@ -232,7 +237,7 @@ float Mesh::isHitByRay(const Ray& incoming_ray)
 	return hasHit? minDistance : -1.f;
 }
 
-float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info)
+float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const
 {
 	if (primitive_index >= indices.size())
 		return -1.f;
@@ -328,7 +333,7 @@ float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, Hi
 	return t;
 }
 
-float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index)
+float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const
 {
 	if (primitive_index >= indices.size())
 		return -1.f;
@@ -367,7 +372,7 @@ float Mesh::isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index)
 	return t;
 }
 
-std::vector<Eigen::AlignedBox3f> Mesh::GetPrimitivesBounds()
+std::vector<Eigen::AlignedBox3f> Mesh::GetPrimitivesBounds() const
 {
 	std::vector<Eigen::AlignedBox3f> primBounds;
 	primBounds.reserve(indices.size());

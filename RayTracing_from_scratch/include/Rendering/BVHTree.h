@@ -9,7 +9,7 @@ namespace Renderer
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		ObjectBVHInfo() {}
-		ObjectBVHInfo(int i, const Eigen::AlignedBox3f& b) : objectIndex(i), bounds(b), centroid(b.center()) {}
+		ObjectBVHInfo(int objectIdx, int primIdx, const Eigen::AlignedBox3f& b) : objectIndex(objectIdx), primitiveIndex(primIdx), bounds(b), centroid(b.center()) {}
 
 		int objectIndex;
 		int primitiveIndex;
@@ -21,10 +21,10 @@ namespace Renderer
 	{
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		void Leaf(int objIndex, int numObjs, const Eigen::AlignedBox3f& b)
+		void Leaf(int primIndex, int numPrims, const Eigen::AlignedBox3f& b)
 		{
-			pimOffset = objIndex;
-			NumPrimitives = numObjs;
+			primOffset = primIndex;
+			NumPrimitives = numPrims;
 			Bounds = b;
 
 			SplitAxis = -1;
@@ -45,7 +45,7 @@ namespace Renderer
 		union
 		{
 			int SecondChildOffset;
-			int pimOffset;
+			int primOffset;
 		};
 		uint16_t NumPrimitives;
 		uint8_t SplitAxis;
@@ -67,13 +67,12 @@ namespace Renderer
 
 		enum class SplitHeuristic { SurfaceArea, MiddleSplit, EqualCount };
 
-		BVHTree(std::vector<Object*>& objects);
+		BVHTree(const std::vector<Object*>& objects);
 
 		bool Intersect(const Ray& ray, HitInfo& hit) override;
 		float Intersect(const Ray& ray) override;
 
 		void PrintTree();
-
 
 	private:
 		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
@@ -81,7 +80,7 @@ namespace Renderer
 		std::vector<NodePrimitive> primitives;
 		std::vector<BVHTreeNode> nodeArray;
 
-		BVHTreeNode RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
+		BVHTreeNode RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimitives, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
 	};
 
 }

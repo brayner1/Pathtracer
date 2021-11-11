@@ -1,4 +1,11 @@
 #pragma once
+#include <iosfwd>
+#include <iosfwd>
+#include <vector>
+#include <vector>
+#include <Eigen/src/Geometry/AlignedBox.h>
+#include <Eigen/src/Geometry/AlignedBox.h>
+
 #include "Object/Object.h"
 #include "Shading/Material.h"
 namespace Renderer {
@@ -32,6 +39,6 @@ namespace Renderer {
 			Ray& incoming_ray,
 			HitInfo& hit_info);
 
-		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() override { return { this->Object_bounds }; }
+		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override { return { this->Object_bounds }; }
 	};
 }

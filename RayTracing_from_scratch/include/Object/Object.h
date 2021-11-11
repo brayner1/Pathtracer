@@ -57,10 +57,10 @@ namespace Renderer {
 
 		// Checks if a primitive in the object is hit by the incoming ray and save the hit information if it was hit.
 		// If the object type don't have multiple primitives, it calculates the collision with the whole object.
-		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) = 0;
+		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const = 0;
 		// Checks if a primitive in the object is hit by the incoming ray.
 		// If the object type don't have multiple primitives, it calculates the collision with the whole object.
-		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) = 0;
+		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const = 0;
 
 		bool is_bounds_hit(Ray& incoming_ray);
 
@@ -69,7 +69,10 @@ namespace Renderer {
 
 		void SetBounds(Eigen::AlignedBox3f& bounds);
 		const Eigen::AlignedBox3f& GetBounds() const { return this->Object_bounds; }
-		virtual std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() = 0;
+
+		// Returns the bounds of every primitive presente in the object (e.g. each triangle bound in a mesh).
+		// Returns a single element if the object is a primitive itself (e.g. a sphere) TODO: sphere not supported yet
+		virtual std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const = 0;
 	};
 }
 

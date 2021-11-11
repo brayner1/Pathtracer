@@ -103,7 +103,7 @@ inline bool BoundingBoxIntersect(const Renderer::Ray& incoming_ray, Eigen::Vecto
 {
 	float t0 = 0.0f, t1 = FLT_MAX;
 	float tNear, tFar;
-	Eigen::Vector3f rayOrig = incoming_ray.getOrigin();
+	const Eigen::Vector3f& rayOrig = incoming_ray.getOrigin();
 
 	for (int i = 0; i < 3; i++)
 	{

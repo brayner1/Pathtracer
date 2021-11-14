@@ -73,12 +73,15 @@ namespace Renderer
 		float Intersect(const Ray& ray) override;
 
 		void PrintTree();
+		void PrintTree(std::string file_path);
 
 	private:
 		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
 		std::vector<Object*> objects;
 		std::vector<NodePrimitive> primitives;
 		std::vector<BVHTreeNode> nodeArray;
+
+		void LogPrimitivesInfo(const std::vector<ObjectBVHInfo>& primsInfo, std::string path);
 
 		BVHTreeNode RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimitives, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
 	};

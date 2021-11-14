@@ -37,7 +37,7 @@ void Renderer::Scene::BuildSceneTree()
 {
 	//this->SceneRoot = new FlatTree(this->scene_objects);
 	this->SceneRoot = new BVHTree(this->scene_objects);
-	//((BVHTree*)this->SceneRoot)->PrintTree();
+	((BVHTree*)this->SceneRoot)->PrintTree("Log/tree_log.txt");
 }
 
 void Renderer::Scene::insertLight(Light * new_light)

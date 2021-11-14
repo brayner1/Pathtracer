@@ -92,9 +92,9 @@ inline float FrDieletric(const float CosI, const float CosT, const float EtaI, c
 
 // Bounding Box Utilities Functions
 
-inline float BoundingBoxSurfaceArea(Eigen::AlignedBox3f& bound)
+inline float  BoundingBoxSurfaceArea(const Eigen::AlignedBox3f& bound)
 {
-	Eigen::Vector3f size = bound.sizes();
+	const Eigen::Vector3f size = bound.sizes();
 
 	return 2 * (size.x() * size.y() +  size.y() * size.z() + size.z() * size.x());
 }

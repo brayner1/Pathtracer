@@ -4,100 +4,40 @@
 using namespace Renderer;
 
 
-RefractiveMaterial::RefractiveMaterial(Eigen::Vector3f DiffuseCcolor, float RefractiveIndex) : Material(DiffuseCcolor), RefractiveIndex(RefractiveIndex)
+RefractiveMaterial::RefractiveMaterial(Eigen::Vector3f DiffuseCcolor, float RefractiveIndex) : Material(DiffuseCcolor), refractiveIndex(RefractiveIndex)
 {
 	
 }
 
-
-//RefractiveMaterial::~RefractiveMaterial()
-//= default;
-
-Eigen::Vector3f Renderer::RefractiveMaterial::ObjectHitColor(const Ray&ray, Scene& scene, HitInfo& hit_info) const
+Eigen::Vector3f RefractiveMaterial::SampleBSDF(const Eigen::Vector3f& outgoing_ray_dir, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray_dir,
+                                               float& pdf, eSampleType& sampled_type)
 {
-	int wantedX = 338, wantedY = 433;
-	//Eigen::Vector3f DirectIllum = this->getDirectIllumination(scene, hit_info);
-	Eigen::Vector3f PathTroughput = hit_info.Attenuation;
-	Eigen::Vector3f Point = hit_info.Point;
-	const Eigen::Vector3f& N = hit_info.surfNormal;
-	const Eigen::Vector3f& rayDir = ray.getDirection();
-	float u = hit_info.TextureCoord.x(), v = hit_info.TextureCoord.y();
-	bool isBackfaceHit = hit_info.hitBackface;
-
-	float etai = (ray.getRefractiveIndex() == this->RefractiveIndex)? 1.0f : ray.getRefractiveIndex();
-	float etat = this->RefractiveIndex;
-	if (isBackfaceHit) std::swap(etai, etat);
-	float eta = etai / etat;
-	//float cosCritic = cos(asinf(1 / r));
-	float cosi = std::abs(rayDir.dot(hit_info.surfNormal));
-	if (cosi > 1.f) std::cout << "PQP: " << cosi << std::endl;
-	float sint = eta * std::sqrt(std::max(0.f, 1.0f - cosi * cosi));
-	float cost = std::sqrt(1.0f - sint * sint);
-	bool internalReflection = sint >= 1;
-	float Fr = internalReflection ? 1.f : FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
-	float sample = uniform_random_01();
-	
-	
-	Eigen::Vector3f IndirectIllum;
-	int depth = ray.getDepth() + 1;
-	
-	if (internalReflection || sample <= Fr)
+	float cosI = outgoing_ray_dir.dot(hit_info.surfNormal);
+	const bool entering = cosI > 0.f;
+	cosI = std::abs(cosI);
+	const float etaI = entering? 1.f : refractiveIndex;
+	const float etaT = entering? refractiveIndex : 1.f;
+	const float sinT = (etaI/etaT) * std::sqrt(std::max(0.f, 1.0f - cosI * cosI));
+	float fr = 1.f;
+	if (sinT < 1.f)
 	{
-		//std::cout << "sample: " << sample << std::endl;
-		const Eigen::Vector3f rDirection = (rayDir - 2.0f * N.dot(rayDir) * N).normalized();
-		hit_info.Attenuation = this->getDiffuse(u, v).array() * PathTroughput.array();
-		const Ray reflected_ray = Ray(Point, rDirection, depth, internalReflection? this->RefractiveIndex : 1.f);
-		IndirectIllum = scene.GetPathLi(reflected_ray, hit_info);
+		const float cosT = std::sqrt(1.0f - sinT * sinT);
+		fr = FrDieletric(cosI, cosT, etaI, etaT, hit_info.x, hit_info.y);
+		const float sample = uniform_random_01();
+		if (sample >= fr)
+		{
+			inbound_ray_dir = Refract(outgoing_ray_dir, FaceForward(outgoing_ray_dir, hit_info.surfNormal), cosI, cosT, etaI/etaT);
+			pdf = 1.f - fr;
+			sampled_type = static_cast<eSampleType>(BSDF_SPECULAR | BSDF_TRANSMISSION);
+
+			return diffuse_color * (1.f - fr) * ((etaI*etaI)/(etaT*etaT)) / std::abs(inbound_ray_dir.dot(hit_info.surfNormal));
+		}
 	}
-	else
-	{
-		hit_info.Attenuation = (eta*eta) * this->getDiffuse(u, v).array() * PathTroughput.array();
-		const Eigen::Vector3f forward_normal = rayDir.dot(N) > 0.f? -N: N;
-		const Eigen::Vector3f tDirection = (eta * rayDir + (eta * cosi - cost) * forward_normal).normalized();
-		const Ray transmitted_ray = Ray(Point, tDirection, depth, etat);
-		IndirectIllum = scene.GetPathLi(transmitted_ray, hit_info);
-	}
-
-	return IndirectIllum;
-}
-
-Eigen::Vector3f Renderer::RefractiveMaterial::getDirectIllumination(const Ray& ray, const Scene& scene, const HitInfo& hit_info) const
-{
-	return Eigen::Vector3f::Zero();
-}
-
-Eigen::Vector3f RefractiveMaterial::SampleBSDF(const Ray& outgoing_ray, const HitInfo& hit_info, Ray& inbound_ray,
-	float& pdf, eSampleType& sampled_type)
-{
-	bool isBackfaceHit = hit_info.hitBackface;
-
-	float etai = (outgoing_ray.getRefractiveIndex() == this->RefractiveIndex)? 1.0f : outgoing_ray.getRefractiveIndex();
-	float etat = this->RefractiveIndex;
-	if (isBackfaceHit) std::swap(etai, etat);
-	float r = etai / etat;
-	//float cosCritic = cos(asinf(1 / r));
-	float cosi = -outgoing_ray.getDirection().dot(hit_info.surfNormal);
-	float sint = r * sqrtf(1.0f - cosi * cosi);
-	float cost = sqrtf(1.0f - sint * sint);
-	bool internalReflection = sint >= 1;
-	float Fr = internalReflection ? 1.f : FrDieletric(cosi, cost, etai, etat, hit_info.x, hit_info.y);
-	float sample = uniform_random_01();
-
-	if (sample >= Fr)
-	{
-		sampled_type = static_cast<eSampleType>(BSDF_SPECULAR | BSDF_TRANSMISSION);
-		const Eigen::Vector3f tDirection = (r * outgoing_ray.getDirection() + (r * cosi - cost) * hit_info.surfNormal).normalized();
-		inbound_ray = {hit_info.Point, tDirection, outgoing_ray.getDepth() + 1, isBackfaceHit? 1.f : this->RefractiveIndex};
-		pdf = 1.f - Fr;
-
-		return diffuse_color * (1.f - Fr) * ((etai*etai)/(etat*etat)) / std::abs(tDirection.dot(hit_info.surfNormal));
-	}
-
+	
+	inbound_ray_dir = Reflect(outgoing_ray_dir, hit_info.surfNormal);
+	pdf = fr;
 	sampled_type = static_cast<eSampleType>(BSDF_SPECULAR | BSDF_REFLECTION);
-	const Eigen::Vector3f rDirection = (outgoing_ray.getDirection() - 2.0f * hit_info.surfNormal.dot(outgoing_ray.getDirection()) * hit_info.surfNormal).normalized();
-	inbound_ray = {hit_info.Point, rDirection, outgoing_ray.getDepth() + 1, isBackfaceHit? RefractiveIndex : 1.f};
-	pdf = Fr;
 
-	const float cosr = 1.f / std::abs(rDirection.dot(hit_info.surfNormal));
-	return diffuse_color * Fr * cosr;
+	const float cosr = 1.f / std::abs(inbound_ray_dir.dot(hit_info.surfNormal));
+	return diffuse_color * fr * cosr;
 }

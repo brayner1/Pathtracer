@@ -1,10 +1,35 @@
 #include "pch.h"
-#include "Rendering/RenderManager.h"
+#include "Rendering/FrameManager.h"
 #include "RenderHeaders.h"
+#include <chrono>
 
 using namespace Renderer;
 
-void RenderManager::SaveBufferToPPM(std::string out_file_path)
+FrameManager::FrameManager(int width, int height)
+{
+	this->width = width; this->height = height;
+	this->gamma = 2.2f;
+	this->samplesPerPixel = 256;
+	this->maxDepth = 8;
+}
+
+FrameManager::FrameManager(const RenderOptions& renderOptions)
+{
+	if (renderOptions.width)
+		this->width = renderOptions.width.value();
+	if (renderOptions.height)
+		this->height = renderOptions.height.value();
+	if (renderOptions.samplesPerPixel)
+		this->samplesPerPixel = renderOptions.samplesPerPixel.value();
+	if (renderOptions.maxDepth)
+		this->maxDepth = renderOptions.maxDepth.value();
+	if (renderOptions.gamma)
+		this->gamma = renderOptions.gamma.value();
+	if (renderOptions.useDenoiser)
+		this->useDenoiser = renderOptions.useDenoiser.value();
+}
+
+void FrameManager::SaveBufferToPPM(std::string out_file_path)
 {
 	std::cout << "starting to write image" << std::endl;
 	std::ofstream outfile(out_file_path);
@@ -22,7 +47,7 @@ void RenderManager::SaveBufferToPPM(std::string out_file_path)
 
 }
 
-void RenderManager::InitializeFramebuffer()
+void FrameManager::InitializeFramebuffer()
 {
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -42,23 +67,42 @@ void RenderManager::InitializeFramebuffer()
 	this->normalBuffer = new float[width * height * 3];
 }
 
-void RenderManager::RenderScene(Scene& scene, ImageType outputType)
+void FrameManager::SetOptions(const RenderOptions& renderOptions)
+{
+	if (renderOptions.width)
+		this->width = renderOptions.width.value();
+	if (renderOptions.height)
+		this->height = renderOptions.height.value();
+	if (renderOptions.samplesPerPixel)
+		this->samplesPerPixel = renderOptions.samplesPerPixel.value();
+	if (renderOptions.maxDepth)
+		this->maxDepth = renderOptions.maxDepth.value();
+	if (renderOptions.gamma)
+		this->gamma = renderOptions.gamma.value();
+	if (renderOptions.useDenoiser)
+		this->useDenoiser = renderOptions.useDenoiser.value();
+}
+
+void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 {
 	this->InitializeFramebuffer();
 #ifdef paralellism
 	omp_set_num_threads(omp_get_max_threads());
-	std::cout << "max threads: " << omp_get_max_threads() << std::endl;
-	//std::cout << "started parallel region with " << omp_get_num_threads() << " threads" << std::endl;
+	std::cout << "Number of threads available: " << omp_get_max_threads() << std::endl;
+	const PinholeCamera& camera = scene.scene_camera;
+	int width = camera.GetWidth(), height = camera.GetHeight();
 	int total = width * height;
+
+	// Report variables
 	int* it = new int; *it = 0;
 	int* lastreport = new int; *lastreport = -1;
 
-	const std::clock_t start = std::clock();
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 //#pragma omp parallel for shared(lastreport, it)
 	#pragma omp parallel for shared(lastreport, it) schedule(dynamic, 16)
 #endif // paralellism
-	for (int idx = 0; idx < width * height; idx++)
+	for (int idx = 0; idx < total; idx++)
 	{  /// Columns
 		int x = idx % height;
 		int y = idx / width;
@@ -67,18 +111,17 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 		Eigen::Vector3f finalNormal = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 
 		OutputProperties OP = OutputProperties();
-		scene.PixelColor(x, y, maxDepth, this->samplesPerPixel, OP);
-		finalColor = OP.Color;
-		finalAlbedo = OP.Albedo;
-		finalNormal = OP.Normal;
+		scene.PixelColor(x, y, maxDepth, samplesPerPixel, OP);
+		finalColor = OP.color;
+		finalAlbedo = OP.albedo;
+		finalNormal = OP.normal;
 
 		finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 
-		
-		//int rawIndex = (x + width / 2 - ((width + 1) % 2) + (y + height / 2 - ((height + 1) % 2)) * width) * 3;
-		int rawIndex = (x + (y * width)) * 3;
-		//int xIndex = x + width / 2 - 1, yIndex = y + height / 2 - 1;
 
+		int rawIndex = (x + (y * width)) * 3;
+
+		// Report the progress at each 5% mark of the image rendered
 #pragma omp critical
 		{
 			*it += 1;
@@ -108,13 +151,14 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 	}
 	
 
-
-	const float duration = (std::clock() - start) / (float)CLOCKS_PER_SEC;
-	std::cout << "rendered in " << duration << " seconds" << std::endl;
-
-	
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	std::cout << "Rendering time = " << (float)std::chrono::duration_cast<
+				std::chrono::microseconds>(end - begin).count() / 1000000.f << "[s]" << std::endl;
 
 	this->SaveBufferToPPM("noisy.ppm");
+
+	if (!useDenoiser)
+		return;
 
 	this->ExecuteDenoiser();
 
@@ -144,7 +188,7 @@ void RenderManager::RenderScene(Scene& scene, ImageType outputType)
 	this->SaveBufferToPPM("albedo.ppm");
 }
 
-void Renderer::RenderManager::ExecuteDenoiser()
+void FrameManager::ExecuteDenoiser()
 {
 	float* output = new float[width * height * 3];
 
@@ -178,15 +222,6 @@ void Renderer::RenderManager::ExecuteDenoiser()
 	}
 }
 
-RenderManager::RenderManager(int width, int height, float horizontal_field_of_view)
-{
-	this->width = width; this->height = height;
-	this->gamma = 2.2f;
-	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
-	this->horizontal_fov = horizontal_field_of_view;
-	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
-	this->samplesPerPixel = 256;
-	this->maxDepth = 8;
-}
+
 
 

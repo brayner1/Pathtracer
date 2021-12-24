@@ -4,16 +4,22 @@
 
 namespace Renderer
 {
+	struct NodePrimitive
+	{
+		int objectIndex;
+		int primitiveIndex;
+	};
 
-
-	class ObjectTree
+	class NodeHierarchy
 	{
 	public:
-		virtual ~ObjectTree() = default;
+		virtual ~NodeHierarchy() = default;
 
 		virtual bool Intersect(const Ray& ray, HitInfo& hit) = 0;
 		virtual float Intersect(const Ray& ray) = 0;
 
-	};
+	protected:
+		std::vector<Object*> objects;
 
+	};
 }

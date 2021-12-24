@@ -9,8 +9,9 @@ using namespace Renderer;
 static std::ofstream buildLog;
 #endif
 
-BVHTree::BVHTree(const std::vector<Object*>& objects) : objects(objects)
+BVHTree::BVHTree(const std::vector<Object*>& objects)
 {
+	this->objects = objects;
 	int ObjCount = objects.size();
 
 	std::vector<ObjectBVHInfo> objectsInfo;//(ObjCount);
@@ -24,7 +25,7 @@ BVHTree::BVHTree(const std::vector<Object*>& objects) : objects(objects)
 		}
 	}
 
-	LogPrimitivesInfo(objectsInfo, "Log/PrimitivesInfo_BVH.txt");
+	//LogPrimitivesInfo(objectsInfo, "Log/PrimitivesInfo_BVH.txt");
 
 	int totalNodes = 0;
 	
@@ -47,8 +48,6 @@ BVHTree::BVHTree(const std::vector<Object*>& objects) : objects(objects)
 #endif
 	//this->objects.swap(OrderedObjs);
 	this->primitives.swap(orderedPrimitives);
-
-	std::cout << objects[0]->GetBounds().min() << std::endl;
 }
 
 BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimitives, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes)
@@ -317,35 +316,29 @@ BVHTreeNode BVHTree::RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimi
 bool BVHTree::Intersect(const Ray& ray, HitInfo& hit)
 {
 	bool has_hit = false;
-	Eigen::Vector3f Dir = ray.getDirection();
-	Eigen::Vector3f invDir = Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());//Dir.cwiseInverse();
+	//Eigen::Vector3f Dir = //ray.getDirection();
+	Eigen::Vector3f invDir = ray.getDirection().cwiseInverse();//Eigen::Vector3f(1.0f / Dir.x(), 1.0f / Dir.y(), 1.0f / Dir.z());//Dir.cwiseInverse();
 	//bool DirIsNeg[3] = { Dir.x() < 0.0f, Dir.y() < 0.0f, Dir.z() < 0.0f };
 	int currentNode = 0;
-	float min_dist = FLT_MAX;
+	float min_dist = std::numeric_limits<float>::max();
 
 	std::vector<int> VisitStack;
 	VisitStack.reserve(128);
 
-	//std::cout << "start bvh intersection " << VisitStack.size()  << std::endl;
-
 	while (true)
 	{
-		//std::cout << "infinite loop? : " << hit.x << ", " << hit.y << std::endl;
-		BVHTreeNode* node = &nodeArray[currentNode];
+		const BVHTreeNode* node = &nodeArray[currentNode];
 
 		if (BoundingBoxIntersect(ray, invDir, node->Bounds))
 		{
 			if (node->NumPrimitives > 0)
 			{
-				//std::cout << "Leaf bound hit" << std::endl;
 				const int primOffset = node->primOffset, finalOffset = node->primOffset + node->NumPrimitives;
-				//std::cout << "currentNode: " << currentNode << std::endl;
 				for (int i = primOffset; i < finalOffset; i++)
 				{
 					HitInfo hit_info = hit;
 					const Object* object = objects[primitives[i].objectIndex];
-					//if (objects[i]->isHitByRay(ray, hit_info))
-					if (object->isPrimitiveHitByRay(ray,  primitives[i].primitiveIndex, hit_info) > 0.f)
+					if (object->PrimitiveHitByRay(ray,  primitives[i].primitiveIndex, hit_info) > 0.f)
 					{
 						if (hit_info.Distance <= min_dist) {
 							has_hit = true;
@@ -380,13 +373,7 @@ bool BVHTree::Intersect(const Ray& ray, HitInfo& hit)
 			currentNode = VisitStack.back();
 			VisitStack.pop_back();
 		}
-
-
 	}
-	//if (hit.x == 256 && hit.y == 256)
-		//std::cout << "hey it has and end" << std::endl;
-	/*if (has_hit)
-		std::cout << "hit" << std::endl;*/
 
 	return has_hit;
 }
@@ -416,7 +403,7 @@ float BVHTree::Intersect(const Ray& ray)
 				for (int i = primOffset; i < finalOffset; i++)
 				{
 					const Object* object = objects[primitives[i].objectIndex];
-					const float t = object->isPrimitiveHitByRay(ray, primitives[i].primitiveIndex);
+					const float t = object->PrimitiveHitByRay(ray, primitives[i].primitiveIndex);
 					if (t > 0.f && t < min_dist)
 					{
 						hasHit = true;

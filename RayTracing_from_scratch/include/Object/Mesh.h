@@ -1,24 +1,20 @@
 #pragma once
-#include <iosfwd>
-#include <iosfwd>
-#include <vector>
 #include <vector>
 #include <Eigen/src/Geometry/AlignedBox.h>
-#include <Eigen/src/Geometry/AlignedBox.h>
-
 #include "Object/Object.h"
+
 namespace Renderer {
-	class Mesh :
+	class Mesh final :
 		public Object
 	{
 	public:
 		// Mesh Properties
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vNormals;
-		std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> textCoord;
+		std::vector<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f>> vUV;
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vTangent;
 		std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vBitangent;
-		std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> indices;
+		std::vector<Eigen::Vector3i, Eigen::aligned_allocator<Eigen::Vector3i>> triangles;
 
 		Eigen::Transform<float, 3, Eigen::TransformTraits::Affine> transf;
 
@@ -40,12 +36,12 @@ namespace Renderer {
 			Eigen::Vector3f* vertex_bitangent_array = nullptr
 		);
 
-		bool isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) override;
-		float isHitByRay(const Ray& incoming_ray) override;
+		float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const override;
+		float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const override;
 
-		float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const override;
-		float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const override;
+		[[nodiscard]] std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override;
+		uint32_t GetPrimitiveCount() const override;
 
-		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override;
+		HitInfo SamplePrimitivePoint(uint32_t primitiveIndex) const override;
 	};
 }

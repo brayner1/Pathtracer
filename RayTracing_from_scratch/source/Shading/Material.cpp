@@ -3,35 +3,34 @@
 #include "RenderHeaders.h"
 using namespace Renderer;
 
-Renderer::Material::Material(Eigen::Vector3f color) : diffuse_color(color)
+Material::Material(Eigen::Vector3f color) : diffuse_color(color)
 {
 }
 
-Renderer::Material::Material(Texture* texture)
+Material::Material(Texture* texture)
 {
 	this->setAlbedoTexture(texture);
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse() const
+const Eigen::Vector3f Material::getDiffuse() const
 {
 	return this->diffuse_color;
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse(Eigen::Vector2f UV) const
+Eigen::Vector3f Material::getDiffuse(const Eigen::Vector2f& UV) const
 {
 	return this->getDiffuse(UV.x(), UV.y());
 }
 
-const Eigen::Vector3f Renderer::Material::getDiffuse(float u, float v) const
+Eigen::Vector3f Material::getDiffuse(const float& u, const float& v) const
 {
-	//this->diffuse_color.transpose();
 	if (useAlbedo)
 		return this->getTextureColorUV(u, v);
-	else
-		return this->diffuse_color;
+
+	return this->diffuse_color;
 }
 
-void Renderer::Material::setDiffuse(Eigen::Vector3f DiffuseColor)
+void Material::setDiffuse(Eigen::Vector3f DiffuseColor)
 {
 	this->diffuse_color = DiffuseColor.cwiseMax(Eigen::Vector3f::Zero()).cwiseMin(Eigen::Vector3f::Ones());
 }

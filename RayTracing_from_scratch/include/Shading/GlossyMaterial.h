@@ -1,13 +1,6 @@
 #pragma once
 #ifndef MATERIAL_GLOSSY
 #define MATERIAL_GLOSSY
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
 #include "Shading/Material.h"
 namespace Renderer {
 	class GlossyMaterial :
@@ -24,10 +17,8 @@ namespace Renderer {
 		const float getRoughness() const;
 		void setRoughness(float Roughness);
 
-		Eigen::Vector3f ObjectHitColor(const Ray&ray, Scene& scene, HitInfo& hit_info) const;
-		Eigen::Vector3f getDirectIllumination(const Ray& ray, const Scene& scene, const HitInfo& hit_info) const;
-		Eigen::Vector3f SampleBSDF(const Ray& outgoing_ray, const HitInfo& hit_info, Ray& inbound_ray, float& pdf,
-			eSampleType& sampled_type) override;
+		Eigen::Vector3f SampleBSDF(const Eigen::Vector3f& outgoing_ray_dir, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray_dir, float& pdf,
+		                           eSampleType& sampled_type) override;
 	};
 }
 

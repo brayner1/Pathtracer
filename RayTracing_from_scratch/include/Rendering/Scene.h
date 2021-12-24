@@ -1,21 +1,18 @@
 #pragma once
-#include <Unsupported/Eigen/AlignedVector3>
-#include <Unsupported/Eigen/AlignedVector3>
-
 #include "Object/Object.h"
-#include "Rendering/Light.h"
-#include "Rendering/PinholeCamera.h"
-#include "Rendering/RenderManager.h"
-#include "Rendering/ObjectTree.h"
+#include "Light/Light.h"
+#include "Camera/PinholeCamera.h"
+#include "Rendering/NodeHierarchy.h"
 
 namespace Renderer {
+	struct OutputProperties;
+
 	class Scene
 	{
 	private:
-		Eigen::Vector3f ambient_light;
-		float ambient_factor;
+		Eigen::Vector3f sky_color {0.f, 0.f, 0.f};
 		std::vector<Object*> scene_objects;
-		ObjectTree* SceneRoot;
+		std::unique_ptr<NodeHierarchy> SceneRoot;
 		std::vector<Light*> scene_lights;
 
 		int renderingMaxDepth = 8;
@@ -27,24 +24,24 @@ namespace Renderer {
 		Scene(PinholeCamera mainCamera = PinholeCamera());
 		~Scene();
 
-		void setCamera(PinholeCamera mainCamera);
+		void SetCamera(PinholeCamera mainCamera);
 
-		void insertObject(Renderer::Object* new_object);
-		const std::vector<Renderer::Object*>& getObjects() const;
+		void InsertObject(Object* new_object);
+		const std::vector<Object*>& GetObjects() const;
 
 		void BuildSceneTree();
 
-		void insertLight(Light* new_light);
-		const std::vector<Renderer::Light*>& getLights() const;
+		void InsertLight(Light* new_light);
+		const std::vector<Light*>& GetLights() const;
 
-		const Eigen::Vector3f getAmbientColor() const;
-		const float getAmbientFactor() const;
+		void SetSkyColor(const Eigen::Vector3f& skyColor) { sky_color = skyColor; }
+		Eigen::Vector3f GetSkyColor() const { return sky_color; }
 
 		bool RayCast(const Ray& ray, HitInfo &hit) const;
-		float RayCast(const Ray& ray) const;
+		float RayCast(const Ray& ray) const;        
 
-		Eigen::Vector3f GetPathLi(const Ray& ray, HitInfo& hit);
+		Eigen::Vector3f PathTrace(const Ray& camera_ray, OutputProperties& outProperties);
 
-		void PixelColor(int x, int y, int maxDepth, int nSamples, struct OutputProperties &OP);
+		void PixelColor(int x, int y, int maxDepth, int nSamples, OutputProperties &OP);
 	};
 }

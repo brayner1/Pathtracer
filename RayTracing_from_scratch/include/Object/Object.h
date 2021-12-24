@@ -6,73 +6,88 @@
 namespace Renderer {
 	//class Material;
 	class Object;
+	struct NodePrimitive;
+
 	struct HitInfo {
-		Object* obj;
+		Object* obj = nullptr;
+		Material * Material = nullptr;
 
-		Material * Material;
-		Eigen::Vector3f Point;
-		Eigen::Vector3f surfNormal;
-		Eigen::Vector3f shadNormal;
-		Eigen::Vector2f TextureCoord;
-		float U_factor, V_factor, Distance;
-		Eigen::Vector3f U_vector, V_vector;
-		Eigen::Vector3f Attenuation;
-		Eigen::Vector3f Albedo;
-		int x, y, w, h;
-		bool hitBackface;
+		Eigen::Vector3f Point = Eigen::Vector3f::Zero();
+		Eigen::Vector3f surfNormal = Eigen::Vector3f::Zero();
+		Eigen::Vector3f shadNormal = Eigen::Vector3f::Zero();
+		Eigen::Vector3f U_vector = Eigen::Vector3f::Zero(), V_vector = Eigen::Vector3f::Zero();
+		Eigen::Vector2f UvCoord = Eigen::Vector2f::Zero();
+		float U_factor = 0.f, V_factor = 0.f, Distance = 0.f;
+		int x = 0, y = 0, w = 0, h = 0;
 
-		static struct HitInfo resetStruct() {
-			HitInfo info;
-			info.obj = NULL;
-			info.Material = NULL;
-			info.Point = info.surfNormal = Eigen::Vector3f::Zero();
-			info.TextureCoord = Eigen::Vector2f::Zero();
-			info.U_factor = info.V_factor = info.Distance = 0.0f;
-			info.Attenuation = Eigen::Vector3f::Ones();
-			info.Albedo = Eigen::Vector3f::Zero();
-			info.hitBackface = false;
-			return info;
+		void resetStruct()
+		{
+			obj = nullptr;
+			Material = nullptr;
+			Point = surfNormal = shadNormal = U_vector = V_vector = Eigen::Vector3f::Zero();
+			UvCoord = Eigen::Vector2f::Zero();
+			U_factor = V_factor = Distance = 0.0f;
+			x = y = w = h = 0;
 		}
 	};
 
 	class Object
 	{
 	protected:
-		Material* material;
-		Eigen::Vector3f Color;
+		Material* material{};
 
-		Eigen::AlignedBox3f Object_bounds;
+		Eigen::AlignedBox3f Object_bounds{};
 	public:
-		std::string name;
+		std::string name{};
 
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		Object();
+		Object()
+		{
+			
+		}
+
 		virtual ~Object();
 
-		// Checks if the whole object is hit by the incoming ray, and save the hit information if it was hit.
-		virtual bool isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) = 0;
-		// Checks if the whole object is hit by the incoming ray.
-		virtual float isHitByRay(const Ray& incoming_ray) = 0;
+		/**
+		 * \brief Checks if a primitive in the object is hit by the incoming ray and save the hit information if it was hit.
+		 * \param incoming_ray 
+		 * \param primitive_index 
+		 * \param hit_info Will be updated with the hit information if there is a hit with the primitive.
+		 * \return The distance between the ray origin and the hit point, or -1 if there is no hit.
+		 */
+		virtual float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const = 0;
 
-		// Checks if a primitive in the object is hit by the incoming ray and save the hit information if it was hit.
-		// If the object type don't have multiple primitives, it calculates the collision with the whole object.
-		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitInfo& hit_info) const = 0;
-		// Checks if a primitive in the object is hit by the incoming ray.
-		// If the object type don't have multiple primitives, it calculates the collision with the whole object.
-		virtual float isPrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const = 0;
+		/**
+		 * \brief Checks if a primitive in the object is hit by the incoming ray.
+		 * \param incoming_ray 
+		 * \param primitive_index 
+		 * \return The distance between the ray origin and the hit point, or -1 if there is no hit.
+		 */
+		virtual float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const = 0;
 
-		bool is_bounds_hit(Ray& incoming_ray);
-
-		void setMaterial(Renderer::Material* material);
+		void SetMaterial(Material* material);
 		Material* getMaterial() const;
 
-		void SetBounds(Eigen::AlignedBox3f& bounds);
+		// Set the whole object bounds
+		void SetBounds(const Eigen::AlignedBox3f& bounds);
+		// Get the whole object bounds
 		const Eigen::AlignedBox3f& GetBounds() const { return this->Object_bounds; }
 
-		// Returns the bounds of every primitive presente in the object (e.g. each triangle bound in a mesh).
-		// Returns a single element if the object is a primitive itself (e.g. a sphere) TODO: sphere not supported yet
+		/**
+		 * \brief Returns the bounds of every primitive contained in the object (e.g. each triangle bound in a mesh).
+		 * \return The vector containing the bounds of each primitive, ordered by primitive index.
+		 */
 		virtual std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const = 0;
+
+		/**
+		 * \brief 
+		 * \return The number of primitives contained in this object
+		 */
+		virtual uint32_t GetPrimitiveCount() const = 0;
+
+
+		virtual HitInfo SamplePrimitivePoint(uint32_t primitiveIndex) const = 0;
 	};
 }
 

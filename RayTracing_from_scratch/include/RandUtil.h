@@ -25,7 +25,6 @@ inline Eigen::Vector3f sample_hemisphere_vector_cosine(const Eigen::Vector3f& no
 	Eigen::Vector2f u_samples{ uniform_random_01(), uniform_random_01() };
 	u_samples = 2.f * u_samples - Eigen::Vector2f{ 1.f , 1.f };
 
-
 	if (u_samples.x() == 0.f && u_samples.y() == 0.f)
 		return normal;
 
@@ -45,8 +44,11 @@ inline Eigen::Vector3f sample_hemisphere_vector_cosine(const Eigen::Vector3f& no
 	const float v = r * sin_theta;
 	const float z = std::sqrt(std::max(0.f, 1.f - (u * u + v * v)));
 
-	const Eigen::Vector3f v_vector = normal.cross(u_vector);
-	return u * u_vector + v * v_vector + z * normal;
+	//TODO: AJEITAR ISSAQUI!!
+	const Eigen::Vector3f v_vector = normal.cross(u_vector).normalized();
+	//const Eigen::Vector3f u_vec;
+	//const Eigen::Vector3f v_vec
+	return (u * u_vector + v * v_vector + z * normal).normalized();
 }
 
 inline Eigen::Vector3f random_hemisphere_vector(const Eigen::Vector3f& Normal, const Eigen::Vector3f& U_vector)
@@ -99,7 +101,7 @@ inline float  BoundingBoxSurfaceArea(const Eigen::AlignedBox3f& bound)
 	return 2 * (size.x() * size.y() +  size.y() * size.z() + size.z() * size.x());
 }
 
-inline bool BoundingBoxIntersect(const Renderer::Ray& incoming_ray, Eigen::Vector3f& invDir, Eigen::AlignedBox3f& BoundingBox)
+inline bool BoundingBoxIntersect(const Renderer::Ray& incoming_ray, const Eigen::Vector3f& invDir, const Eigen::AlignedBox3f& BoundingBox)
 {
 	float t0 = 0.0f, t1 = FLT_MAX;
 	float tNear, tFar;

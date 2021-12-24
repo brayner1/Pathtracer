@@ -26,10 +26,7 @@ namespace Renderer {
 		GroundPlane(Eigen::Vector3f color, float height = 0.0f, bool checkerboard = false);
 		~GroundPlane() override;
 
-		bool isHitByRay(const Ray& incoming_ray, HitInfo& hit_info) override;
-		float isHitByRay(const Ray& incoming_ray) override;
-
-		void setSquareSize(int size);
+		void SetSquareSize(int size);
 		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override
 		{
 			constexpr float min = std::numeric_limits<float>::lowest();

@@ -1,5 +1,5 @@
 #pragma once
-#include "Rendering/ObjectTree.h"
+#include "Rendering/NodeHierarchy.h"
 
 namespace Renderer
 {
@@ -52,14 +52,10 @@ namespace Renderer
 		uint8_t pad;	// 1 byte pad
 	};
 
-	struct NodePrimitive
-	{
-		int objectIndex;
-		int primitiveIndex;
-	};
+	
 
 	class BVHTree :
-		public ObjectTree
+		public NodeHierarchy
 	{
 	public:
 
@@ -77,7 +73,7 @@ namespace Renderer
 
 	private:
 		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
-		std::vector<Object*> objects;
+		//std::vector<Object*> objects;
 		std::vector<NodePrimitive> primitives;
 		std::vector<BVHTreeNode> nodeArray;
 

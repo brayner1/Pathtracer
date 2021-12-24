@@ -36,14 +36,11 @@ namespace Renderer {
 		Material (Eigen::Vector3f diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f));
 		Material (Texture* texture);
 
-		virtual Eigen::Vector3f ObjectHitColor(const Ray& ray, Scene& scene, HitInfo& hit_info) const = 0;
-		virtual Eigen::Vector3f getDirectIllumination(const Ray& ray, const Scene& scene, const HitInfo& hit_info) const = 0;
-
-		virtual Eigen::Vector3f SampleBSDF(const Ray& outgoing_ray, const HitInfo& hit_info, Ray& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
+		virtual Eigen::Vector3f SampleBSDF(const Eigen::Vector3f& outgoing_ray, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
 
 		const Eigen::Vector3f getDiffuse() const;
-		const Eigen::Vector3f getDiffuse(float u, float v) const;
-		const Eigen::Vector3f getDiffuse(Eigen::Vector2f UV) const;
+		Eigen::Vector3f getDiffuse(const float& u, const float& v) const;
+		Eigen::Vector3f getDiffuse(const Eigen::Vector2f& UV) const;
 		void setDiffuse(Eigen::Vector3f DiffuseColor);
 		//const Eigen::Vector3f getSpecular() const;
 		//void setSpecular(Eigen::Vector3f SpecularColor);
@@ -62,4 +59,21 @@ namespace Renderer {
 
 		~Material();
 	};
+
+	inline Eigen::Vector3f FaceForward(const Eigen::Vector3f& face_vector, const Eigen::Vector3f in_vector)
+	{
+		return face_vector.dot(in_vector) > 0.f? in_vector : - in_vector;
+	}
+
+	inline Eigen::Vector3f Reflect(const Eigen::Vector3f& in_direction, const Eigen::Vector3f& normal)
+	{
+		return (-in_direction + (2.f * in_direction.dot(normal) * normal)).normalized();
+	}
+
+	inline Eigen::Vector3f Refract(const Eigen::Vector3f& in_direction, const Eigen::Vector3f& normal, 
+		const float cosI, const float cosT, const float eta)
+	{
+		return (eta * -in_direction + (eta * cosI - cosT) * normal).normalized();
+	}
+
 }

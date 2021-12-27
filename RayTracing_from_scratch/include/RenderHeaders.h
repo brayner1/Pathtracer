@@ -16,7 +16,7 @@
 #include "Object/Object.h"
 #include "Object/GroundPlane.h"
 #include "Object/Mesh.h"
-#include "Shading/Texture.h"
+#include "Shading/RGBTexture.h"
 #include "Shading/Material.h"
 #include "Shading/DiffuseMaterial.h"
 #include "Shading/GlossyMaterial.h"

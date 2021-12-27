@@ -3,7 +3,7 @@
 //#include "Object.h"
 namespace Renderer {
 	class Scene;
-	class Texture;
+	class RGBTexture;
 	class Ray;
 	struct HitInfo;
 
@@ -25,7 +25,7 @@ namespace Renderer {
 		Eigen::Vector3f ambient_color;
 		float reflectivity, glossiness, roughness;*/
 
-		Texture* albedoTexture = nullptr;
+		RGBTexture* albedoTexture = nullptr;
 		bool useAlbedo = false;
 
 	public:
@@ -34,7 +34,8 @@ namespace Renderer {
 		//aiMaterialProperty prop;
 
 		Material (Eigen::Vector3f diffuseCcolor = Eigen::Vector3f(0.5f, 0.5f, 0.5f));
-		Material (Texture* texture);
+		Material (RGBTexture* texture);
+		~Material();
 
 		virtual Eigen::Vector3f SampleBSDF(const Eigen::Vector3f& outgoing_ray, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
 
@@ -55,11 +56,9 @@ namespace Renderer {
 		//const float getRoughness() const;
 		//void setRoughness(float Roughness);
 	
-		void setAlbedoTexture(Texture* texture);
+		void setAlbedoTexture(RGBTexture* texture);
 
 		const Eigen::Vector3f getTextureColorUV(float u, float v) const;
-
-		~Material();
 	};
 
 	inline Eigen::Vector3f FaceForward(const Eigen::Vector3f& face_vector, const Eigen::Vector3f in_vector)

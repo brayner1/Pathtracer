@@ -47,7 +47,7 @@
     <ClCompile Include="source\Loader\AssimpLoader.cpp" />
     <ClCompile Include="source\Shading\PhongMaterial.cpp" />
     <ClCompile Include="source\Shading\RefractiveMaterial.cpp" />
-    <ClCompile Include="source\Shading\Texture.cpp" />
+    <ClCompile Include="source\Shading\RGBTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Contrib\stb_image.h" />
@@ -79,7 +79,7 @@
     <ClInclude Include="include\Rendering\Scene.h" />
     <ClInclude Include="include\Loader\AssimpLoader.h" />
     <ClInclude Include="include\Shading\RefractiveMaterial.h" />
-    <ClInclude Include="include\Shading\Texture.h" />
+    <ClInclude Include="include\Shading\RGBTexture.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="include\Shading\PhongMaterial.h" />
   </ItemGroup>
@@ -237,6 +237,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\assimp\lib\x64\;$(SolutionDir)dependencies\OpenImageDenoiser\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc140-mt.lib;OpenImageDenoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /f /d "$(SolutionDir)dependencies\OpenImageDenoiser\dll\*.dll" "$(TargetDir)"
+xcopy /y /f /d "$(SolutionDir)dependencies\assimp\dll\*.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

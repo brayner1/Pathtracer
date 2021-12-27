@@ -9,12 +9,12 @@ class aiScene;
 namespace Renderer
 {
 	class Scene;
-	class Texture;
+	class RGBTexture;
 	class Material;
 
 	Material* ConvertAssimpMaterial(const aiScene* assimpScene, const aiMaterial* material);
 
-	Texture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index);
+	RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index);
 
 
 	/**

@@ -7,9 +7,14 @@ Material::Material(Eigen::Vector3f color) : diffuse_color(color)
 {
 }
 
-Material::Material(Texture* texture)
+Material::Material(RGBTexture* texture)
 {
 	this->setAlbedoTexture(texture);
+}
+
+Material::~Material()
+{
+	delete albedoTexture;
 }
 
 const Eigen::Vector3f Material::GetAlbedo() const
@@ -85,7 +90,7 @@ void Material::setDiffuse(Eigen::Vector3f DiffuseColor)
 //	this->roughness = Roughness;
 //}
 
-void Renderer::Material::setAlbedoTexture(Texture* texture)
+void Renderer::Material::setAlbedoTexture(RGBTexture* texture)
 {
 	if (texture)
 	{
@@ -96,12 +101,7 @@ void Renderer::Material::setAlbedoTexture(Texture* texture)
 
 const Eigen::Vector3f Renderer::Material::getTextureColorUV(float u, float v) const
 {
-	Eigen::Vector3i temp = this->albedoTexture->getColorUV(u, v);
+	Eigen::Vector3i temp = this->albedoTexture->GetColorUV(u, v);
 	Eigen::Vector3f color = (Eigen::Vector3f(temp.x(), temp.y(), temp.z()) / 255.0f).array().pow(2.2f);
 	return color;
-}
-
-Renderer::Material::~Material()
-{
-	delete albedoTexture;
 }

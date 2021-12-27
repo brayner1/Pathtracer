@@ -30,7 +30,7 @@ namespace Renderer
 		// Load Textures
 		if (material->GetTextureCount(aiTextureType_DIFFUSE))
 		{
-			Texture* diffTexture = LoadTexture(assimpScene, material, aiTextureType_DIFFUSE, 0);
+			RGBTexture* diffTexture = LoadTexture(assimpScene, material, aiTextureType_DIFFUSE, 0);
 
 			mat->setAlbedoTexture(diffTexture);
 		}
@@ -38,7 +38,7 @@ namespace Renderer
 		return mat;
 	}
 
-	Texture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index)
+	RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index)
 	{
 		aiString path;
 		aiTextureMapping mapping;
@@ -53,7 +53,7 @@ namespace Renderer
 			}
 			else
 			{
-				return Texture::LoadTextureFromFile(path.C_Str());
+				return RGBTexture::LoadTextureFromFile(path.C_Str());
 			}
 		}
 

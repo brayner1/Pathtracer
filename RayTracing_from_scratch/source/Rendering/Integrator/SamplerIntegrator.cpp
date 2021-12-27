@@ -7,8 +7,4 @@ using namespace Renderer;
 void SamplerIntegrator::Render(Scene scene)
 {
 	this->InitializeFramebuffer();
-
-
-
 }
-

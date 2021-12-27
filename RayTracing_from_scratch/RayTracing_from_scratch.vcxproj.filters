@@ -153,6 +153,9 @@
     <ClCompile Include="source\Light\PrimitiveLight.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\Shading\PhongMaterial.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
@@ -249,6 +252,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="include\Light\PrimitiveLight.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\PhongMaterial.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

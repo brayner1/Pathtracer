@@ -12,17 +12,17 @@ Material::Material(Texture* texture)
 	this->setAlbedoTexture(texture);
 }
 
-const Eigen::Vector3f Material::getDiffuse() const
+const Eigen::Vector3f Material::GetAlbedo() const
 {
 	return this->diffuse_color;
 }
 
-Eigen::Vector3f Material::getDiffuse(const Eigen::Vector2f& UV) const
+Eigen::Vector3f Material::GetAlbedo(const Eigen::Vector2f& UV) const
 {
-	return this->getDiffuse(UV.x(), UV.y());
+	return this->GetAlbedo(UV.x(), UV.y());
 }
 
-Eigen::Vector3f Material::getDiffuse(const float& u, const float& v) const
+Eigen::Vector3f Material::GetAlbedo(const float& u, const float& v) const
 {
 	if (useAlbedo)
 		return this->getTextureColorUV(u, v);

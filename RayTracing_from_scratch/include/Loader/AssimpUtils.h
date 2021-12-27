@@ -1,4 +1,8 @@
 ﻿#pragma once
+#include <iosfwd>
+#include <vector>
+
+#include "Object/Object.h"
 
 class aiScene;
 
@@ -18,8 +22,10 @@ namespace Renderer
 	 * \param assimpScene The pointer to the Assimp aiScene that will be converted.
 	 * \param outRendererScene A reference to the Renderer Scene that will have the converted aiScene primitives.
 	 * \param overrideMaterial A pointer to an override material. If nullptr, will use the materials defined in the imported file.
+	 * \return A vector with the pointers to the objects inserted in the Scene variable.
 	 */
-	void ConvertAssimpScene(const aiScene* assimpScene, Scene& outRendererScene, Material* overrideMaterial = nullptr);
+	std::vector<Object*> ConvertAssimpScene(const aiScene* assimpScene, Scene& outRendererScene,
+	                                        Material* overrideMaterial = nullptr);
 
 
 	/**

@@ -43,5 +43,6 @@ namespace Renderer {
 		uint32_t GetPrimitiveCount() const override;
 
 		HitInfo SamplePrimitivePoint(uint32_t primitiveIndex) const override;
+		float PrimitiveSamplePDF(uint32_t primitiveIndex) const override;
 	};
 }

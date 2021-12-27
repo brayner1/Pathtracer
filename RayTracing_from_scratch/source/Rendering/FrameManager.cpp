@@ -5,12 +5,9 @@
 
 using namespace Renderer;
 
-FrameManager::FrameManager(int width, int height)
+FrameManager::FrameManager(int width, int height) : width(width), height(height)
 {
-	this->width = width; this->height = height;
-	this->gamma = 2.2f;
-	this->samplesPerPixel = 256;
-	this->maxDepth = 8;
+	InitializeFramebuffer();
 }
 
 FrameManager::FrameManager(const RenderOptions& renderOptions)
@@ -62,9 +59,14 @@ void FrameManager::InitializeFramebuffer()
 		}
 	}
 
-	this->colorBuffer = new float[width * height * 3];
-	this->albedoBuffer = new float[width * height * 3];
-	this->normalBuffer = new float[width * height * 3];
+	if (useDenoiser)
+	{
+		this->colorBuffer = new float[width * height * 3];
+		this->albedoBuffer = new float[width * height * 3];
+		this->normalBuffer = new float[width * height * 3];
+	}
+
+	frameBufferInitialized = true;
 }
 
 void FrameManager::SetOptions(const RenderOptions& renderOptions)
@@ -79,13 +81,18 @@ void FrameManager::SetOptions(const RenderOptions& renderOptions)
 		this->maxDepth = renderOptions.maxDepth.value();
 	if (renderOptions.gamma)
 		this->gamma = renderOptions.gamma.value();
+	if (renderOptions.tonemapping)
+		this->tonemapping = renderOptions.tonemapping.value();
 	if (renderOptions.useDenoiser)
 		this->useDenoiser = renderOptions.useDenoiser.value();
+	if (renderOptions.outputFileName)
+		this->outFile = renderOptions.outputFileName.value();
 }
 
 void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 {
-	this->InitializeFramebuffer();
+	if (!frameBufferInitialized)
+		this->InitializeFramebuffer();
 #ifdef paralellism
 	omp_set_num_threads(omp_get_max_threads());
 	std::cout << "Number of threads available: " << omp_get_max_threads() << std::endl;
@@ -112,12 +119,12 @@ void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 
 		OutputProperties OP = OutputProperties();
 		scene.PixelColor(x, y, maxDepth, samplesPerPixel, OP);
+
 		finalColor = OP.color;
+		if (tonemapping > 0.f)
+			finalColor = finalColor.array() / (finalColor + Eigen::Vector3f{tonemapping, tonemapping, tonemapping}).array();
 		finalAlbedo = OP.albedo;
 		finalNormal = OP.normal;
-
-		finalColor = finalColor.cwiseMin(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
-
 
 		int rawIndex = (x + (y * width)) * 3;
 
@@ -131,18 +138,21 @@ void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 				*lastreport = prog;
 				std::cout << "Progress: " << prog << "%" << std::endl << "Pixel: " << *it << " of " << total << std::endl;
 			}
-			
-			this->colorBuffer[rawIndex + 0] = finalColor.x();
-			this->colorBuffer[rawIndex + 1] = finalColor.y();
-			this->colorBuffer[rawIndex + 2] = finalColor.z();
 
-			this->albedoBuffer[rawIndex + 0] = finalAlbedo.x();
-			this->albedoBuffer[rawIndex + 1] = finalAlbedo.y();
-			this->albedoBuffer[rawIndex + 2] = finalAlbedo.z();
+			if (useDenoiser)
+			{
+				this->colorBuffer[rawIndex + 0] = finalColor.x();
+				this->colorBuffer[rawIndex + 1] = finalColor.y();
+				this->colorBuffer[rawIndex + 2] = finalColor.z();
 
-			this->normalBuffer[rawIndex + 0] = finalNormal.x();
-			this->normalBuffer[rawIndex + 1] = finalNormal.y();
-			this->normalBuffer[rawIndex + 2] = finalNormal.z();
+				this->albedoBuffer[rawIndex + 0] = finalAlbedo.x();
+				this->albedoBuffer[rawIndex + 1] = finalAlbedo.y();
+				this->albedoBuffer[rawIndex + 2] = finalAlbedo.z();
+
+				this->normalBuffer[rawIndex + 0] = finalNormal.x();
+				this->normalBuffer[rawIndex + 1] = finalNormal.y();
+				this->normalBuffer[rawIndex + 2] = finalNormal.z();
+			}
 			
 			frameBuffer[0][x][y] = (int)(powf(finalColor.x(), 1.0f / this->gamma) * 255.f);
 			frameBuffer[1][x][y] = (int)(powf(finalColor.y(), 1.0f / this->gamma) * 255.f);
@@ -155,14 +165,14 @@ void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 	std::cout << "Rendering time = " << (float)std::chrono::duration_cast<
 				std::chrono::microseconds>(end - begin).count() / 1000000.f << "[s]" << std::endl;
 
-	this->SaveBufferToPPM("noisy.ppm");
+	this->SaveBufferToPPM(outFile+"_noisy.ppm");
 
 	if (!useDenoiser)
 		return;
 
 	this->ExecuteDenoiser();
 
-	this->SaveBufferToPPM("img.ppm");
+	this->SaveBufferToPPM(outFile+"_denoised.ppm");
 
 
 	for (int y = 0; y < height; y++)
@@ -174,7 +184,7 @@ void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 			frameBuffer[2][x][y] = (int)(powf((normalBuffer[(x + y * width) * 3 + 2] + 1.0f)/2.0f, 1.0f / this->gamma) * 255.f);
 		}
 	}
-	this->SaveBufferToPPM("normal.ppm");
+	this->SaveBufferToPPM(outFile+"_normals.ppm");
 
 	for (int y = 0; y < height; y++)
 	{
@@ -185,7 +195,7 @@ void FrameManager::RenderScene(Scene& scene, ImageType outputType)
 			frameBuffer[2][x][y] = (int)(powf(albedoBuffer[(x + y * width) * 3 + 2], 1.0f / this->gamma) * 255.f);
 		}
 	}
-	this->SaveBufferToPPM("albedo.ppm");
+	this->SaveBufferToPPM(outFile+"_albedo.ppm");
 }
 
 void FrameManager::ExecuteDenoiser()

@@ -52,7 +52,7 @@ namespace Renderer
 		if (new_light)
 			this->scene_lights.push_back(new_light);
 	}
-
+		
 	const std::vector<Light*>& Scene::GetLights() const
 	{
 		return this->scene_lights;
@@ -76,14 +76,38 @@ namespace Renderer
 		Eigen::Vector3f L { 0.f, 0.f, 0.f };
 
 		float etaScale = 1.f;
-		uint32_t bounces = 0;
-		for(bounces = 0; bounces < renderingMaxDepth; bounces++)
+		bool specularBounce = false;
+		for(uint32_t bounces = 0; bounces < renderingMaxDepth; bounces++)
 		{
 			if (!RayCast(ray, hit))
 			{
 				L.array() += beta.array() * sky_color.array();
 				break;
 			}
+
+			if (bounces == 0 || specularBounce)
+			{
+				Light* primLight = hit.obj->GetPrimitiveLight(hit.primitiveIndex);
+				if (primLight)
+				{
+					if (bounces == 0)
+					{
+						L += hit.obj->GetPrimitiveLight(hit.primitiveIndex)->GetColor();
+						break;
+					}
+					const float eFactor = hit.surfNormal.dot(-ray.getDirection());
+					if (eFactor > 0.f)
+					{
+						/*L.array() += 
+							(eFactor * beta.array() * hit.obj->GetPrimitiveLight(hit.primitiveIndex)->GetColor().array())
+							/ (hit.obj->PrimitiveSamplePDF(hit.primitiveIndex) * hit.Distance * hit.Distance);*/
+						L.array() += beta.array() * hit.obj->GetPrimitiveLight(hit.primitiveIndex)->GetColor().array();
+						break;
+					}
+				}
+			}
+
+			if (!hit.Material) break;
 
 			const Eigen::Vector3f& outRay = -ray.getDirection();
 			Eigen::Vector3f inboundRayDir{};
@@ -98,35 +122,29 @@ namespace Renderer
 				Eigen::Vector3f Li { 0.f, 0.f, 0.f };
 				for (const Light* light : scene_lights)
 				{
-					if (!light->TestLightVisibility(*this, hit)) continue;
-
 					float lightPdf = 0.f;
-					Eigen::Vector3f lightDir{};
-					const Eigen::Vector3f lightInt = light->SampleLightIntensity(hit, lightDir, lightPdf);
-					Li += (lightInt * std::abs(lightDir.dot(hit.shadNormal))) / lightPdf;
+					Eigen::Vector3f lightDir = Eigen::Vector3f::Zero();
+					const Eigen::Vector3f lightInt = light->SampleLightIntensity(*this, hit, lightDir, lightPdf);
+					if (!lightInt.isZero() && lightPdf > 0.f)
+						Li += (lightInt * std::abs(lightDir.dot(hit.shadNormal))) / lightPdf;
 				}
-				L += (beta.array() * Li.array() * materialF.array()).matrix().cwiseMin(1.f).cwiseMax(0.f);
+				L += (beta.array() * Li.array() * materialF.array()).matrix();
 			}
 
-			beta = (beta.array() * materialF.array() * std::abs(inboundRayDir.dot(hit.shadNormal))) / pdf;
-
-			/*if (beta.maxCoeff() > 1.f)
-				std::cout << "deu rim: " << beta.maxCoeff() << std::endl;*/
+			beta.array() *= (materialF.array() * std::abs(inboundRayDir.dot(hit.shadNormal))) / pdf;
 
 			ray = {hit.Point, inboundRayDir};
+			specularBounce = (sampledType & BSDF_SPECULAR) != 0;
 
 			// If a specular transmission happened, compute the eta scale for the beta computation
 			if ((sampledType & (BSDF_SPECULAR | BSDF_TRANSMISSION)) == (BSDF_SPECULAR | BSDF_TRANSMISSION))
 			{
-				if(RefractiveMaterial* refractiveMat = dynamic_cast<RefractiveMaterial*>(hit.Material))
-				{
-					float eta = refractiveMat->getIOR();
-					etaScale *= (outRay.dot(hit.surfNormal) > 0.f)? eta * eta : 1 / (eta * eta);
-				}
+				float eta = hit.Material->GetIor();
+				etaScale *= (outRay.dot(hit.surfNormal) > 0.f)? eta * eta : 1 / (eta * eta);
 			}
 
 			Eigen::Vector3f rrBeta = beta * etaScale;
-	        if (rrBeta.maxCoeff() < 0.8f && bounces > 3) {
+	        if (rrBeta.maxCoeff() < 0.5f && bounces > 3) {
 	            float q = std::max(.05f, 1 - rrBeta.maxCoeff());
 	            if (uniform_random_01() < q) break;
 	            beta /= 1 - q;
@@ -146,11 +164,11 @@ namespace Renderer
 		{
 			const Eigen::Vector3f rDirection = this->scene_camera.GetRayDirection(x + 0.5f, y + 0.5f);
 			Ray camRay = Ray(this->scene_camera.GetPosition(), rDirection, 0);
-			pixelColor += PathTrace(camRay, OP);
+			pixelColor += PathTrace(camRay, OP) / nSamples;
 		}
 		//OP.Albedo /= nSamples;
 		//OP.surfNormal /= nSamples;
-		OP.color = pixelColor / nSamples;
+		OP.color = pixelColor.array();// / (pixelColor.array() + Eigen::Array3f::Ones());// / nSamples;
 	}
 
 }

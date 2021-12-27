@@ -12,6 +12,7 @@ namespace Renderer
 		uint32_t samplesPerPixel = 256;
 		uint32_t maxDepth = 8;
 		float gamma = 2.2f;
+		float tonemapping = 0.f;
 		bool useDenoiser = false;
 		std::string outputFileName = "output";
 	};
@@ -21,6 +22,6 @@ namespace Renderer
 	public:
 		SDLLoader() = delete;
 
-		static std::optional<SDLInputOptions> SDL_LoadScene(std::string file_path, Scene& outScene);
+		static std::optional<RenderOptions> SDL_LoadScene(std::string file_path, Scene& outScene);
 	};
 }

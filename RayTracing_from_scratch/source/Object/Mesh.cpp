@@ -88,7 +88,7 @@ float Mesh::PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitI
 	assert(rayDir.w() <= std::numeric_limits<float>::epsilon() && "rayDir w() is not 0.f");
 
 	if (u < 0.0f || v < 0.0f || (u + v) > 1.0f) return -1.f;
-	if (t <= 1e-5f) return -1.f;
+	if (t <= 1e-5f || t > incoming_ray.GetMaxDistance()) return -1.f;
 
 	Eigen::Vector3f surfNormal, shadeNormal;
 
@@ -131,6 +131,8 @@ float Mesh::PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitI
 	hit_info.V_vector = Eigen::Vector3f{ v1v0.x(), v1v0.y(), v1v0.z() }.normalized(); 
 	hit_info.Distance = t;
 	hit_info.Material = this->material;
+	hit_info.obj = this;
+	hit_info.primitiveIndex = primitive_index;
 
 	return t;
 }
@@ -169,7 +171,7 @@ float Mesh::PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) cons
 	assert(rayDir.w() <= std::numeric_limits<float>::epsilon() && "rayDir w() is not 0.f");
 
 	if (u < 0.0f || v < 0.0f || (u + v) > 1.0f) return -1.f;
-	if (t <= 1e-5f) return -1.f;
+	if (t <= 1e-5f || t > incoming_ray.GetMaxDistance()) return -1.f;
 
 	return t;
 }
@@ -200,7 +202,7 @@ HitInfo Mesh::SamplePrimitivePoint(uint32_t primitiveIndex) const
 	float u1 = uniform_random_01();
 
 	float squ0 = std::sqrt(u0);
-	Eigen::Vector2f barycentric {1 - squ0, u1 * squ0};
+	Eigen::Vector2f barycentric {1.f - squ0, u1 * squ0};
 
 	const Eigen::Vector3i& triangle = triangles[primitiveIndex];
 
@@ -225,7 +227,7 @@ HitInfo Mesh::SamplePrimitivePoint(uint32_t primitiveIndex) const
 		const Eigen::Vector3f& n0 = this->vNormals[triangle.x()];
 		const Eigen::Vector3f& n1 = this->vNormals[triangle.y()];
 		const Eigen::Vector3f& n2 = this->vNormals[triangle.z()];
-		pointInfo.surfNormal = (1.f - barycentric.x() - barycentric.y()) * v0 + barycentric.x() * v1 + barycentric.y() * v2;
+		pointInfo.surfNormal = ((1.f - barycentric.x() - barycentric.y()) * n0 + barycentric.x() * n1 + barycentric.y() * n2).normalized();
 	}
 	else
 	{
@@ -233,6 +235,17 @@ HitInfo Mesh::SamplePrimitivePoint(uint32_t primitiveIndex) const
 	}
 
 	return pointInfo;
+}
+
+float Mesh::PrimitiveSamplePDF(uint32_t primitiveIndex) const
+{
+	const Eigen::Vector3i& triangle = triangles[primitiveIndex];
+
+	const Eigen::Vector3f& v0 = vertices[triangle.x()];
+	const Eigen::Vector3f& v1 = vertices[triangle.y()];
+	const Eigen::Vector3f& v2 = vertices[triangle.z()];
+	const float area = 0.5f * (v1 - v0).cross(v2 - v0).norm();
+	return 1.f / area;
 }
 
 Eigen::AlignedBox3f TriangleBounds(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2)

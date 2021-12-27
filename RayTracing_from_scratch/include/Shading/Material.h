@@ -38,9 +38,11 @@ namespace Renderer {
 
 		virtual Eigen::Vector3f SampleBSDF(const Eigen::Vector3f& outgoing_ray, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
 
-		const Eigen::Vector3f getDiffuse() const;
-		Eigen::Vector3f getDiffuse(const float& u, const float& v) const;
-		Eigen::Vector3f getDiffuse(const Eigen::Vector2f& UV) const;
+		virtual float GetIor() const { return 0.f; }
+
+		const Eigen::Vector3f GetAlbedo() const;
+		Eigen::Vector3f GetAlbedo(const float& u, const float& v) const;
+		Eigen::Vector3f GetAlbedo(const Eigen::Vector2f& UV) const;
 		void setDiffuse(Eigen::Vector3f DiffuseColor);
 		//const Eigen::Vector3f getSpecular() const;
 		//void setSpecular(Eigen::Vector3f SpecularColor);

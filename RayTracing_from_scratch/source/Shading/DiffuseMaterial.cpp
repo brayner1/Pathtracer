@@ -4,7 +4,7 @@
 using namespace Renderer;
 
 
-DiffuseMaterial::DiffuseMaterial(Eigen::Vector3f DiffuseCcolor) : Material(DiffuseCcolor)
+DiffuseMaterial::DiffuseMaterial(const Eigen::Vector3f& DiffuseCcolor) : Material(DiffuseCcolor)
 {
 }
 
@@ -16,5 +16,5 @@ Eigen::Vector3f DiffuseMaterial::SampleBSDF(const Eigen::Vector3f& outgoing_ray_
 	assert(inbound_ray_dir.norm() - 1.f < std::numeric_limits<float>::epsilon() && "sampled ray direction must be normalized.");
 	pdf = std::abs(inbound_ray_dir.dot(hit_info.surfNormal)) * M_1_PI;
 
-	return this->getDiffuse(hit_info.UvCoord) * M_1_PI;
+	return this->GetAlbedo(hit_info.UvCoord) * M_1_PI;
 }

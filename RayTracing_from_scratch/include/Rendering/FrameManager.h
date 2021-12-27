@@ -13,10 +13,12 @@ namespace Renderer
 		std::optional<uint32_t> maxDepth = std::nullopt;
 		std::optional<float> horizontalFOV = std::nullopt;
 		std::optional<float> gamma = std::nullopt;
+		std::optional<float> tonemapping = std::nullopt;
 		std::optional<bool> useDenoiser = std::nullopt;
+		std::optional<std::string> outputFileName = std::nullopt;
 	};
 
-	struct OutputProperties
+	struct alignas(64) OutputProperties
 	{
 		Eigen::Vector3f color;
 		Eigen::Vector3f albedo;
@@ -47,13 +49,17 @@ namespace Renderer
 
 	private:
 		// Rendering Output Properties
-		float gamma;
-		uint32_t width, height;
-		uint32_t samplesPerPixel;
-		uint32_t maxDepth;
-		bool useDenoiser = true;
+		std::string outFile = "output";
+		
+		float gamma = 2.2f;
+		float tonemapping = 0.f;
+		uint32_t width = 512, height = 512;
+		uint32_t samplesPerPixel = 256;
+		uint32_t maxDepth = 8;
+		bool useDenoiser = false;
 
 		// RGB FrameBuffer Pointer
+		bool frameBufferInitialized = false;
 		int** frameBuffer[3];
 		float *colorBuffer, *albedoBuffer, *normalBuffer;
 

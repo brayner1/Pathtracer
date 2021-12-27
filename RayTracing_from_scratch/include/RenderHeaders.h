@@ -4,6 +4,7 @@
 #include "Loader/SDLLoader.h"
 #include "Light/Light.h"
 #include "Light/PointLight.h"
+#include "Light/PrimitiveLight.h"
 #include "Camera/PinholeCamera.h"
 #include "Rendering/Ray.h"
 #include "Rendering/Scene.h"
@@ -20,6 +21,7 @@
 #include "Shading/DiffuseMaterial.h"
 #include "Shading/GlossyMaterial.h"
 #include "Shading/RefractiveMaterial.h"
+#include "Shading/PhongMaterial.h"
 //#include "Shading/BxDF.h"
 
 #include "OpenImageDenoise/oidn.hpp"

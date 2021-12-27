@@ -60,12 +60,15 @@ namespace Renderer
 		return nullptr;
 	}
 
-	void ConvertAssimpScene(const aiScene* assimpScene, Scene& outRendererScene, Material* overrideMaterial)
+	std::vector<Object*> ConvertAssimpScene(const aiScene* assimpScene, Scene& outRendererScene,
+	                                        Material* overrideMaterial)
 	{
 		if (!assimpScene)
 		{
-			return;
+			return {};
 		}
+
+		std::vector<Object*> insertedObjects{};
 
 		std::list<aiNode*> nodes;
 		nodes.push_back(assimpScene->mRootNode);
@@ -111,8 +114,8 @@ namespace Renderer
 						vTangent.push_back(Eigen::Vector3f(mesh->mTangents[t].x, mesh->mTangents[t].y, mesh->mTangents[t].z));
 						vBitangent.push_back(Eigen::Vector3f(mesh->mBitangents[t].x, mesh->mBitangents[t].y, mesh->mBitangents[t].z));
 					}
-					else
-						std::cout << "mesh has no generated tangent and bitangent!\n";
+					/*else
+						std::cout << "mesh has no generated tangent and bitangent!\n";*/
 				}
 
 				// Populate faces
@@ -144,6 +147,8 @@ namespace Renderer
 				ss << "mesh[" << i << "]";
 				scene_mesh->name = ss.str();
 				outRendererScene.InsertObject(scene_mesh);
+
+				insertedObjects.push_back(scene_mesh);
 			}
 
 			for (size_t k = 0; k < nd->mNumChildren; k++)
@@ -151,6 +156,8 @@ namespace Renderer
 				nodes.push_back(nd->mChildren[k]);
 			}
 		}
+
+		return std::move(insertedObjects);
 	}
 
 }

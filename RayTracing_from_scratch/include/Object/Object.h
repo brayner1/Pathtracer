@@ -6,10 +6,11 @@
 namespace Renderer {
 	//class Material;
 	class Object;
+	class Light;
 	struct NodePrimitive;
 
 	struct HitInfo {
-		Object* obj = nullptr;
+		const Object* obj = nullptr;
 		Material * Material = nullptr;
 
 		Eigen::Vector3f Point = Eigen::Vector3f::Zero();
@@ -18,6 +19,7 @@ namespace Renderer {
 		Eigen::Vector3f U_vector = Eigen::Vector3f::Zero(), V_vector = Eigen::Vector3f::Zero();
 		Eigen::Vector2f UvCoord = Eigen::Vector2f::Zero();
 		float U_factor = 0.f, V_factor = 0.f, Distance = 0.f;
+		uint32_t primitiveIndex = 0;
 		int x = 0, y = 0, w = 0, h = 0;
 
 		void resetStruct()
@@ -35,6 +37,8 @@ namespace Renderer {
 	{
 	protected:
 		Material* material{};
+
+		std::vector<Light*> primitives_lights{};
 
 		Eigen::AlignedBox3f Object_bounds{};
 	public:
@@ -67,7 +71,10 @@ namespace Renderer {
 		virtual float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const = 0;
 
 		void SetMaterial(Material* material);
-		Material* getMaterial() const;
+		Material* GetMaterial() const;
+
+		void SetPrimitiveLight(uint32_t primitiveIndex, Light* light);
+		Light* GetPrimitiveLight(uint32_t primitiveIndex) const;
 
 		// Set the whole object bounds
 		void SetBounds(const Eigen::AlignedBox3f& bounds);
@@ -88,6 +95,7 @@ namespace Renderer {
 
 
 		virtual HitInfo SamplePrimitivePoint(uint32_t primitiveIndex) const = 0;
+		virtual float PrimitiveSamplePDF(uint32_t primitiveIndex) const = 0;
 	};
 }
 

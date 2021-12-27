@@ -2,12 +2,16 @@
 #include <cstdlib>
 #include <stdlib.h>
 #include <random>
+namespace Renderer
+{
+	static std::mt19937::result_type seed =  std::mt19937::default_seed;
+	
+}
 
 // Random Numbers Generation Utilities Functions
-
 inline float uniform_random_01()
 {
-	static thread_local std::mt19937 generator;
+	static thread_local std::mt19937 generator(Renderer::seed);
 	std::uniform_real_distribution<float> distribution(0.f, 1.f);
 
 	return distribution(generator);

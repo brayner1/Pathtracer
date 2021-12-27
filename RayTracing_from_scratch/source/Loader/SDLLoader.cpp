@@ -8,7 +8,7 @@
 
 namespace Renderer
 {
-	std::optional<SDLInputOptions> SDLLoader::SDL_LoadScene(std::string file_path, Scene& outScene)
+	std::optional<RenderOptions> SDLLoader::SDL_LoadScene(std::string file_path, Scene& outScene)
 	{
 		Assimp::Importer assimpImporter;
 		std::filesystem::path fPath {file_path};
@@ -36,7 +36,7 @@ namespace Renderer
 
 		std::cout << "File loaded successfully\n";
 		const std::string filePath = fPath.parent_path().string() + "/";
-		SDLInputOptions inputOptions;
+		RenderOptions inputOptions;
 		Eigen::Vector3f cameraEye {0.f, 0.f, -1.f};
 		float horizontalFOV = 60.f;
 		Eigen::Vector3f cameraTarget {0.f, 0.f, 0.f};
@@ -57,9 +57,17 @@ namespace Renderer
 			{
 				std::string modelFile;
 				Eigen::Vector3f objColor;
-				float ka, kd, ks, kt, n;
+				float ka, kd, ks, kt, n, ior;
+				bool bUseTexture = false;
+				std::string textureName;
 
-				lineStream >> modelFile >> objColor.x() >> objColor.y() >> objColor.z() >> ka >> kd >> ks >> kt >> n;
+				lineStream >> modelFile >> objColor.x() >> objColor.y() >> objColor.z() >> ka >> kd >> ks >> kt >> n >> ior >> bUseTexture;
+				std::cout << "use texture: " << bUseTexture << std::endl;
+				if (bUseTexture)
+				{
+					std::cout << "Object use texture!" << std::endl;
+					//lineStream >> textureName;
+				}
 
 				if (lineStream)
 				{
@@ -67,20 +75,25 @@ namespace Renderer
 					if (const aiScene* assimpScene = assimpImporter.ReadFile(filePath + modelFile, aiProcessPreset_TargetRealtime_MaxQuality & ~aiProcess_GenSmoothNormals | aiProcess_GenNormals))
 					{
 						Material* mat = nullptr;
-						if (kt > 0.f)
+						if (kt > 0.f && ks == 0.f && kd == 0.f)
 						{
-							mat = new RefractiveMaterial(objColor, kt);
-							std::cout << "Refractive object created\n";
+							mat = new RefractiveMaterial(objColor * kt, ior);
+							std::cout << "Refractive material created with color:\n" << mat->GetAlbedo() << std::endl;
 						}
-						else if (ks > 0.f)
+						else if (ks > 0.f && kt == 0.f && kd == 0.f)
 						{
-							mat = new GlossyMaterial(objColor);
-							std::cout << "Reflective object created\n";
+							mat = new GlossyMaterial(objColor * ks);
+							std::cout << "Reflective material created with color:\n" << mat->GetAlbedo() << std::endl;
+						}
+						else if (kd > 0.f && kt == 0.f && ks == 0.f)
+						{
+							mat = new DiffuseMaterial(objColor * kd);
+							std::cout << "Diffuse material created with color:\n" << mat->GetAlbedo() << std::endl;
 						}
 						else
 						{
-							mat = new DiffuseMaterial(objColor);
-							std::cout << "Diffuse object created\n";
+							mat = new PhongMaterial(objColor, kd, ks, kt, n, ior);
+							std::cout << "Phong material created with color:\n" << mat->GetAlbedo() << std::endl;
 						}
 
 						ConvertAssimpScene(assimpScene, outScene, mat);
@@ -89,6 +102,10 @@ namespace Renderer
 					{
 						std::cout << "Assimp Error on load:" << std::endl << assimpImporter.GetErrorString() << std::endl;
 					}
+				}
+				else
+				{
+					std::cout << "Line " << fileLine << " could not be loaded correctly.\n";
 				}
 			}
 			else if (command == "light")
@@ -101,7 +118,32 @@ namespace Renderer
 
 				if (lineStream)
 				{
-					//TODO: load model and assign it as light source
+					
+					std::cout << "loading light object at path: " << filePath + lighFile << std::endl;
+					if (const aiScene* assimpScene = assimpImporter.ReadFile(filePath + lighFile, aiProcessPreset_TargetRealtime_MaxQuality & ~aiProcess_GenSmoothNormals | aiProcess_GenNormals))
+					{
+						Material* mat = nullptr;
+						{
+							mat = new DiffuseMaterial(lightColor);
+							std::cout << "Diffuse Light object created\n";
+						}
+						std::vector<Object*> insertedObjects = ConvertAssimpScene(assimpScene, outScene, mat);
+						for (Object* object : insertedObjects)
+						{
+							for (int i = 0; i < object->GetPrimitiveCount(); ++i)
+							{
+								Light* areaLight = new PrimitiveLight(lightColor * lightIntensity, object, i);
+								outScene.InsertLight(areaLight);
+								object->SetPrimitiveLight(i, areaLight);
+								object->SetMaterial(nullptr);
+								std::cout << "Primitive light created with intensity: " << areaLight->GetColor().transpose() << std::endl;
+							}
+						}
+					}
+					else
+					{
+						std::cout << "Assimp Error on load of light geometry:" << std::endl << assimpImporter.GetErrorString() << std::endl;
+					}
 				}
 			}
 			else if (command == "pointlight")
@@ -118,6 +160,7 @@ namespace Renderer
 				{
 					Light* newLight = new PointLight(lightColor * lightIntensity, lightPosition);
 					outScene.InsertLight(newLight);
+					std::cout << "Added point light with intensity: " << newLight->GetColor().transpose() << std::endl;
 				}
 			}
 			else if (command == "eye")
@@ -193,7 +236,32 @@ namespace Renderer
 
 				if (lineStream)
 				{
-					//TODO: Define rng seed
+					Renderer::seed = seed;
+					std::cout << "Setting rendering seed to: " << seed << std::endl;
+				}
+			}
+			else if (command == "tonemapping")
+			{
+				float tonemapping;
+
+				lineStream >> tonemapping;
+
+				if (lineStream)
+				{
+					inputOptions.tonemapping = std::abs(tonemapping);
+					std::cout << "Setting tonemapping value to: " << tonemapping << std::endl;
+				}
+			}
+			else if (command == "gamma")
+			{
+				float gamma;
+
+				lineStream >> gamma;
+
+				if (lineStream)
+				{
+					inputOptions.gamma = std::abs(gamma);
+					std::cout << "Setting gamma to: " << gamma << std::endl;
 				}
 			}
 			else if (command == "output")
@@ -215,7 +283,7 @@ namespace Renderer
 			}
 		}
 
-		PinholeCamera camera (inputOptions.width, inputOptions.height, horizontalFOV);
+		PinholeCamera camera (inputOptions.width.value_or(512), inputOptions.height.value_or(512), horizontalFOV);
 		camera.SetPosition(cameraEye);
 		camera.LookAt(cameraTarget);
 

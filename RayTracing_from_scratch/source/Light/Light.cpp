@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Light/Light.h"
+#include "Rendering/Scene.h"
 
 namespace Renderer
 {
@@ -7,9 +8,10 @@ namespace Renderer
 	{
 	}
 
-
-	Light::~Light()
+	bool Light::TestLightVisibility(const Scene& scene, const HitInfo& surfHit, const Ray& lightRay) const
 	{
+		const float t = scene.RayCast(lightRay);
+		return t <= 0.f;
 	}
 
 	void Light::SetColor(const Eigen::Vector3f& Color)
@@ -17,7 +19,7 @@ namespace Renderer
 		intensity = Color;
 	}
 
-	Eigen::Vector3f Light::getColor() const
+	Eigen::Vector3f Light::GetColor() const
 	{
 		return this->intensity;
 	}

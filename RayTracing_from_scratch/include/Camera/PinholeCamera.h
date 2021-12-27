@@ -1,5 +1,4 @@
 #pragma once
-#include <Unsupported/Eigen/AlignedVector3>
 #include "Object/Object.h"
 
 namespace Renderer {

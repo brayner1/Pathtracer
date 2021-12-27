@@ -138,9 +138,6 @@
     <ClCompile Include="source\Rendering\BVHTree.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="source\Memory\MemoryPool.cpp">
-      <Filter>source\Memory</Filter>
-    </ClCompile>
     <ClCompile Include="source\Light\PointLight.cpp">
       <Filter>source\Rendering\Lights</Filter>
     </ClCompile>
@@ -232,9 +229,6 @@
     </ClInclude>
     <ClInclude Include="include\Rendering\BVHTree.h">
       <Filter>headers\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Memory\MemoryPool.h">
-      <Filter>headers\Memory</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\RenderingUtils.h">
       <Filter>headers\Rendering</Filter>

@@ -23,7 +23,6 @@
     <ClCompile Include="source\Loader\AssimpUtils.cpp" />
     <ClCompile Include="source\Loader\SDLLoader.cpp" />
     <ClCompile Include="source\Light\PointLight.cpp" />
-    <ClCompile Include="source\Memory\MemoryPool.cpp" />
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\BVHTree.cpp" />
     <ClCompile Include="source\Rendering\FlatTree.cpp" />
@@ -55,7 +54,6 @@
     <ClInclude Include="include\Light\PrimitiveLight.h" />
     <ClInclude Include="include\Loader\AssimpUtils.h" />
     <ClInclude Include="include\Loader\SDLLoader.h" />
-    <ClInclude Include="include\Memory\MemoryPool.h" />
     <ClInclude Include="include\Rendering\BVHTree.h" />
     <ClInclude Include="include\Rendering\FlatTree.h" />
     <ClInclude Include="include\Rendering\Integrator\Integrator.h" />

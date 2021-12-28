@@ -108,6 +108,47 @@ namespace Renderer
 					std::cout << "Line " << fileLine << " could not be loaded correctly.\n";
 				}
 			}
+			else if (command == "sphere")
+			{
+				Eigen::Vector3f spherePosition;
+				float radius;
+				Eigen::Vector3f sphereColor;
+				float ka, kd, ks, kt, n, ior;
+
+				lineStream >> spherePosition.x() >> spherePosition.y() >> spherePosition.z() >> radius >> sphereColor.x() >> sphereColor.y() >> sphereColor.z() >> ka >> kd >> ks >> kt >> n >> ior;
+
+				if (lineStream)
+				{
+					//TODO: Include spheres
+				}
+				else
+				{
+					std::cout << "Line " << fileLine << " could not be loaded correctly.\n";
+				}
+			}
+			else if (command == "scene")
+			{
+				std::string modelFile;
+
+				lineStream >> modelFile;
+
+				if (lineStream)
+				{
+					std::cout << "loading scene objects at path: " << filePath + modelFile << std::endl;
+					if (const aiScene* assimpScene = assimpImporter.ReadFile(filePath + modelFile, aiProcessPreset_TargetRealtime_MaxQuality & ~aiProcess_GenSmoothNormals | aiProcess_GenNormals))
+					{
+						ConvertAssimpScene(assimpScene, outScene);
+					}
+					else
+					{
+						std::cout << "Assimp Error on load:" << std::endl << assimpImporter.GetErrorString() << std::endl;
+					}
+				}
+				else
+				{
+					std::cout << "Line " << fileLine << " could not be loaded correctly.\n";
+				}
+			}
 			else if (command == "light")
 			{
 				std::string lighFile;

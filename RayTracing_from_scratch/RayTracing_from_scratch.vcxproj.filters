@@ -249,7 +249,7 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="include\Shading\PhongMaterial.h">
-      <Filter>headers</Filter>
+      <Filter>headers\Shading\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

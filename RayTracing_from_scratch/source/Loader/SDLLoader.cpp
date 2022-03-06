@@ -34,7 +34,7 @@ namespace Renderer
 			return std::nullopt;
 		}
 
-		std::cout << "File loaded successfully\n";
+		std::cout << "File opened successfully\n";
 		const std::string filePath = fPath.parent_path().string() + "/";
 		RenderOptions inputOptions;
 		Eigen::Vector3f cameraEye {0.f, 0.f, -1.f};
@@ -58,16 +58,8 @@ namespace Renderer
 				std::string modelFile;
 				Eigen::Vector3f objColor;
 				float ka, kd, ks, kt, n, ior;
-				bool bUseTexture = false;
-				std::string textureName;
 
-				lineStream >> modelFile >> objColor.x() >> objColor.y() >> objColor.z() >> ka >> kd >> ks >> kt >> n >> ior >> bUseTexture;
-				std::cout << "use texture: " << bUseTexture << std::endl;
-				if (bUseTexture)
-				{
-					std::cout << "Object use texture!" << std::endl;
-					//lineStream >> textureName;
-				}
+				lineStream >> modelFile >> objColor.x() >> objColor.y() >> objColor.z() >> ka >> kd >> ks >> kt >> n >> ior;
 
 				if (lineStream)
 				{
@@ -94,9 +86,15 @@ namespace Renderer
 						{
 							mat = new PhongMaterial(objColor, kd, ks, kt, n, ior);
 							std::cout << "Phong material created with color:\n" << mat->GetAlbedo() << std::endl;
+							std::cout << "kd: " << kd << "\nks: " << ks << "\nkt: " << kt << "\nior: " << ior << "\n";
 						}
 
-						ConvertAssimpScene(assimpScene, outScene, mat);
+						std::vector<Object*> insertedObjs = ConvertAssimpScene(assimpScene, outScene, mat);
+						std::cout << "Object loaded containing " << insertedObjs.size() << " meshes;\n";
+						for (size_t i = 0; i < insertedObjs.size(); i++)
+						{
+							std::cout << "Mesh[" << i << "] triangles: " << insertedObjs[i]->GetPrimitiveCount() << std::endl;
+						}
 					}
 					else
 					{
@@ -137,7 +135,8 @@ namespace Renderer
 					std::cout << "loading scene objects at path: " << filePath + modelFile << std::endl;
 					if (const aiScene* assimpScene = assimpImporter.ReadFile(filePath + modelFile, aiProcessPreset_TargetRealtime_MaxQuality & ~aiProcess_GenSmoothNormals | aiProcess_GenNormals))
 					{
-						ConvertAssimpScene(assimpScene, outScene);
+						std::vector<Object*> insertedObjs = ConvertAssimpScene(assimpScene, outScene);
+						std::cout << "Scene loaded with " << insertedObjs.size() << " objects.\n";
 					}
 					else
 					{
@@ -166,7 +165,6 @@ namespace Renderer
 						Material* mat = nullptr;
 						{
 							mat = new DiffuseMaterial(lightColor);
-							std::cout << "Diffuse Light object created\n";
 						}
 						std::vector<Object*> insertedObjects = ConvertAssimpScene(assimpScene, outScene, mat);
 						for (Object* object : insertedObjects)

@@ -16,8 +16,7 @@ namespace Renderer
 		material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
 		material->Get(AI_MATKEY_OPACITY, opacity);
 
-		std::cout << "Data: " << specularColor.r << ", " << specularColor.g << ", " << specularColor.b << /*", " << cor.a <<*/ std::endl;
-
+		//std::cout << "Specular: " << specularColor.r << ", " << specularColor.g << ", " << specularColor.b << /*", " << cor.a <<*/ std::endl;
 
 		Material* mat = nullptr;
 		if (opacity < 1.f)
@@ -31,8 +30,8 @@ namespace Renderer
 		if (material->GetTextureCount(aiTextureType_DIFFUSE))
 		{
 			RGBTexture* diffTexture = LoadTexture(assimpScene, material, aiTextureType_DIFFUSE, 0);
-
-			mat->setAlbedoTexture(diffTexture);
+			if (diffTexture)
+				mat->SetAlbedoTexture(diffTexture);
 		}
 
 		return mat;
@@ -69,11 +68,12 @@ namespace Renderer
 		}
 
 		std::vector<Object*> insertedObjects{};
+		std::shared_ptr<Material> overrideMat{ overrideMaterial };
 
 		std::list<aiNode*> nodes;
 		nodes.push_back(assimpScene->mRootNode);
 		int j = 0;
-		while (nodes.size()) 
+		while (nodes.size())
 		{
 			aiNode * nd = nodes.back();
 			nodes.pop_back();
@@ -83,7 +83,7 @@ namespace Renderer
 				const aiMesh* mesh = assimpScene->mMeshes[nd->mMeshes[i]];
 
 				// Only accepts triangle primitives
-				if (mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE)
+				if (mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE || mesh->mNumVertices == 0)
 					continue;
 
 				std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> vertices;
@@ -114,15 +114,14 @@ namespace Renderer
 						vTangent.push_back(Eigen::Vector3f(mesh->mTangents[t].x, mesh->mTangents[t].y, mesh->mTangents[t].z));
 						vBitangent.push_back(Eigen::Vector3f(mesh->mBitangents[t].x, mesh->mBitangents[t].y, mesh->mBitangents[t].z));
 					}
-					/*else
-						std::cout << "mesh has no generated tangent and bitangent!\n";*/
 				}
 
 				// Populate faces
 				for (size_t t = 0; t < mesh->mNumFaces; ++t) 
 				{
 					const aiFace* face = &mesh->mFaces[t];
-					if (face->mNumIndices == 3) {
+					if (face->mNumIndices == 3)
+					{
 						indices.push_back(Eigen::Vector3i(face->mIndices[0], face->mIndices[1], face->mIndices[2]));
 					}
 				}
@@ -130,17 +129,18 @@ namespace Renderer
 				Object* scene_mesh = new Mesh(vertices, indices, vNormals, textCoord, vTangent, vBitangent);
 				scene_mesh->SetBounds(GetMeshBounds(mesh));
 				// Compute material properties
-				if (!overrideMaterial)
+				if (!overrideMat)
 				{
 					const int materialIndex = mesh->mMaterialIndex;
 					const aiMaterial* material = assimpScene->mMaterials[materialIndex];
 
-					Material* mat = ConvertAssimpMaterial(assimpScene, material);
-					scene_mesh->SetMaterial(mat);
+					scene_mesh->SetMaterial(
+						std::shared_ptr<Material>{ConvertAssimpMaterial(assimpScene, material)}
+					);
 				}
 				else
 				{
-					scene_mesh->SetMaterial(overrideMaterial);
+					scene_mesh->SetMaterial(overrideMat);
 				}
 
 				std::stringstream ss;

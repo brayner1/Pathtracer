@@ -26,7 +26,7 @@ namespace Renderer {
 		float reflectivity, glossiness, roughness;*/
 
 		RGBTexture* albedoTexture = nullptr;
-		bool useAlbedo = false;
+		bool useAlbedoTexture = false;
 
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -44,21 +44,11 @@ namespace Renderer {
 		const Eigen::Vector3f GetAlbedo() const;
 		Eigen::Vector3f GetAlbedo(const float& u, const float& v) const;
 		Eigen::Vector3f GetAlbedo(const Eigen::Vector2f& UV) const;
-		void setDiffuse(Eigen::Vector3f DiffuseColor);
-		//const Eigen::Vector3f getSpecular() const;
-		//void setSpecular(Eigen::Vector3f SpecularColor);
-		//const Eigen::Vector3f getAmbient() const;
-		//void setAmbient(Eigen::Vector3f AmbientColor);
-		//const float getReflectivity() const;
-		//void setReflectivity(float Reflectivity);
-		//const float getGlossiness() const;
-		//void setGlossiness(float Glossiness);
-		//const float getRoughness() const;
-		//void setRoughness(float Roughness);
+		void SetAlbedo(Eigen::Vector3f DiffuseColor);
 	
-		void setAlbedoTexture(RGBTexture* texture);
+		void SetAlbedoTexture(RGBTexture* texture);
 
-		const Eigen::Vector3f getTextureColorUV(float u, float v) const;
+		const Eigen::Vector3f GetTextureColorUV(float u, float v) const;
 	};
 
 	inline Eigen::Vector3f FaceForward(const Eigen::Vector3f& face_vector, const Eigen::Vector3f in_vector)

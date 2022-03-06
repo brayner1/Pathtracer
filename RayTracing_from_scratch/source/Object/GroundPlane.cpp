@@ -6,14 +6,14 @@ using namespace Renderer;
 
 GroundPlane::GroundPlane(float height, bool checkerboard) : Height(height), is_checkerboard(checkerboard)
 {
-	this->material = new DiffuseMaterial(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+	this->material = std::make_shared<DiffuseMaterial>(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
 	this->Material2 = new DiffuseMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 }
 
 GroundPlane::GroundPlane(Eigen::Vector3f color, float height, bool checkerboard):  Height(height), is_checkerboard(checkerboard)
 {
 	//this->SetColor(intensity);
-	this->material = new DiffuseMaterial(color);
+	this->material = std::make_shared<DiffuseMaterial>(color);
 	this->Material2 = new DiffuseMaterial(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
 }
 

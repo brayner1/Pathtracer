@@ -171,4 +171,36 @@ namespace Renderer
 		OP.color = pixelColor.array();// / (pixelColor.array() + Eigen::Array3f::Ones());// / nSamples;
 	}
 
+	uint32_t Scene::GetNumberOfVertices()
+	{
+		uint32_t count = 0;
+		uint32_t n_objects = scene_objects.size();
+		uint32_t num_vertices = 0;
+		for (int i = 0; i < n_objects; ++i)
+		{
+			if (Renderer::Mesh* mesh = dynamic_cast<Renderer::Mesh*>(scene_objects[i]))
+			{
+				num_vertices += mesh->vertices.size();
+			}
+		}
+
+		return num_vertices;
+	}
+
+	uint32_t Scene::GetNumberOfTriangles()
+	{
+		uint32_t count = 0;
+		uint32_t n_objects = scene_objects.size();
+		uint32_t num_triangles = 0;
+		for (int i = 0; i < n_objects; ++i)
+		{
+			if (Renderer::Mesh* mesh = dynamic_cast<Renderer::Mesh*>(scene_objects[i]))
+			{
+				num_triangles += mesh->triangles.size();
+			}
+		}
+
+		return num_triangles;
+	}
+
 }

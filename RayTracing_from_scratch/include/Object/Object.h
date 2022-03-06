@@ -36,7 +36,7 @@ namespace Renderer {
 	class Object
 	{
 	protected:
-		Material* material{};
+		std::shared_ptr<Material> material{};
 
 		std::vector<Light*> primitives_lights{};
 
@@ -70,7 +70,7 @@ namespace Renderer {
 		 */
 		virtual float PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index) const = 0;
 
-		void SetMaterial(Material* material);
+		void SetMaterial(std::shared_ptr<Material> material);
 		Material* GetMaterial() const;
 
 		void SetPrimitiveLight(uint32_t primitiveIndex, Light* light);

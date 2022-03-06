@@ -4,18 +4,16 @@ using namespace Renderer;
 
 Object::~Object()
 {
-	delete material;
 }
 
-void Object::SetMaterial(Material* material)
+void Object::SetMaterial(std::shared_ptr<Material> material)
 {
-	delete this->material;
 	this->material = material;
 }
 
 Material* Object::GetMaterial() const
 {
-	return this->material;
+	return this->material.get();
 }
 
 void Object::SetPrimitiveLight(uint32_t primitiveIndex, Light* light)

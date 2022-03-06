@@ -130,7 +130,7 @@ float Mesh::PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitI
 	hit_info.U_vector = Eigen::Vector3f{ v2v0.x(), v2v0.y(), v2v0.z() }.normalized();
 	hit_info.V_vector = Eigen::Vector3f{ v1v0.x(), v1v0.y(), v1v0.z() }.normalized(); 
 	hit_info.Distance = t;
-	hit_info.Material = this->material;
+	hit_info.Material = this->material.get();
 	hit_info.obj = this;
 	hit_info.primitiveIndex = primitive_index;
 

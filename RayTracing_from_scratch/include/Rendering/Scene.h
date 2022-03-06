@@ -43,5 +43,9 @@ namespace Renderer {
 		Eigen::Vector3f PathTrace(const Ray& camera_ray, OutputProperties& outProperties);
 
 		void PixelColor(int x, int y, int maxDepth, int nSamples, OutputProperties &OP);
+
+		// Statistics
+		uint32_t GetNumberOfVertices();
+		uint32_t GetNumberOfTriangles();
 	};
 }

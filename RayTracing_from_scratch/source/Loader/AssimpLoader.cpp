@@ -10,7 +10,8 @@ void AssimpLoader::Assimp_LoadScene(std::string file_path, Scene& outScene)
 	Assimp::Importer assimpImporter;
 	const aiScene* assimpScene = assimpImporter.ReadFile(file_path.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
 
-	if (!assimpScene) {
+	if (!assimpScene)
+	{
 		std::cout << "Assimp Error on load:\n" << assimpImporter.GetErrorString() << std::endl;
 	}
 

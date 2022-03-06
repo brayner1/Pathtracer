@@ -47,13 +47,13 @@ void PinholeCamera::GoForward(float amount)
 void PinholeCamera::LookAt(const Eigen::Vector3f& target)
 {
 	this->front = (target - this->position).normalized();
-	std::cout << "front vec: " << std::endl << this->front << std::endl;
+	//std::cout << "front vec: " << std::endl << this->front << std::endl;
 	this->right = (Eigen::Vector3f(0.0, 1.0, 0.0).cross(this->front)).normalized();
 	//this->right = (this->front.cross(Eigen::Vector3f(0.0, 1.0, 0.0))).normalized();
-	std::cout << "right vec: " << std::endl << this->right << std::endl;
+	//std::cout << "right vec: " << std::endl << this->right << std::endl;
 	this->up = (this->front.cross(this->right)).normalized();
 	//this->up = (this->right.cross(this->front)).normalized();
-	std::cout << "up vec: " << std::endl << this->up << std::endl;
+	//std::cout << "up vec: " << std::endl << this->up << std::endl;
 
 	updateViewMatrix();
 }

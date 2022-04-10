@@ -4,11 +4,7 @@
 
 using namespace Renderer;
 
-void SamplerIntegrator::Render(Scene scene)
+void SamplerIntegrator::Integrate(Scene scene)
 {
 	this->InitializeFramebuffer();
-
-
-
 }
-

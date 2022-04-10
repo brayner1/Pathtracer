@@ -19,14 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\Light\DirectionLight.cpp" />
+    <ClCompile Include="source\Light\PrimitiveLight.cpp" />
+    <ClCompile Include="source\Loader\AssimpUtils.cpp" />
+    <ClCompile Include="source\Loader\SDLLoader.cpp" />
+    <ClCompile Include="source\Light\PointLight.cpp" />
     <ClCompile Include="source\Object\GroundPlane.cpp" />
     <ClCompile Include="source\Rendering\BVHTree.cpp" />
     <ClCompile Include="source\Rendering\FlatTree.cpp" />
     <ClCompile Include="source\Rendering\Integrator\Integrator.cpp" />
     <ClCompile Include="source\Rendering\Integrator\SamplerIntegrator.cpp" />
-    <ClCompile Include="source\Rendering\Light.cpp" />
+    <ClCompile Include="source\Light\Light.cpp" />
     <ClCompile Include="source\Rendering\ObjectTree.cpp" />
-    <ClCompile Include="source\Rendering\RenderManager.cpp" />
+    <ClCompile Include="source\Rendering\FrameManager.cpp" />
     <ClCompile Include="source\Shading\GlossyMaterial.cpp" />
     <ClCompile Include="source\Shading\Material.cpp" />
     <ClCompile Include="source\Object\Mesh.cpp" />
@@ -40,19 +45,27 @@
     <ClCompile Include="source\Rendering\Ray.cpp" />
     <ClCompile Include="source\RayTracing_from_scratch.cpp" />
     <ClCompile Include="source\Rendering\Scene.cpp" />
-    <ClCompile Include="source\Loader\SceneLoader.cpp" />
-    <ClCompile Include="source\Object\Triangle.cpp" />
+    <ClCompile Include="source\Loader\AssimpLoader.cpp" />
+    <ClCompile Include="source\Shading\PhongMaterial.cpp" />
     <ClCompile Include="source\Shading\RefractiveMaterial.cpp" />
-    <ClCompile Include="source\Shading\Texture.cpp" />
+    <ClCompile Include="source\Shading\Textures\RGBTexture.cpp" />
+    <ClCompile Include="source\Shading\Textures\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Contrib\stb_image.h" />
+    <ClInclude Include="include\Light\DirectionLight.h" />
+    <ClInclude Include="include\Light\PrimitiveLight.h" />
+    <ClInclude Include="include\Loader\AssimpUtils.h" />
+    <ClInclude Include="include\Loader\SDLLoader.h" />
     <ClInclude Include="include\Rendering\BVHTree.h" />
     <ClInclude Include="include\Rendering\FlatTree.h" />
     <ClInclude Include="include\Rendering\Integrator\Integrator.h" />
     <ClInclude Include="include\Rendering\Integrator\SamplerIntegrator.h" />
-    <ClInclude Include="include\Rendering\Light.h" />
-    <ClInclude Include="include\Rendering\ObjectTree.h" />
-    <ClInclude Include="include\Rendering\RenderManager.h" />
+    <ClInclude Include="include\Light\Light.h" />
+    <ClInclude Include="include\Rendering\NodeHierarchy.h" />
+    <ClInclude Include="include\Light\PointLight.h" />
+    <ClInclude Include="include\Rendering\RenderingUtils.h" />
+    <ClInclude Include="include\Rendering\FrameManager.h" />
     <ClInclude Include="include\Rendering\Utils\Spectrum.h" />
     <ClInclude Include="include\Shading\GlossyMaterial.h" />
     <ClInclude Include="include\Shading\Material.h" />
@@ -63,15 +76,16 @@
     <ClInclude Include="include\Object\GroundPlane.h" />
     <ClInclude Include="include\Object\Object.h" />
     <ClInclude Include="include\pch.h" />
-    <ClInclude Include="include\Rendering\PinholeCamera.h" />
+    <ClInclude Include="include\Camera\PinholeCamera.h" />
     <ClInclude Include="include\Rendering\Ray.h" />
     <ClInclude Include="include\RayTracing_from_scratch.h" />
     <ClInclude Include="include\Rendering\Scene.h" />
-    <ClInclude Include="include\Loader\SceneLoader.h" />
-    <ClInclude Include="include\Object\Triangle.h" />
+    <ClInclude Include="include\Loader\AssimpLoader.h" />
     <ClInclude Include="include\Shading\RefractiveMaterial.h" />
-    <ClInclude Include="include\Shading\Texture.h" />
+    <ClInclude Include="include\Shading\Textures\RGBTexture.h" />
+    <ClInclude Include="include\Shading\Textures\TextureManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="include\Shading\PhongMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RayTracing_from_scratch.rc" />
@@ -81,7 +95,7 @@
     <ProjectGuid>{A4600D3B-4693-4FDC-8D74-5F708E714426}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RayTracingfromscratch</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -203,12 +217,12 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)\include;$(SolutionDir)\dependencies\assimp\include\;$(SolutionDir)\dependencies\OpenImageDenoiser\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
@@ -216,6 +230,8 @@
       <EnablePREfast>true</EnablePREfast>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CompileAsManaged>false</CompileAsManaged>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -225,6 +241,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\assimp\lib\x64\;$(SolutionDir)dependencies\OpenImageDenoiser\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc140-mt.lib;OpenImageDenoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /f /d "$(SolutionDir)dependencies\OpenImageDenoiser\dll\*.dll" "$(TargetDir)"
+xcopy /y /f /d "$(SolutionDir)dependencies\assimp\dll\*.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

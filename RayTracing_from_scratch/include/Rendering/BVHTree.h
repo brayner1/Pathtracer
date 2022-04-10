@@ -1,5 +1,5 @@
 #pragma once
-#include "Rendering/ObjectTree.h"
+#include "Rendering/NodeHierarchy.h"
 
 namespace Renderer
 {
@@ -9,9 +9,10 @@ namespace Renderer
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		ObjectBVHInfo() {}
-		ObjectBVHInfo(int i, Eigen::AlignedBox3f& b) : index(i), bounds(b), centroid(b.center()) {}
+		ObjectBVHInfo(int objectIdx, int primIdx, const Eigen::AlignedBox3f& b) : objectIndex(objectIdx), primitiveIndex(primIdx), bounds(b), centroid(b.center()) {}
 
-		int index;
+		int objectIndex;
+		int primitiveIndex;
 		Eigen::AlignedBox3f bounds;
 		Eigen::Vector3f centroid;
 	};
@@ -20,15 +21,13 @@ namespace Renderer
 	{
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		void Leaf(int objIndex, int numObjs, const Eigen::AlignedBox3f& b)
+		void Leaf(int primIndex, int numPrims, const Eigen::AlignedBox3f& b)
 		{
-			ObjOffset = objIndex;
-			NumObjs = numObjs;
+			primOffset = primIndex;
+			NumPrimitives = numPrims;
 			Bounds = b;
 
 			SplitAxis = -1;
-
-			//child[0] = child[1] = nullptr;
 		}
 
 		//void Intermediate(int axis, BVHTreeNode* left, BVHTreeNode* right)
@@ -37,29 +36,26 @@ namespace Renderer
 			SplitAxis = axis;
 			SecondChildOffset = Child2Index;
 			Bounds = b;
-			
-			//left->bounds.merged(right->bounds);
-			/*child[0] = left;
-			child[1] = right;*/
 
-			NumObjs = 0;
+			NumPrimitives = 0;
 		}
 
 		Eigen::AlignedBox3f Bounds;
-		//BVHTreeNode* child[2];
-
+			
 		union
 		{
 			int SecondChildOffset;
-			int ObjOffset;
+			int primOffset;
 		};
-			uint16_t NumObjs;
-			uint8_t SplitAxis;
-			uint8_t pad;	// 32 bytes pad
+		uint16_t NumPrimitives;
+		uint8_t SplitAxis;
+		uint8_t pad;	// 1 byte pad
 	};
 
+	
+
 	class BVHTree :
-		public ObjectTree
+		public NodeHierarchy
 	{
 	public:
 
@@ -67,20 +63,23 @@ namespace Renderer
 
 		enum class SplitHeuristic { SurfaceArea, MiddleSplit, EqualCount };
 
-		BVHTree(std::vector<Object*>& objects);
+		BVHTree(const std::vector<Object*>& objects);
 
-		bool Intersect(Ray& ray, HitInfo& hit);
-		bool Intersect(Ray& ray);
+		bool Intersect(const Ray& ray, HitInfo& hit) override;
+		float Intersect(const Ray& ray) override;
 
-		void PrinTree();
-
+		void PrintTree();
+		void PrintTree(std::string file_path);
 
 	private:
 		SplitHeuristic heuristic = SplitHeuristic::SurfaceArea;
-		std::vector<Object*> Objects;
-		std::vector<BVHTreeNode> NodeArray;
+		//std::vector<Object*> objects;
+		std::vector<NodePrimitive> primitives;
+		std::vector<BVHTreeNode> nodeArray;
 
-		BVHTreeNode RecursiveBuildTree(std::vector<Object*>& orderedObjs, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
+		void LogPrimitivesInfo(const std::vector<ObjectBVHInfo>& primsInfo, std::string path);
+
+		BVHTreeNode RecursiveBuildTree(std::vector<NodePrimitive>& orderedPrimitives, std::vector<ObjectBVHInfo>& objsInfo, int start, int end, int& totalNodes);
 	};
 
 }

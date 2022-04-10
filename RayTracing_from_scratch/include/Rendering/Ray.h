@@ -3,7 +3,7 @@ namespace Renderer {
 	class Ray
 	{
 	private:
-		Eigen::Vector3f Origin, Direction;
+		Eigen::Vector3f Origin {0.f, 0.f, 0.f}, Direction{0.f, 0.f, 0.f};
 		
 		int depth = 0;
 		bool isBackfaceHit = false;
@@ -12,17 +12,19 @@ namespace Renderer {
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, int Depth = 0, bool BackfaceHit = false, float MediumIndex = 1.0f);
+		Ray() {}
+		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, int Depth = 0, float MediumIndex = 1.0f, float maxDistance = std::numeric_limits<float>::max());
 		Ray(Eigen::Vector3f Origin, Eigen::Vector3f Direction, float MaxDistance);
-		~Ray();
 
 		//Eigen::Vector3f attenuation = Eigen::Vector3f::Zero();
 
-		Eigen::Vector3f getOrigin() const;
-		Eigen::Vector3f getDirection() const;
-		const int getDepth() const;
-		const bool getIsBackfaceHit() const;
-		const float getRefractiveIndex() const;
+		//Eigen::Vector3f getOrigin() const;
+		const Eigen::Vector3f& getOrigin() const { return Origin; }
+		const Eigen::Vector3f& getDirection() const { return Direction; }
+		const int& getDepth() const { return depth; }
+		const bool& getIsBackfaceHit() const { return isBackfaceHit; }
+		const float& getRefractiveIndex() const { return RefractiveIndex; }
+		const float& GetMaxDistance() const { return MaxDistance; }
 	};
 
 }

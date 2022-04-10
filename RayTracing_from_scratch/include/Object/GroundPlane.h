@@ -1,4 +1,11 @@
 #pragma once
+#include <iosfwd>
+#include <iosfwd>
+#include <vector>
+#include <vector>
+#include <Eigen/src/Geometry/AlignedBox.h>
+#include <Eigen/src/Geometry/AlignedBox.h>
+
 #include "Object/Object.h"
 #include "Shading/Material.h"
 
@@ -17,11 +24,14 @@ namespace Renderer {
 
 		GroundPlane(float height = 0.0f, bool checkerboard = false);
 		GroundPlane(Eigen::Vector3f color, float height = 0.0f, bool checkerboard = false);
-		~GroundPlane();
+		~GroundPlane() override;
 
-		bool is_hit_by_ray(Ray& incoming_ray, HitInfo& hit_info);
-
-		void setSquareSize(int size);
-
+		void SetSquareSize(int size);
+		std::vector<Eigen::AlignedBox3f> GetPrimitivesBounds() const override
+		{
+			constexpr float min = std::numeric_limits<float>::lowest();
+			constexpr float max = std::numeric_limits<float>::max();
+			return { Eigen::AlignedBox3f{ Eigen::Vector3f{min, Height, min}, Eigen::Vector3f{max, Height, max} } };
+		}
 	};
 }

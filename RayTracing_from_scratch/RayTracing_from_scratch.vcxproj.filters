@@ -67,6 +67,12 @@
     <Filter Include="source\Rendering\Integrators">
       <UniqueIdentifier>{3e6a51d9-0369-4013-92eb-a16f2be2df14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers\Memory">
+      <UniqueIdentifier>{c5b72356-91e3-4b59-bf17-3b5a04cd1e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Memory">
+      <UniqueIdentifier>{7d4ee954-0f0c-46ba-8461-71369563d3bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\RayTracing_from_scratch.cpp">
@@ -84,9 +90,6 @@
     <ClCompile Include="source\Object\Mesh.cpp">
       <Filter>source\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="source\Object\Triangle.cpp">
-      <Filter>source\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="source\Rendering\PinholeCamera.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
@@ -96,16 +99,16 @@
     <ClCompile Include="source\Rendering\Scene.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\Light.cpp">
+    <ClCompile Include="source\Light\Light.cpp">
       <Filter>source\Rendering\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="source\Loader\SceneLoader.cpp">
+    <ClCompile Include="source\Loader\AssimpLoader.cpp">
       <Filter>source\Loader</Filter>
     </ClCompile>
-    <ClCompile Include="source\Rendering\RenderManager.cpp">
+    <ClCompile Include="source\Rendering\FrameManager.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="source\Shading\Texture.cpp">
+    <ClCompile Include="source\Shading\Textures\RGBTexture.cpp">
       <Filter>source\Shading</Filter>
     </ClCompile>
     <ClCompile Include="source\Shading\DiffuseMaterial.cpp">
@@ -135,6 +138,27 @@
     <ClCompile Include="source\Rendering\BVHTree.cpp">
       <Filter>source\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="source\Light\PointLight.cpp">
+      <Filter>source\Rendering\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Loader\SDLLoader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Loader\AssimpUtils.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Light\PrimitiveLight.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shading\PhongMaterial.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Shading\Textures\TextureManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Light\DirectionLight.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\RayTracing_from_scratch.h">
@@ -152,13 +176,10 @@
     <ClInclude Include="include\Object\GroundPlane.h">
       <Filter>headers\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\Object\Triangle.h">
-      <Filter>headers\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="include\Object\Object.h">
       <Filter>headers\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\Rendering\Light.h">
+    <ClInclude Include="include\Light\Light.h">
       <Filter>headers\Rendering\Lights</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\Scene.h">
@@ -167,19 +188,19 @@
     <ClInclude Include="include\Rendering\Ray.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="include\Rendering\PinholeCamera.h">
+    <ClInclude Include="include\Camera\PinholeCamera.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="include\Loader\SceneLoader.h">
+    <ClInclude Include="include\Loader\AssimpLoader.h">
       <Filter>headers\Loader</Filter>
     </ClInclude>
     <ClInclude Include="include\RenderHeaders.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Rendering\RenderManager.h">
+    <ClInclude Include="include\Rendering\FrameManager.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shading\Texture.h">
+    <ClInclude Include="include\Shading\Textures\RGBTexture.h">
       <Filter>headers\Shading</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\Utils\Spectrum.h">
@@ -206,7 +227,7 @@
     <ClInclude Include="include\Rendering\Integrator\SamplerIntegrator.h">
       <Filter>headers\Rendering\Integrators</Filter>
     </ClInclude>
-    <ClInclude Include="include\Rendering\ObjectTree.h">
+    <ClInclude Include="include\Rendering\NodeHierarchy.h">
       <Filter>headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="include\Rendering\FlatTree.h">
@@ -214,6 +235,33 @@
     </ClInclude>
     <ClInclude Include="include\Rendering\BVHTree.h">
       <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rendering\RenderingUtils.h">
+      <Filter>headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Light\PointLight.h">
+      <Filter>headers\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Loader\SDLLoader.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Loader\AssimpUtils.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Contrib\stb_image.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Light\PrimitiveLight.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\PhongMaterial.h">
+      <Filter>headers\Shading\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shading\Textures\TextureManager.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Light\DirectionLight.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

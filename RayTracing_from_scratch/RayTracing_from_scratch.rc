@@ -27,19 +27,19 @@ LANGUAGE 22, 1
 
 1 TEXTINCLUDE
 BEGIN
-    "resource.h\0"
+"resource.h\0"
 END
 
-2 TEXTINCLUDE  
+2 TEXTINCLUDE
 BEGIN
-    "#include ""winres.h""\r\n"
-    "\0"
+"#include ""winres.h""\r\n"
+"\0"
 END
 
-3 TEXTINCLUDE  
+3 TEXTINCLUDE
 BEGIN
-    "\r\n"
-    "\0"
+"\r\n"
+"\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -47,14 +47,11 @@ END
 #endif    // Recursos de Português (Brasil)
 /////////////////////////////////////////////////////////////////////////////
 
-
-
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // Gerado do recurso TEXTINCLUDE 3.
 //
-
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // não APSTUDIO_INVOKED

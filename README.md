@@ -1,5 +1,5 @@
-# Raytracer
-Pathtracer implemented studying and practicing Physically Based Rendering and the C++ language. 
+# PathTracer
+Pathtracer implemented for studying and practicing Physically Based Rendering techniques and the C++ language. This project was also used as the practical part of my Computer Engineering course conclusion work, entitled "Study of Path Tracing and Coherent Ray Tracing Techniques". 
 
 The project architecture and algorithms (including some classes names, for now) are heavily inspired in the (great) book "Physically Based Rendering: From Theory to Implementation", from Matt Pharr, Wenzel Jakob, and Greg Humphreys. Despite this, the book is used only as a reference source, and all the code was written by me.
 

@@ -11,6 +11,7 @@ namespace Renderer
 		explicit PointLight(const Eigen::Vector3f& intensity, const Eigen::Vector3f& position) : Light(intensity)
 		{
 			this->position = position;
+			isDeltaLight = true;
 		}
 
 		explicit PointLight(const Eigen::Vector3f& color)

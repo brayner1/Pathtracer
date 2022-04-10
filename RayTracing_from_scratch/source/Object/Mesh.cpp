@@ -128,7 +128,6 @@ float Mesh::PrimitiveHitByRay(const Ray& incoming_ray, int primitive_index, HitI
 	hit_info.U_factor = u;
 	hit_info.V_factor = v;
 	hit_info.U_vector = Eigen::Vector3f{ v2v0.x(), v2v0.y(), v2v0.z() }.normalized();
-	hit_info.V_vector = Eigen::Vector3f{ v1v0.x(), v1v0.y(), v1v0.z() }.normalized(); 
 	hit_info.Distance = t;
 	hit_info.Material = this->material.get();
 	hit_info.obj = this;
@@ -198,8 +197,8 @@ uint32_t Mesh::GetPrimitiveCount() const
 
 HitInfo Mesh::SamplePrimitivePoint(uint32_t primitiveIndex) const
 {
-	float u0 = uniform_random_01();
-	float u1 = uniform_random_01();
+	float u0 = uniform_random_float();
+	float u1 = uniform_random_float();
 
 	float squ0 = std::sqrt(u0);
 	Eigen::Vector2f barycentric {1.f - squ0, u1 * squ0};

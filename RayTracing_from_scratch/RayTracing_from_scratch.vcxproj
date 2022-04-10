@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\Light\DirectionLight.cpp" />
     <ClCompile Include="source\Light\PrimitiveLight.cpp" />
     <ClCompile Include="source\Loader\AssimpUtils.cpp" />
     <ClCompile Include="source\Loader\SDLLoader.cpp" />
@@ -47,10 +48,12 @@
     <ClCompile Include="source\Loader\AssimpLoader.cpp" />
     <ClCompile Include="source\Shading\PhongMaterial.cpp" />
     <ClCompile Include="source\Shading\RefractiveMaterial.cpp" />
-    <ClCompile Include="source\Shading\RGBTexture.cpp" />
+    <ClCompile Include="source\Shading\Textures\RGBTexture.cpp" />
+    <ClCompile Include="source\Shading\Textures\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Contrib\stb_image.h" />
+    <ClInclude Include="include\Light\DirectionLight.h" />
     <ClInclude Include="include\Light\PrimitiveLight.h" />
     <ClInclude Include="include\Loader\AssimpUtils.h" />
     <ClInclude Include="include\Loader\SDLLoader.h" />
@@ -79,7 +82,8 @@
     <ClInclude Include="include\Rendering\Scene.h" />
     <ClInclude Include="include\Loader\AssimpLoader.h" />
     <ClInclude Include="include\Shading\RefractiveMaterial.h" />
-    <ClInclude Include="include\Shading\RGBTexture.h" />
+    <ClInclude Include="include\Shading\Textures\RGBTexture.h" />
+    <ClInclude Include="include\Shading\Textures\TextureManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="include\Shading\PhongMaterial.h" />
   </ItemGroup>
@@ -213,8 +217,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

@@ -19,6 +19,10 @@ namespace Renderer {
 		                           eSampleType& sampled_type) override;
 
 		float GetIor() const override { return refractiveIndex; }
+		Eigen::Vector3f BSDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+			const HitInfo& hit_info) override;
+		float PDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+			const HitInfo& hit_info) override;
 	};
 }
 

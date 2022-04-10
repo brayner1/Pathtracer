@@ -12,7 +12,6 @@ PinholeCamera::PinholeCamera(int width, int height, float horizontal_field_of_vi
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 	this->camera_dirty = false;
 	LookAt(this->position + Eigen::Vector3f(0.0f, 0.0f, 1.0f));
-	updateViewMatrix();
 	UpdateProjectionMatrix();
 }
 
@@ -20,7 +19,7 @@ void PinholeCamera::SetScreenSize(int width, int height)
 {
 	this->width = width;
 	this->height = height;
-	this->screen_aspect_ratio = ((float)this->width) / ((float)this->height);
+	this->screen_aspect_ratio = (float)this->width / (float)this->height;
 	this->vertical_fov = this->horizontal_fov / this->screen_aspect_ratio;
 	UpdateProjectionMatrix();
 }
@@ -74,23 +73,38 @@ void PinholeCamera::updateViewMatrix() {
 void PinholeCamera::UpdateProjectionMatrix()
 {
 	constexpr float far = 1000.f, near = 1e-2f;
-
-	const float h = 1.f / std::tan((M_PI / 180.f) * horizontal_fov / 2.f);
-	const float w = h * height / width;
+	const float h = 1.f / std::tan(((M_PI / 180.f) * horizontal_fov) / 2.f);
+	const float w = h * screen_aspect_ratio;
 	float mat_arr[16] =
 	{
-		w,		0.f,	0.f,	0.f,
-		0.f,	h,		0.f,	0.f,
+		1.f,	0.f,	0.f,	0.f,
+		0.f,	1.f,	0.f,	0.f,
 		0.f,	0.f,	far / (far - near), 1.f,
 		0.f,	0.f,	-(far * near) / (far - near),	0.f
 	};
-	const Eigen::Projective3f cam_to_screen = Eigen::Projective3f{ Eigen::Matrix4f{ mat_arr } };
+	const Eigen::Projective3f cam_to_screen = Eigen::Projective3f{ Scaling(w, w, 1.f) * Eigen::Matrix4f{ mat_arr } };
+
+	float pMaxX = 1.f;
+	float pMinX = -1.f;
+	float pMaxY = 1.f;
+	float pMinY = -1.f;
+
+	if (screen_aspect_ratio > 1.f)
+	{
+		pMaxX = screen_aspect_ratio;
+		pMinX = -screen_aspect_ratio;
+	}
+	else
+	{
+		pMaxY = 1.f / screen_aspect_ratio;
+		pMinY = -1.f / screen_aspect_ratio;
+	}
 
 	const Eigen::Affine3f screen_to_raster
 	{
 		Scaling(width, height, 1.f) *
-		Scaling(1.f / 2, -1.f / 2, 1.f) *
-		Eigen::Translation3f (1.f, -1, 0.f)
+		Scaling(1.f / (pMaxX - pMinX), 1.f / (pMinY - pMaxY), 1.f) *
+		Eigen::Translation3f (-pMinX, -pMaxY, 0.f)
 	};
 
 	raster_to_cam = cam_to_screen.inverse() * screen_to_raster.inverse();
@@ -103,7 +117,8 @@ Eigen::Vector3f PinholeCamera::GetRayDirection(float x, float y) const
 	camPoint /= camPoint.w();
 	camPoint.w() = 0.f;
 
-	Eigen::Vector3f cam_pos { camPoint.x(), camPoint.y(), camPoint.z() };
+	Eigen::Vector3f cam_pos { camPoint.head<3>() };//{ camPoint.x(), camPoint.y(), camPoint.z() };
+	cam_pos.normalize();
 
 	return (cam_to_world.linear() * cam_pos).normalized();
 

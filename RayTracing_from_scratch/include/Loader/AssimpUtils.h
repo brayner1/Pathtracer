@@ -4,7 +4,7 @@
 
 #include "Object/Object.h"
 
-class aiScene;
+struct aiScene;
 
 namespace Renderer
 {
@@ -14,7 +14,7 @@ namespace Renderer
 
 	Material* ConvertAssimpMaterial(const aiScene* assimpScene, const aiMaterial* material);
 
-	RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index);
+	const RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index);
 
 
 	/**
@@ -56,7 +56,7 @@ namespace Renderer
 			min(1) = (min.y() < tmp.y) ? min.y() : tmp.y;
 			min(2) = (min.z() < tmp.z) ? min.z() : tmp.z;
 
-			max(0) = (max.x() > tmp.x) ? max.x() : tmp.x;
+			max(0) = (max.x() > tmp.x) ? max.x() : tmp.x; 
 			max(1) = (max.y() > tmp.y) ? max.y() : tmp.y;
 			max(2) = (max.z() > tmp.z) ? max.z() : tmp.z;
 		}

@@ -22,8 +22,8 @@ Eigen::Vector3f RefractiveMaterial::SampleBSDF(const Eigen::Vector3f& outgoing_r
 	if (sinT < 1.f)
 	{
 		const float cosT = std::sqrt(1.0f - sinT * sinT);
-		fr = FrDieletric(cosI, cosT, etaI, etaT, hit_info.x, hit_info.y);
-		const float sample = uniform_random_01();
+		fr = FrDieletric(cosI, cosT, etaI, etaT);
+		const float sample = uniform_random_float();
 		if (sample >= fr)
 		{
 			inbound_ray_dir = Refract(outgoing_ray_dir, FaceForward(outgoing_ray_dir, hit_info.surfNormal), cosI, cosT, etaI/etaT);
@@ -40,4 +40,16 @@ Eigen::Vector3f RefractiveMaterial::SampleBSDF(const Eigen::Vector3f& outgoing_r
 
 	const float cosr = 1.f / std::abs(inbound_ray_dir.dot(hit_info.surfNormal));
 	return diffuse_color * fr * cosr;
+}
+
+Eigen::Vector3f RefractiveMaterial::BSDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+	const HitInfo& hit_info)
+{
+	return Eigen::Vector3f::Zero();
+}
+
+float RefractiveMaterial::PDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+	const HitInfo& hit_info)
+{
+	return 0.f;
 }

@@ -12,7 +12,7 @@ namespace Renderer
 		Eigen::Vector3f& inbound_ray_dir, float& pdf, eSampleType& sampled_type)
 	{
 		const float ktot = kd + ks + kt;
-		const float choice = uniform_random_01() * ktot; // random number between [0,ktot[
+		const float choice = uniform_random_float() * ktot; // random number between [0,ktot[
 
 		if (choice < kd)
 		{
@@ -60,5 +60,19 @@ namespace Renderer
 			const float cosr = 1.f / std::abs(inbound_ray_dir.dot(hit_info.surfNormal));
 			return this->GetAlbedo(hit_info.UvCoord) * kt / ktot * cosr;
 		}
+	}
+
+	Eigen::Vector3f PhongMaterial::BSDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+		const HitInfo& hit_info)
+	{
+		//TODO: implement here
+		return Eigen::Vector3f::Zero();
+	}
+
+	float PhongMaterial::PDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+		const HitInfo& hit_info)
+	{
+		//TODO: implement here
+		return 0.f;
 	}
 }

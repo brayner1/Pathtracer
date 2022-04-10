@@ -9,10 +9,18 @@ namespace Renderer
 }
 
 // Random Numbers Generation Utilities Functions
-inline float uniform_random_01()
+inline float uniform_random_float(float min = 0, float max = 1.f)
 {
 	static thread_local std::mt19937 generator(Renderer::seed);
-	std::uniform_real_distribution<float> distribution(0.f, 1.f);
+	const std::uniform_real_distribution<float> distribution(min, max);
+
+	return distribution(generator);
+}
+
+inline int uniform_random_int(int min = 0, int max = 1)
+{
+	static thread_local std::mt19937 generator(Renderer::seed);
+	const std::uniform_int_distribution<int> distribution(min, max);
 
 	return distribution(generator);
 }
@@ -26,7 +34,7 @@ inline float uniform_random_01()
  */
 inline Eigen::Vector3f sample_hemisphere_vector_cosine(const Eigen::Vector3f& normal, const Eigen::Vector3f& u_vector)
 {
-	Eigen::Vector2f u_samples{ uniform_random_01(), uniform_random_01() };
+	Eigen::Vector2f u_samples{ uniform_random_float(), uniform_random_float() };
 	u_samples = 2.f * u_samples - Eigen::Vector2f{ 1.f , 1.f };
 
 	if (u_samples.x() == 0.f && u_samples.y() == 0.f)
@@ -57,8 +65,8 @@ inline Eigen::Vector3f sample_hemisphere_vector_cosine(const Eigen::Vector3f& no
 
 inline Eigen::Vector3f random_hemisphere_vector(const Eigen::Vector3f& Normal, const Eigen::Vector3f& U_vector)
 {
-	float theta = (uniform_random_01() * 2.0f * M_PI);
-	float r = uniform_random_01();
+	float theta = (uniform_random_float() * 2.0f * M_PI);
+	float r = uniform_random_float();
 	float sen_phi = sqrtf(1.0f - r * r);
 	float uFactor = cosf(theta) * sen_phi;
 	float vFactor = sinf(theta) * sen_phi;
@@ -78,7 +86,7 @@ inline Eigen::Vector3f RotateVector(Eigen::Affine3f& transform, Eigen::Vector3f&
 
 // Illumination Utilities Functions
 
-inline float FrDieletric(const float CosI, const float CosT, const float EtaI, const float EtaT, int x = 0, int y = 0)
+inline float FrDieletric(const float CosI, const float CosT, const float EtaI, const float EtaT)
 {
 	const float etaI_cosI = (EtaI * CosI);
 	const float etaT_cosT = (EtaT * CosT);

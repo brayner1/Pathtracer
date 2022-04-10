@@ -20,24 +20,32 @@ namespace Renderer
 
 		Material* mat = nullptr;
 		if (opacity < 1.f)
+		{
 			mat = new RefractiveMaterial(ConvertAssimpColor(diffuseColor), 1.45f);
+			//std::cout << "Creating refractive material\n";
+		}
 		else if (!specularColor.IsBlack())
+		{
 			mat = new GlossyMaterial(ConvertAssimpColor(diffuseColor));
+			//std::cout << "Creating Glossy material\n";
+		}
 		else
+		{
 			mat = new DiffuseMaterial(ConvertAssimpColor(diffuseColor));
+			//std::cout << "Creating Diffuse material\n";
+		}
 
 		// Load Textures
 		if (material->GetTextureCount(aiTextureType_DIFFUSE))
 		{
-			RGBTexture* diffTexture = LoadTexture(assimpScene, material, aiTextureType_DIFFUSE, 0);
-			if (diffTexture)
+			if (const RGBTexture* diffTexture = LoadTexture(assimpScene, material, aiTextureType_DIFFUSE, 0))
 				mat->SetAlbedoTexture(diffTexture);
 		}
 
 		return mat;
 	}
 
-	RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index)
+	const RGBTexture* LoadTexture(const aiScene* assimpScene, const aiMaterial* material, aiTextureType type, uint32_t index)
 	{
 		aiString path;
 		aiTextureMapping mapping;
@@ -52,7 +60,10 @@ namespace Renderer
 			}
 			else
 			{
-				return RGBTexture::LoadTextureFromFile(path.C_Str());
+				TextureManager& texManager = TextureManager::Get();
+				const uint32_t texture_index = texManager.LoadTexture(path.C_Str());
+				return texManager.GetTexture(texture_index);
+				return RGBTexture::LoadTexturePtrFromFile(path.C_Str());
 			}
 		}
 

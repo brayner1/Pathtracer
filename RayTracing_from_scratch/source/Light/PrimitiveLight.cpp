@@ -23,7 +23,8 @@ namespace Renderer
 
 		const float eFactor = primitivePoint.surfNormal.dot(-lightDirection);
 		Eigen::Vector3f lightIntensity = Eigen::Vector3f::Zero();
-		if (eFactor > 0.f) lightIntensity = (intensity * eFactor) / (distance * distance);
+		if (eFactor > 0.f) 
+			lightIntensity = (intensity * std::abs(eFactor)) / (distance * distance);
 
 		return lightIntensity;
 	}

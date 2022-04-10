@@ -8,9 +8,7 @@ namespace Renderer {
 	public:
 		Integrator(const int width = 512, const int height = 512, const bool useDenoiser = true) : Width(width), Height(height), bUseDenoiser(useDenoiser) {}
 
-		virtual void Render(Scene scene) = 0;
-
-
+		virtual void Integrate(const Scene& scene) = 0;
 
 
 		int Width, Height;
@@ -24,5 +22,7 @@ namespace Renderer {
 
 		void InitializeFramebuffer();
 	};
+
+	Eigen::Vector3f UniformSampleOneLight(const HitInfo& hit, const Scene& scene);
 
 }

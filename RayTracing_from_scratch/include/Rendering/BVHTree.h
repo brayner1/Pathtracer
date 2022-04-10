@@ -41,7 +41,7 @@ namespace Renderer
 		}
 
 		Eigen::AlignedBox3f Bounds;
-
+			
 		union
 		{
 			int SecondChildOffset;

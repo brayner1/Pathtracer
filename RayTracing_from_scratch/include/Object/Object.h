@@ -13,23 +13,22 @@ namespace Renderer {
 		const Object* obj = nullptr;
 		Material * Material = nullptr;
 
+		Eigen::Vector3f rayDir = Eigen::Vector3f::Zero();
 		Eigen::Vector3f Point = Eigen::Vector3f::Zero();
 		Eigen::Vector3f surfNormal = Eigen::Vector3f::Zero();
 		Eigen::Vector3f shadNormal = Eigen::Vector3f::Zero();
-		Eigen::Vector3f U_vector = Eigen::Vector3f::Zero(), V_vector = Eigen::Vector3f::Zero();
+		Eigen::Vector3f U_vector = Eigen::Vector3f::Zero();
 		Eigen::Vector2f UvCoord = Eigen::Vector2f::Zero();
 		float U_factor = 0.f, V_factor = 0.f, Distance = 0.f;
 		uint32_t primitiveIndex = 0;
-		int x = 0, y = 0, w = 0, h = 0;
 
 		void resetStruct()
 		{
 			obj = nullptr;
 			Material = nullptr;
-			Point = surfNormal = shadNormal = U_vector = V_vector = Eigen::Vector3f::Zero();
+			Point = surfNormal = shadNormal = U_vector = Eigen::Vector3f::Zero();
 			UvCoord = Eigen::Vector2f::Zero();
 			U_factor = V_factor = Distance = 0.0f;
-			x = y = w = h = 0;
 		}
 	};
 

@@ -48,6 +48,7 @@ namespace Renderer
 			std::string line;
 			std::getline(sdlFile, line);
 			std::istringstream lineStream {line};
+			command = "";
 			lineStream >> command;
 
 			if (command.starts_with("#"))
@@ -70,31 +71,33 @@ namespace Renderer
 						if (kt > 0.f && ks == 0.f && kd == 0.f)
 						{
 							mat = new RefractiveMaterial(objColor * kt, ior);
-							std::cout << "Refractive material created with color:\n" << mat->GetAlbedo() << std::endl;
+							//std::cout << "Refractive material created with color:\n" << objColor * kt << std::endl;
 						}
 						else if (ks > 0.f && kt == 0.f && kd == 0.f)
 						{
 							mat = new GlossyMaterial(objColor * ks);
-							std::cout << "Reflective material created with color:\n" << mat->GetAlbedo() << std::endl;
+							//std::cout << "Reflective material created with color:\n" << objColor * ks << std::endl;
 						}
 						else if (kd > 0.f && kt == 0.f && ks == 0.f)
 						{
 							mat = new DiffuseMaterial(objColor * kd);
-							std::cout << "Diffuse material created with color:\n" << mat->GetAlbedo() << std::endl;
+							//std::cout << "Diffuse material created with color:\n" << objColor * kd << std::endl;
 						}
 						else
 						{
 							mat = new PhongMaterial(objColor, kd, ks, kt, n, ior);
-							std::cout << "Phong material created with color:\n" << mat->GetAlbedo() << std::endl;
-							std::cout << "kd: " << kd << "\nks: " << ks << "\nkt: " << kt << "\nior: " << ior << "\n";
+							//std::cout << "Phong material created with color:\n" << objColor << std::endl;
+							//std::cout << "kd: " << kd << "\nks: " << ks << "\nkt: " << kt << "\nior: " << ior << "\n";
 						}
 
 						std::vector<Object*> insertedObjs = ConvertAssimpScene(assimpScene, outScene, mat);
-						std::cout << "Object loaded containing " << insertedObjs.size() << " meshes;\n";
+						uint32_t numTriangles = 0;
 						for (size_t i = 0; i < insertedObjs.size(); i++)
 						{
-							std::cout << "Mesh[" << i << "] triangles: " << insertedObjs[i]->GetPrimitiveCount() << std::endl;
+							numTriangles += insertedObjs[i]->GetPrimitiveCount();
 						}
+						std::cout << "Object loaded containing " << insertedObjs.size() << " meshes and " << numTriangles << " triangles;\n";
+						
 					}
 					else
 					{
@@ -167,17 +170,18 @@ namespace Renderer
 							mat = new DiffuseMaterial(lightColor);
 						}
 						std::vector<Object*> insertedObjects = ConvertAssimpScene(assimpScene, outScene, mat);
+						Eigen::Vector3f lColor = lightColor * lightIntensity;
 						for (Object* object : insertedObjects)
 						{
 							for (int i = 0; i < object->GetPrimitiveCount(); ++i)
 							{
-								Light* areaLight = new PrimitiveLight(lightColor * lightIntensity, object, i);
+								Light* areaLight = new PrimitiveLight(lColor, object, i);
 								outScene.InsertLight(areaLight);
 								object->SetPrimitiveLight(i, areaLight);
 								object->SetMaterial(nullptr);
-								std::cout << "Primitive light created with intensity: " << areaLight->GetColor().transpose() << std::endl;
 							}
 						}
+						std::cout << "Creating primitive light with intensity: " << (lColor).transpose() << std::endl;
 					}
 					else
 					{
@@ -199,7 +203,21 @@ namespace Renderer
 				{
 					Light* newLight = new PointLight(lightColor * lightIntensity, lightPosition);
 					outScene.InsertLight(newLight);
-					std::cout << "Added point light with intensity: " << newLight->GetColor().transpose() << std::endl;
+					std::cout << "Creating point light with intensity: " << newLight->GetColor().transpose() << std::endl;
+				}
+			}
+			else if (command == "directlight")
+			{
+				Eigen::Vector3f lightDirection;
+				Eigen::Vector3f lightColor;
+				float lightIntensity;
+				lineStream >> lightDirection.x() >> lightDirection.y() >> lightDirection.z() >> lightColor.x() >> lightColor.y() >> lightColor.z() >> lightIntensity;
+
+				if (lineStream)
+				{
+					Light* newLight = new DirectionLight(lightColor * lightIntensity, lightDirection);
+					outScene.InsertLight(newLight);
+					std::cout << "Creating direction light with intensity: " << newLight->GetColor().transpose() << std::endl;
 				}
 			}
 			else if (command == "eye")
@@ -231,6 +249,7 @@ namespace Renderer
 				if (lineStream)
 				{
 					horizontalFOV = horFOV;
+					std::cout << "Setting camera vertical FOV: " << horFOV << "º\n";
 				}
 			}
 			else if (command == "background")
@@ -242,6 +261,7 @@ namespace Renderer
 				if (lineStream)
 				{
 					outScene.SetSkyColor(backgroundColor);
+					std::cout << "Setting sky color: " << backgroundColor.transpose() << "\n";
 				}
 			}
 			else if (command == "npaths")
@@ -253,6 +273,7 @@ namespace Renderer
 				if (lineStream)
 				{
 					inputOptions.samplesPerPixel = numSamples;
+					std::cout << "Setting samples per pixel: " << numSamples << "\n";
 				}
 			}
 			else if (command == "size")
@@ -265,6 +286,8 @@ namespace Renderer
 				{
 					inputOptions.width = width;
 					inputOptions.height = height;
+
+					std::cout << "Setting output image size to: " << width << " x " << height << "\n";
 				}
 			}
 			else if (command == "seed")
@@ -279,16 +302,16 @@ namespace Renderer
 					std::cout << "Setting rendering seed to: " << seed << std::endl;
 				}
 			}
-			else if (command == "tonemapping")
+			else if (command == "exposure")
 			{
-				float tonemapping;
+				float exposure;
 
-				lineStream >> tonemapping;
+				lineStream >> exposure;
 
 				if (lineStream)
 				{
-					inputOptions.tonemapping = std::abs(tonemapping);
-					std::cout << "Setting tonemapping value to: " << tonemapping << std::endl;
+					inputOptions.exposure = std::abs(exposure);
+					std::cout << "Setting exposure value to: " << exposure << std::endl;
 				}
 			}
 			else if (command == "gamma")
@@ -303,6 +326,11 @@ namespace Renderer
 					std::cout << "Setting gamma to: " << gamma << std::endl;
 				}
 			}
+			else if (command == "usedenoiser")
+			{
+				inputOptions.useDenoiser = true;
+				std::cout << "Setting denoiser ON.\n";
+			}
 			else if (command == "output")
 			{
 				std::string outputFile;
@@ -312,6 +340,8 @@ namespace Renderer
 				if (lineStream)
 				{
 					inputOptions.outputFileName = outputFile;
+
+					std::cout << "Setting output file name to \"" << inputOptions.outputFileName.value() << "\"\n";
 				}
 			}
 
@@ -327,6 +357,9 @@ namespace Renderer
 		camera.LookAt(cameraTarget);
 
 		outScene.SetCamera(camera);
+
+		std::cout << "Num Lights: " << outScene.GetLights().size() << "\n";
+		std::cout << "Num Textures: " << TextureManager::Get().GetNumberOfTexturesLoaded() << "\n";
 
 		return inputOptions;
 	}

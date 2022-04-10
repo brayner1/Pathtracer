@@ -25,7 +25,7 @@ namespace Renderer {
 		Eigen::Vector3f ambient_color;
 		float reflectivity, glossiness, roughness;*/
 
-		RGBTexture* albedoTexture = nullptr;
+		const RGBTexture* albedoTexture = nullptr;
 		bool useAlbedoTexture = false;
 
 	public:
@@ -38,15 +38,17 @@ namespace Renderer {
 		~Material();
 
 		virtual Eigen::Vector3f SampleBSDF(const Eigen::Vector3f& outgoing_ray, const HitInfo& hit_info, Eigen::Vector3f& inbound_ray, float& pdf, eSampleType& sampled_type) = 0;
+		virtual Eigen::Vector3f BSDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray, const HitInfo& hit_info) = 0;
+
+		virtual float PDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray, const HitInfo& hit_info) = 0;
 
 		virtual float GetIor() const { return 0.f; }
 
-		const Eigen::Vector3f GetAlbedo() const;
-		Eigen::Vector3f GetAlbedo(const float& u, const float& v) const;
+		Eigen::Vector3f GetAlbedo(const float u, const float v) const;
 		Eigen::Vector3f GetAlbedo(const Eigen::Vector2f& UV) const;
 		void SetAlbedo(Eigen::Vector3f DiffuseColor);
 	
-		void SetAlbedoTexture(RGBTexture* texture);
+		void SetAlbedoTexture(const RGBTexture* texture);
 
 		const Eigen::Vector3f GetTextureColorUV(float u, float v) const;
 	};

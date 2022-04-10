@@ -18,3 +18,15 @@ Eigen::Vector3f DiffuseMaterial::SampleBSDF(const Eigen::Vector3f& outgoing_ray_
 
 	return this->GetAlbedo(hit_info.UvCoord) * M_1_PI;
 }
+
+Eigen::Vector3f DiffuseMaterial::BSDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+	const HitInfo& hit_info)
+{
+	return this->GetAlbedo(hit_info.UvCoord) * M_1_PI;
+}
+
+float DiffuseMaterial::PDF(const Eigen::Vector3f& outoing_ray, const Eigen::Vector3f& inbound_ray,
+	const HitInfo& hit_info)
+{
+	return (outoing_ray.dot(inbound_ray) > 0) ? abs(inbound_ray.dot(hit_info.surfNormal)) * M_1_PI : 0.f;
+}

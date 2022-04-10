@@ -13,7 +13,7 @@ namespace Renderer
 		std::optional<uint32_t> maxDepth = std::nullopt;
 		std::optional<float> horizontalFOV = std::nullopt;
 		std::optional<float> gamma = std::nullopt;
-		std::optional<float> tonemapping = std::nullopt;
+		std::optional<float> exposure = std::nullopt;
 		std::optional<bool> useDenoiser = std::nullopt;
 		std::optional<std::string> outputFileName = std::nullopt;
 	};
@@ -52,7 +52,7 @@ namespace Renderer
 		std::string outFile = "output";
 		
 		float gamma = 2.2f;
-		float tonemapping = 0.f;
+		float exposure = 1.f;
 		uint32_t width = 512, height = 512;
 		uint32_t samplesPerPixel = 256;
 		uint32_t maxDepth = 8;

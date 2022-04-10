@@ -87,6 +87,14 @@ namespace Renderer
 
 			if (bounces == 0 || specularBounce)
 			{
+				// Save hit albedo and normal on the output if is the first ray
+				if (bounces == 0)
+				{
+					outProperties.albedo = (hit.Material) ? hit.Material->GetAlbedo(hit.UvCoord) : Eigen::Vector3f::Zero();
+					outProperties.normal = hit.shadNormal;
+				}
+
+				// Compute emission color for first ray or specular bounce
 				Light* primLight = hit.obj->GetPrimitiveLight(hit.primitiveIndex);
 				if (primLight)
 				{
@@ -109,7 +117,8 @@ namespace Renderer
 
 			if (!hit.Material) break;
 
-			const Eigen::Vector3f& outRay = -ray.getDirection();
+			const Eigen::Vector3f outRay = -ray.getDirection();
+			hit.rayDir = outRay;
 			Eigen::Vector3f inboundRayDir{};
 			float pdf = 0.f;
 			eSampleType sampledType;
@@ -117,21 +126,24 @@ namespace Renderer
 			const Eigen::Vector3f materialF = hit.Material->SampleBSDF(outRay, hit, inboundRayDir, pdf, sampledType);
 			if (materialF.isZero() || pdf == 0.f) break;
 
-			if ((sampledType & (BSDF_ALL & ~BSDF_SPECULAR)) == sampledType)
+			if ((sampledType & (BSDF_ALL & ~BSDF_SPECULAR)) == sampledType && scene_lights.size() > 0)
 			{
 				Eigen::Vector3f Li { 0.f, 0.f, 0.f };
-				for (const Light* light : scene_lights)
-				{
-					float lightPdf = 0.f;
-					Eigen::Vector3f lightDir = Eigen::Vector3f::Zero();
-					const Eigen::Vector3f lightInt = light->SampleLightIntensity(*this, hit, lightDir, lightPdf);
-					if (!lightInt.isZero() && lightPdf > 0.f)
-						Li += (lightInt * std::abs(lightDir.dot(hit.shadNormal))) / lightPdf;
-				}
-				L += (beta.array() * Li.array() * materialF.array()).matrix();
+				Li = UniformSampleOneLight(hit, *this);
+				//int light_idx = uniform_random_int(0, scene_lights.size() - 1);
+				//const Light* light = scene_lights[light_idx];
+				////for (const Light* light : scene_lights)
+				//{
+				//	float lightPdf = 0.f;
+				//	Eigen::Vector3f lightDir = Eigen::Vector3f::Zero();
+				//	const Eigen::Vector3f lightInt = light->SampleLightIntensity(*this, hit, lightDir, lightPdf);
+				//	if (!lightInt.isZero() && lightPdf > 0.f)
+				//		Li += (scene_lights.size() * lightInt * abs(lightDir.dot(hit.shadNormal))) / lightPdf;
+				//}
+				L += (beta.array() * Li.array()).matrix();
 			}
 
-			beta.array() *= (materialF.array() * std::abs(inboundRayDir.dot(hit.shadNormal))) / pdf;
+			beta.array() *= (materialF.array() * abs(inboundRayDir.dot(hit.shadNormal))) / pdf;
 
 			ray = {hit.Point, inboundRayDir};
 			specularBounce = (sampledType & BSDF_SPECULAR) != 0;
@@ -144,9 +156,9 @@ namespace Renderer
 			}
 
 			Eigen::Vector3f rrBeta = beta * etaScale;
-	        if (rrBeta.maxCoeff() < 0.5f && bounces > 3) {
+	        if (rrBeta.maxCoeff() < 0.8f && bounces > 3) {
 	            float q = std::max(.05f, 1 - rrBeta.maxCoeff());
-	            if (uniform_random_01() < q) break;
+	            if (uniform_random_float() < q) break;
 	            beta /= 1 - q;
 	            assert(!std::isinf(beta.y()));
 	        }
@@ -160,14 +172,17 @@ namespace Renderer
 		this->renderingMaxDepth = maxDepth;
 
 		Eigen::Vector3f pixelColor {0.0f, 0.0f, 0.0f};
+		OutputProperties output;
 		for (int i = 0; i< nSamples; i++)
 		{
 			const Eigen::Vector3f rDirection = this->scene_camera.GetRayDirection(x + 0.5f, y + 0.5f);
 			Ray camRay = Ray(this->scene_camera.GetPosition(), rDirection, 0);
-			pixelColor += PathTrace(camRay, OP) / nSamples;
+			pixelColor += PathTrace(camRay, output) / nSamples;
+			OP.albedo += output.albedo;
+			OP.normal += output.normal;
 		}
-		//OP.Albedo /= nSamples;
-		//OP.surfNormal /= nSamples;
+		OP.albedo /= nSamples;
+		OP.normal /= nSamples;
 		OP.color = pixelColor.array();// / (pixelColor.array() + Eigen::Array3f::Ones());// / nSamples;
 	}
 

@@ -11,6 +11,9 @@ namespace Renderer {
 		~Light() = default;
 
 		virtual Eigen::Vector3f SampleLightIntensity(const Scene& scene, const HitInfo& hit, Eigen::Vector3f& lightDirection, float& pdf) const = 0;
+
+		[[nodiscard]]
+		bool IsDeltaLight() const { return isDeltaLight; }
 		
 
 		void SetColor(const Eigen::Vector3f& Color);
@@ -28,5 +31,7 @@ namespace Renderer {
 		Eigen::Vector3f intensity = Eigen::Vector3f::Zero();
 		Eigen::Vector3f position = Eigen::Vector3f::Zero();
 		Eigen::Affine3f transform = Eigen::Affine3f::Identity();
+
+		bool isDeltaLight = false;
 	};
 }

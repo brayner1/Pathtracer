@@ -260,3 +260,9 @@ paket-files/
 __pycache__/
 *.pyc
 *.exe
+
+# CMake output folder
+/out/
+
+# Assets folder
+/Assets/

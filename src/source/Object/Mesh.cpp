@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Object/Mesh.h"
-#include <vector>
-#include <Eigen/src/Geometry/AlignedBox.h>
 #include "RenderHeaders.h"
 
 using namespace Renderer;

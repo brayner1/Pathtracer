@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-#include <Eigen/src/Geometry/AlignedBox.h>
 #include "Object/Object.h"
 
 namespace Renderer {

@@ -1,11 +1,4 @@
 #pragma once
-#include <iosfwd>
-#include <iosfwd>
-#include <vector>
-#include <vector>
-#include <Eigen/src/Geometry/AlignedBox.h>
-#include <Eigen/src/Geometry/AlignedBox.h>
-
 #include "Object/Object.h"
 #include "Shading/Material.h"
 

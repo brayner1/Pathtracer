@@ -1,5 +1,6 @@
-﻿#pragma once
-#include "Light.h"
+﻿#ifndef PTracer_PrimitiveLight_h
+#define PTracer_PrimitiveLight_h
+  #include "Light.h"
 
 namespace Renderer
 {
@@ -17,3 +18,5 @@ namespace Renderer
 	};
 
 }
+
+#endif

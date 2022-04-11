@@ -1,5 +1,6 @@
-#pragma once
-#include "Object/Object.h"
+#ifndef PTracer_Mesh_h
+#define PTracer_Mesh_h
+  #include "Object/Object.h"
 
 namespace Renderer {
 	class Mesh final :
@@ -44,3 +45,5 @@ namespace Renderer {
 		float PrimitiveSamplePDF(uint32_t primitiveIndex) const override;
 	};
 }
+
+#endif

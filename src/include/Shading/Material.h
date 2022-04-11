@@ -1,6 +1,5 @@
-#pragma once
-
-//#include "Object.h"
+#ifndef PTracer_Material_h
+#define PTracer_Material_h
 namespace Renderer {
 	class Scene;
 	class RGBTexture;
@@ -70,3 +69,5 @@ namespace Renderer {
 	}
 
 }
+
+#endif

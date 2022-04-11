@@ -1,5 +1,6 @@
-#pragma once
-#include "Object/Object.h"
+#ifndef PTracer_GroundPlane_h
+#define PTracer_GroundPlane_h
+  #include "Object/Object.h"
 #include "Shading/Material.h"
 
 namespace Renderer {
@@ -28,3 +29,5 @@ namespace Renderer {
 		}
 	};
 }
+
+#endif

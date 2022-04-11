@@ -1,7 +1,7 @@
-﻿#pragma once
+﻿#ifndef PTracer_AssimpUtils_h
+#define PTracer_AssimpUtils_h
 #include <iosfwd>
 #include <vector>
-
 #include "Object/Object.h"
 
 struct aiScene;
@@ -66,3 +66,4 @@ namespace Renderer
 	}
 
 }
+#endif

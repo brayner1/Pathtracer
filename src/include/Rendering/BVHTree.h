@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_BVHTree_h
+#define PTracer_BVHTree_h
 #include "Rendering/NodeHierarchy.h"
 
 namespace Renderer
@@ -83,3 +84,5 @@ namespace Renderer
 	};
 
 }
+
+#endif

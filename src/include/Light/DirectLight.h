@@ -1,12 +1,13 @@
-#pragma once
+#ifndef PTracer_DirectLight_h
+#define PTracer_DirectLight_h
 #include "Light.h"
 namespace Renderer
 {
-	class DirectionLight :
+	class DirectLight :
 	public Light
 	{
 	public:
-		explicit DirectionLight(const Eigen::Vector3f& color, const Eigen::Vector3f& direction)
+		explicit DirectLight(const Eigen::Vector3f& color, const Eigen::Vector3f& direction)
 			: Light(color), direction(direction)
 		{
 			isDeltaLight = true;
@@ -20,3 +21,5 @@ namespace Renderer
 	};
 }
 
+
+#endif

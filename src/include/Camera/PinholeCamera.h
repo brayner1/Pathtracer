@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_PinholeCamera_h
+#define PTracer_PinholeCamera_h
 #include "Object/Object.h"
 
 namespace Renderer {
@@ -56,3 +57,4 @@ namespace Renderer {
 	};
 }
 
+#endif

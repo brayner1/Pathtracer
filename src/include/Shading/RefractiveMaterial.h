@@ -1,6 +1,5 @@
-#pragma once
-#ifndef MATERIAL_REFRACTIVE
-#define MATERIAL_REFRACTIVE
+#ifndef Ptracer_RefractiveMaterial_h
+#define Ptracer_RefractiveMaterial_h
 #include "Shading/Material.h"
 namespace Renderer {
 	class RefractiveMaterial :

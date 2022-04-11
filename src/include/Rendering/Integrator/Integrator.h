@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_Integrator_h
+#define PTracer_Integrator_h
 #include "Rendering/Scene.h"
 
 namespace Renderer {
@@ -26,3 +27,5 @@ namespace Renderer {
 	Eigen::Vector3f UniformSampleOneLight(const HitInfo& hit, const Scene& scene);
 
 }
+
+#endif

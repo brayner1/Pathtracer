@@ -1,6 +1,5 @@
-#pragma once
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef PTracer_RGBTexture_h
+#define PTracer_RGBTexture_h
 
 namespace Renderer {
 	class RGBTexture

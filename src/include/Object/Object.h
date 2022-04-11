@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef PTracer_Object_h
+#define PTracer_Object_h
 #include "Rendering/Ray.h"
 #include "Shading/Material.h"
 

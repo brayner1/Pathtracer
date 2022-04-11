@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_FlatTree_h
+#define PTracer_FlatTree_h
 #include "Rendering/NodeHierarchy.h"
 
 namespace Renderer
@@ -24,3 +25,4 @@ namespace Renderer
 
 
 }
+#endif

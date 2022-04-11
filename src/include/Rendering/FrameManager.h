@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_FrameManager_h
+#define PTracer_FrameManager_h
 #include "Rendering/Scene.h"
 #include <optional>
 
@@ -70,3 +71,5 @@ namespace Renderer
 		void ExecuteDenoiser();
 	};
 }
+
+#endif

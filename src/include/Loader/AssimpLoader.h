@@ -1,5 +1,6 @@
-#pragma once
-#include "Rendering/Scene.h"
+#ifndef PTracer_AssimpLoader_h
+#define PTracer_AssimpLoader_h
+  #include "Rendering/Scene.h"
 
 namespace Renderer {
 	class AssimpLoader
@@ -12,3 +13,5 @@ namespace Renderer {
 
 
 }
+
+#endif

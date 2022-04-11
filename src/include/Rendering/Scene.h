@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PTracer_Scene_h
+#define PTracer_Scene_h
+
 #include "Object/Object.h"
 #include "Light/Light.h"
 #include "Camera/PinholeCamera.h"
@@ -49,3 +51,5 @@ namespace Renderer {
 		uint32_t GetNumberOfTriangles();
 	};
 }
+
+#endif

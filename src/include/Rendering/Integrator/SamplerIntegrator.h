@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_SamplerIntegrator_h
+#define PTracer_SamplerIntegrator_h
 #include "Rendering/Integrator/Integrator.h"
 
 namespace Renderer
@@ -19,3 +20,5 @@ namespace Renderer
     };
 
 }
+
+#endif

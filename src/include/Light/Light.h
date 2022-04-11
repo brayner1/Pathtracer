@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_Light_h
+#define PTracer_Light_h
 #include "Object/Object.h"
 
 namespace Renderer {
@@ -35,3 +36,5 @@ namespace Renderer {
 		bool isDeltaLight = false;
 	};
 }
+
+#endif

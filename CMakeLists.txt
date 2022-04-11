@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(PTracer_HEADER_FILES 
 # ------------ Header Files ------------
+# Threading header files
+#"src/include/Threading/ThreadingManager.h"
 # Objects header files
 "src/include/Object/Object.h"
 "src/include/Object/Mesh.h"
@@ -24,10 +26,10 @@ set(PTracer_HEADER_FILES
 "src/include/Rendering/Scene.h"
 "src/include/Rendering/FrameManager.h"
 "src/include/Rendering/Integrator/Integrator.h"
-"src/include/Rendering/Integrator/SamplerIntegrator.h"
+#"src/include/Rendering/Integrator/SamplerIntegrator.h"
 # Lights header files
 "src/include/Light/Light.h"
-"src/include/Light/DirectionLight.h"
+"src/include/Light/DirectLight.h"
 "src/include/Light/PointLight.h"
 "src/include/Light/PrimitiveLight.h"
 # Shading header files
@@ -42,12 +44,16 @@ set(PTracer_HEADER_FILES
 "src/include/Loader/AssimpUtils.h"
 "src/include/Loader/AssimpLoader.h"
 "src/include/Loader/SDLLoader.h"
+# Renderheaders
+"src/include/RenderHeaders.h"
 # PCH
 "src/include/pch.h"
 )
 
 set(PTracer_SOURCE_FILES
 # ------------ Source Files ------------
+# Threading source files
+#"src/source/Threading/ThreadingManager.cpp"
 # Objects source files
 "src/source/Object/Object.cpp"
 "src/source/Object/Mesh.cpp"
@@ -64,7 +70,7 @@ set(PTracer_SOURCE_FILES
 #"src/source/Rendering/Integrator/SamplerIntegrator.cpp"
 # Lights source files
 "src/source/Light/Light.cpp"
-"src/source/Light/DirectionLight.cpp"
+"src/source/Light/DirectLight.cpp"
 "src/source/Light/PointLight.cpp"
 "src/source/Light/PrimitiveLight.cpp"
 # Shading source files
@@ -83,6 +89,7 @@ set(PTracer_SOURCE_FILES
 "src/source/pch.cpp"
 )
 
+#source_group(Threading REGULAR_EXPRESSION "src/(source|include)/Threading/.*")
 source_group(Objects REGULAR_EXPRESSION "src/(source|include)/Object/.*")
 source_group(Cameras REGULAR_EXPRESSION "src/(source|include)/Camera/.*")
 source_group(Lights REGULAR_EXPRESSION "src/(source|include)/Light/.*")
@@ -113,7 +120,7 @@ foreach(dir IN LISTS PTracer_INCLUDE_DIRS)
 	message(${dir})
 endforeach()
 
-target_precompile_headers(PTracer PUBLIC 
+target_precompile_headers(PTracer PRIVATE 
 	src/include/pch.h
 )
 
@@ -147,7 +154,8 @@ target_link_libraries(PTracer ${ASSIMP_LIB} ${OIDN_LIB} ${TBB_LIB} ${TBBMALLOC_L
 get_target_property(PTracer_LINK_LIBRARIES PTracer LINK_LIBRARIES)
 message("Linked libraries: " ${PTracer_LINK_LIBRARIES})
 
-#set(CMAKE_CXX_FLAGS_RELEASE "/O3" )
+# Currently, I have only set the compilation flags for MSVC compiler. 
+# Will focus on bringing other compiling systems after restructuring part of the multithreading system 
 if (MSVC)
 	target_compile_options(PTracer PUBLIC /Ox /Oi /W3 /arch:AVX2 /openmp)
 endif()

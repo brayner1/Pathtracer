@@ -1,5 +1,6 @@
-#pragma once
-namespace Renderer {
+#ifndef Ptracer_Ray_h
+#define Ptracer_Ray_h
+  namespace Renderer {
 	class Ray
 	{
 	private:
@@ -28,3 +29,5 @@ namespace Renderer {
 	};
 
 }
+
+#endif

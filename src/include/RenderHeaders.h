@@ -1,9 +1,11 @@
-#pragma once
+#ifndef PTracer_RenderHeader_h
+#define PTracer_RenderHeader_h
 
+//#include "Threading/ThreadingManager.h"
 #include "Loader/AssimpLoader.h"
 #include "Loader/SDLLoader.h"
 #include "Light/Light.h"
-#include "Light/DirectionLight.h"
+#include "Light/DirectLight.h"
 #include "Light/PointLight.h"
 #include "Light/PrimitiveLight.h"
 #include "Camera/PinholeCamera.h"
@@ -15,6 +17,7 @@
 #include "Rendering/NodeHierarchy.h"
 #include "Rendering/FlatTree.h"
 #include "Rendering/BVHTree.h"
+#include "Rendering/RenderingUtils.h"
 #include "Object/Object.h"
 #include "Object/GroundPlane.h"
 #include "Object/Mesh.h"
@@ -29,9 +32,10 @@
 
 #include "OpenImageDenoise/oidn.hpp"
 #include "RandUtil.h"
-//#define GammaCorrection
 #define paralellism
 //#define Debug
+
+#endif
 
 
 //using namespace Eigen;

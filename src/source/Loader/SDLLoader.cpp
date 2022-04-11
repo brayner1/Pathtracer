@@ -215,7 +215,7 @@ namespace Renderer
 
 				if (lineStream)
 				{
-					Light* newLight = new DirectionLight(lightColor * lightIntensity, lightDirection);
+					Light* newLight = new DirectLight(lightColor * lightIntensity, lightDirection);
 					outScene.InsertLight(newLight);
 					std::cout << "Creating direction light with intensity: " << newLight->GetColor().transpose() << std::endl;
 				}

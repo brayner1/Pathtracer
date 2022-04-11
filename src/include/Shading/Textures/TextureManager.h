@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PTracer_TextureManager_h
+#define PTracer_TextureManager_h
 #include <unordered_map>
 #include <vector>
 #include "RGBTexture.h"
@@ -40,3 +41,5 @@ namespace Renderer
 	};
 }
 
+
+#endif

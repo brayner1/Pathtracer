@@ -1,6 +1,5 @@
-#pragma once
-#ifndef MATERIAL_GLOSSY
-#define MATERIAL_GLOSSY
+#ifndef PTracer_GlossyMaterial_h
+#define PTracer_GlossyMaterial_h
 #include "Shading/Material.h"
 namespace Renderer {
 	class GlossyMaterial :

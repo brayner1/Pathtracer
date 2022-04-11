@@ -1,5 +1,6 @@
-﻿#pragma once
-#include "Object/Object.h"
+﻿#ifndef PTracer_PointLight_h
+#define PTracer_PointLight_h
+  #include "Object/Object.h"
 #include "Light/Light.h"
 
 namespace Renderer
@@ -23,3 +24,5 @@ namespace Renderer
 	};
 
 }
+
+#endif

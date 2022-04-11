@@ -1,5 +1,6 @@
-﻿#pragma once
-#include "Shading/Material.h"
+﻿#ifndef PTracer_PhongMaterial_h
+#define PTracer_PhongMaterial_h
+  #include "Shading/Material.h"
 
 namespace Renderer
 {
@@ -23,3 +24,5 @@ namespace Renderer
 	};
 
 }
+
+#endif

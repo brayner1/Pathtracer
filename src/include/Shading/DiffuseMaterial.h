@@ -1,5 +1,5 @@
-#ifndef MATERIAL_DIFFUSE
-#define MATERIAL_DIFFUSE
+#ifndef PTracer_DiffuseMaterial_h
+#define PTracer_DiffuseMaterial_h
 #include "Shading/Material.h"
 namespace Renderer {
 	class DiffuseMaterial :

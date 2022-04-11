@@ -84,24 +84,6 @@ inline Eigen::Vector3f RotateVector(Eigen::Affine3f& transform, Eigen::Vector3f&
 	return transform.linear() * vector;
 }
 
-// Illumination Utilities Functions
-
-inline float FrDieletric(const float CosI, const float CosT, const float EtaI, const float EtaT)
-{
-	const float etaI_cosI = (EtaI * CosI);
-	const float etaT_cosT = (EtaT * CosT);
-	const float rPerp = (etaI_cosI - etaT_cosT) / (etaI_cosI + etaT_cosT);
-
-	const float etaT_cosI = (EtaT * CosI);
-	const float etaI_cosT = (EtaI * CosT);
-	const float rParl = (etaT_cosI - etaI_cosT) / (etaT_cosI + etaI_cosT);
-
-	return (rParl * rParl + rPerp * rPerp) / 2.0f;
-	/*float Rperp = ((EtaI * CosI) - (EtaT * CosT)) / ((EtaI * CosI) + (EtaT * CosT));
-	float Rparl = ((EtaT * CosI) - (EtaI * CosT)) / ((EtaT * CosI) + (EtaI * CosT));
-
-	return (Rparl * Rparl + Rperp * Rperp) / 2.0f;*/
-}
 
 
 // Bounding Box Utilities Functions

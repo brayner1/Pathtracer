@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "Light/DirectionLight.h"
+#include "Light/DirectLight.h"
 
 using namespace Renderer;
 
-Eigen::Vector3f DirectionLight::SampleLightIntensity(const Scene& scene, const HitInfo& hit,
+Eigen::Vector3f DirectLight::SampleLightIntensity(const Scene& scene, const HitInfo& hit,
 	Eigen::Vector3f& lightDirection, float& pdf) const
 {
 	const Ray lightRay { hit.Point, -direction };

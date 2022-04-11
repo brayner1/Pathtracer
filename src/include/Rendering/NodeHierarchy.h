@@ -1,5 +1,6 @@
-#pragma once
-#include "Rendering/Ray.h"
+#ifndef PTracer_NodeHierarchy_h
+#define PTracer_NodeHierarchy_h
+  #include "Rendering/Ray.h"
 #include "Object/Object.h"
 
 namespace Renderer
@@ -23,3 +24,5 @@ namespace Renderer
 
 	};
 }
+
+#endif

@@ -1,7 +1,7 @@
 #ifndef PTracer_RenderHeader_h
 #define PTracer_RenderHeader_h
 
-//#include "Threading/ThreadingManager.h"
+#include "Threading/Threading.h"
 #include "Loader/AssimpLoader.h"
 #include "Loader/SDLLoader.h"
 #include "Light/Light.h"

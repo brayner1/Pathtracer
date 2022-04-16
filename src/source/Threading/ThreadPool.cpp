@@ -1,0 +1,97 @@
+#include "pch.h"
+#include "Threading/ThreadPool.h"
+#include "Threading/Work.h"
+
+namespace Renderer::threading
+{
+	ThreadPool::ThreadPool() : ThreadPool(std::thread::hardware_concurrency() - 1)
+	{
+
+	}
+
+	ThreadPool::ThreadPool(size_t num_threads) : m_runningThreads(0)
+	{
+		// Pre-allocate the pool
+		m_workerThreads.reserve(num_threads);
+
+		for (int i = 0; i < num_threads; ++i)
+		{
+			// Create worker threads
+			m_workerThreads.emplace_back(&ThreadPool::WorkerThreadFunc, this, i + 1);
+		}
+
+		m_initialized = true;
+	}
+
+	ThreadPool::~ThreadPool()
+	{
+		// Indicate that worker threads should stop
+		m_stopWorkerThreads = true;
+		// Notify sleeping worker threads
+		m_workReadyCondition.notify_all();
+		// Join all the threads with the main thread.
+		for (std::thread& thread : m_workerThreads)
+		{
+			if (thread.joinable())
+				thread.join();
+		}
+	}
+
+	void ThreadPool::QueueCustomWork(std::shared_ptr<Work> work)
+	{
+		std::lock_guard queueLock (m_workQueueMutex);
+		m_workQueue.emplace_back(std::move(work));
+
+		m_workReadyCondition.notify_all();
+	}
+
+	void ThreadPool::QueueCustomWorkAndHelp(std::shared_ptr<Work> work)
+	{
+		if (!work->MultiThreadedWork())
+		{
+			work->Execute();
+			return;
+		}
+
+		{
+			std::lock_guard queueLock (m_workQueueMutex);
+
+			m_workQueue.emplace_back(std::move(work));
+
+			m_workReadyCondition.notify_all();
+		}
+
+		// TODO: If there are other works in the queue, the main thread may end up running all the work. Check a fix for this.
+		while (!work->Finished())
+		{
+			work->Execute();
+		}
+	}
+
+	void ThreadPool::WorkerThreadFunc(size_t thread_idx)
+	{
+		while (!m_stopWorkerThreads)
+		{
+			std::unique_lock lock(m_workQueueMutex);
+			if (m_workQueue.empty())
+			{
+				m_workReadyCondition.wait(lock);
+			}
+			else
+			{
+				const std::shared_ptr<Work> work = m_workQueue.front();
+
+				// Remove the Work from the queue if the Work will finish after the next 'Execute' call.
+				// It is not removed from the queue if the Work will require more processing after that.
+				if (work->WillFinishOnNextExecute())
+					m_workQueue.pop_front();
+
+				lock.unlock();
+
+				work->Execute();
+
+				lock.lock();
+			}
+		}
+	}
+}

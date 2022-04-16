@@ -12,6 +12,10 @@ set(PTracer_HEADER_FILES
 # ------------ Header Files ------------
 # Threading header files
 #"src/include/Threading/ThreadingManager.h"
+"src/include/Threading/Barrier.h" 
+"src/include/Threading/ThreadPool.h" 
+"src/include/Threading/Threading.h"
+"src/include/Threading/Work.h"
 # Objects header files
 "src/include/Object/Object.h"
 "src/include/Object/Mesh.h"
@@ -54,6 +58,7 @@ set(PTracer_SOURCE_FILES
 # ------------ Source Files ------------
 # Threading source files
 #"src/source/Threading/ThreadingManager.cpp"
+"src/source/Threading/ThreadPool.cpp"
 # Objects source files
 "src/source/Object/Object.cpp"
 "src/source/Object/Mesh.cpp"
@@ -89,7 +94,7 @@ set(PTracer_SOURCE_FILES
 "src/source/pch.cpp"
 )
 
-#source_group(Threading REGULAR_EXPRESSION "src/(source|include)/Threading/.*")
+source_group(Threading REGULAR_EXPRESSION "src/(source|include)/Threading/.*")
 source_group(Objects REGULAR_EXPRESSION "src/(source|include)/Object/.*")
 source_group(Cameras REGULAR_EXPRESSION "src/(source|include)/Camera/.*")
 source_group(Lights REGULAR_EXPRESSION "src/(source|include)/Light/.*")
@@ -105,7 +110,8 @@ ${PTracer_HEADER_FILES}
 ${PTracer_SOURCE_FILES}
 )
 
-target_link_libraries(PTracer )
+# Definition used by the StructLayout VS 2019 extension.
+target_compile_definitions(PTracer PRIVATE CMAKE_EXPORT_COMPILE_COMMANDS)
 
 target_include_directories(PTracer PUBLIC 
 	src/include

@@ -45,8 +45,8 @@ namespace Renderer::threading
 
 		void WorkerThreadFunc(size_t thread_idx);
 
-		std::list<std::shared_ptr<Work>> m_workQueue;
-		std::vector<std::thread> m_workerThreads;
+		std::list<std::shared_ptr<Work>> m_workQueue{};
+		std::vector<std::thread> m_workerThreads{};
 
 		size_t m_runningThreads;
 

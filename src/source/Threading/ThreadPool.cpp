@@ -9,8 +9,9 @@ namespace Renderer::threading
 
 	}
 
-	ThreadPool::ThreadPool(size_t num_threads) : m_runningThreads(0)
+	ThreadPool::ThreadPool(size_t num_threads) : m_runningThreads(0), m_workerThreads(), m_workQueue()
 	{
+		std::cout << "Creating ThreadPool with " << num_threads << "threads\n";
 		// Pre-allocate the pool
 		m_workerThreads.reserve(num_threads);
 
@@ -61,11 +62,13 @@ namespace Renderer::threading
 			m_workReadyCondition.notify_all();
 		}
 
-		// TODO: If there are other works in the queue, the main thread may end up running all the work. Check a fix for this.
+		// TODO: If there are other works in the queue, the main thread may end up running all the work. Is this the best approach?
 		while (!work->Finished())
 		{
 			work->Execute();
 		}
+
+		work->m_finishedCondition.notify_all();
 	}
 
 	void ThreadPool::WorkerThreadFunc(size_t thread_idx)
@@ -75,22 +78,32 @@ namespace Renderer::threading
 			std::unique_lock lock(m_workQueueMutex);
 			if (m_workQueue.empty())
 			{
-				m_workReadyCondition.wait(lock);
+				m_workReadyCondition.wait(lock/*, [&]{ return !m_workQueue.empty();  }*/);
 			}
 			else
 			{
 				const std::shared_ptr<Work> work = m_workQueue.front();
 
+				bool isRemoved = false;
 				// Remove the Work from the queue if the Work will finish after the next 'Execute' call.
 				// It is not removed from the queue if the Work will require more processing after that.
 				if (work->WillFinishOnNextExecute())
+				{
+					isRemoved = true;
 					m_workQueue.pop_front();
+				}
 
 				lock.unlock();
 
 				work->Execute();
 
 				lock.lock();
+
+				if (work->Finished())
+				{
+					work->m_finishedCondition.notify_all();
+					m_workReadyCondition.notify_all();
+				}
 			}
 		}
 	}
